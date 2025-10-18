@@ -1,0 +1,80 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum PaymentFrequency {
+  quinzenal
+  mensal
+}
+
+enum PaymentStatus {
+  pendente
+  pago
+  atrasado
+}
+
+model Client {
+  id          String   @id @default(uuid())
+  name        String
+  phone       String?
+  referredBy  String?  @map("referred_by")
+  observation String?  @db.Text
+  address     String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  sales Sale[]
+
+  @@map("clients")
+}
+
+model Product {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("products")
+}
+
+model Sale {
+  id                String           @id @default(uuid())
+  clientId          String           @map("client_id")
+  itemDescription   String           @map("item_description")
+  totalValue        Float            @map("total_value")
+  totalInstallments Int              @map("total_installments")
+  paymentFrequency  PaymentFrequency @map("payment_frequency")
+  firstDueDate      DateTime         @map("first_due_date")
+  totalPaid         Float            @default(0) @map("total_paid")
+  saleDate          DateTime         @default(now()) @map("sale_date")
+  createdAt         DateTime         @default(now()) @map("created_at")
+  updatedAt         DateTime         @updatedAt @map("updated_at")
+
+  client       Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  installments Installment[]
+
+  @@map("sales")
+}
+
+model Installment {
+  id                String        @id @default(uuid())
+  saleId            String        @map("sale_id")
+  installmentNumber Int           @map("installment_number")
+  amount            Float
+  dueDate           DateTime      @map("due_date")
+  status            PaymentStatus @default(pendente)
+  paidDate          DateTime?     @map("paid_date")
+  paidAmount        Float?        @map("paid_amount")
+  createdAt         DateTime      @default(now()) @map("created_at")
+  updatedAt         DateTime      @updatedAt @map("updated_at")
+
+  sale Sale @relation(fields: [saleId], references: [id], onDelete: Cascade)
+
+  @@map("installments")
+}
