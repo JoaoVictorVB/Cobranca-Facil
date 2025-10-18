@@ -45,66 +45,6 @@ docker-compose up -d
 - User: `root`
 - Password: `root`
 
-## 📦 Estrutura do Projeto
-
-```
-cobranca-facil/
-├── api/              # Backend NestJS + Prisma + MySQL
-├── web/              # Frontend React + Vite + shadcn/ui
-├── docker-compose.yml
-├── docker.sh         # Helper script Linux/Mac
-├── docker.bat        # Helper script Windows
-└── DOCKER.md         # Documentação detalhada do Docker
-```
-
-## 🛠️ Comandos Úteis
-
-### Usando os scripts helper
-
-```bash
-# Iniciar
-docker.bat start
-
-# Parar
-docker.bat stop
-
-# Reiniciar
-docker.bat restart
-
-# Reconstruir após mudanças
-docker.bat rebuild
-
-# Ver logs
-docker.bat logs
-docker.bat logs api
-docker.bat logs web
-
-# Limpar tudo
-docker.bat clean
-
-# Ver status
-docker.bat status
-```
-
-### Comandos Docker Compose diretos
-
-```bash
-# Iniciar
-docker-compose up -d
-
-# Parar
-docker-compose down
-
-# Ver logs
-docker-compose logs -f
-
-# Rebuild
-docker-compose up -d --build
-
-# Limpar volumes
-docker-compose down -v
-```
-
 ## 🔧 Desenvolvimento Local (sem Docker)
 
 ### API
@@ -125,7 +65,6 @@ npm run dev
 
 ## 📚 Documentação Adicional
 
-- [DOCKER.md](DOCKER.md) - Guia completo de Docker
 - **API Docs**: http://localhost:3001/api (quando rodando)
 
 ## 🎯 Funcionalidades
