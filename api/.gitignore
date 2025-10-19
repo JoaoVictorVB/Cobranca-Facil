@@ -36,7 +36,3 @@ lerna-debug.log*
 
 # Environment
 .env
-
-# Prisma
-prisma/migrations/*
-!prisma/migrations/.gitkeep
