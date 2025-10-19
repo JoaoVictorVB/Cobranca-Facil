@@ -1,32 +1,29 @@
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 
-WORKDIR /app
+WORKDIR /usr/src/app
 
 COPY package*.json ./
 COPY prisma ./prisma/
 
-RUN npm ci
+RUN npm install
 
 COPY . .
 
 RUN npx prisma generate
 RUN npm run build
 
-FROM node:18-alpine AS production
+RUN npm prune --production
 
-WORKDIR /app
+FROM node:20-alpine
+
+WORKDIR /usr/src/app
+
+COPY --from=builder /usr/src/app/node_modules ./node_modules
+COPY --from=builder /usr/src/app/dist ./dist
+COPY --from=builder /usr/src/app/prisma ./prisma
 
 COPY package*.json ./
-COPY prisma ./prisma/
-
-RUN npm ci --only=production
-
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY docker-entrypoint.sh ./
-
-RUN chmod +x docker-entrypoint.sh
 
 EXPOSE 3001
 
-CMD ["./docker-entrypoint.sh"]
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main.js"]
