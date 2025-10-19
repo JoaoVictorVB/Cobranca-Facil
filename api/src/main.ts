@@ -9,15 +9,21 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // Enable CORS
+  const allowedOrigins = [
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'http://localhost:8080',
+    'http://localhost:8081',
+    'https://cobranca-facil-web.onrender.com',
+  ];
+
   app.enableCors({
-    origin: [
-      'http://localhost:5173',
-      'http://localhost:3000',
-      'http://localhost:8080',
-      'http://localhost:8081',
-      'https://cobranca-facil-web.onrender.com',
-    ],
+    origin: process.env.NODE_ENV === 'production' 
+      ? ['https://cobranca-facil-web.onrender.com']
+      : allowedOrigins,
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
   });
 
   // Global exception filter
