@@ -20,10 +20,11 @@ const Index = () => {
     totalClients: 0
   });
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("home");
   const [selectedDate, setSelectedDate] = useState<string | undefined>();
   const [dateRangeStart, setDateRangeStart] = useState<string | undefined>();
   const [dateRangeEnd, setDateRangeEnd] = useState<string | undefined>();
-  const [activeTab, setActiveTab] = useState("home");
+  const [refreshKey, setRefreshKey] = useState(0);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -67,6 +68,9 @@ const Index = () => {
         totalPending: (monthlySummary?.totalPending || 0) + (monthlySummary?.totalOverdue || 0),
         totalClients: clients?.length || 0
       });
+      
+      // Incrementa refreshKey para forçar reload do componente Home
+      setRefreshKey(prev => prev + 1);
     } catch (error) {
       console.error("Error loading stats:", error);
       setStats({
@@ -121,7 +125,7 @@ const Index = () => {
               </TabsList>
               
               <TabsContent value="home" className="mt-6">
-                <Home />
+                <Home key={refreshKey} />
               </TabsContent>
               
               <TabsContent value="clients" className="mt-6">
