@@ -14,7 +14,7 @@ async function bootstrap() {
     'http://localhost:3000',
     'http://localhost:8080',
     'http://localhost:8081',
-    'https://cobranca-facil-web.onrender.com'
+    'https://cobranca-facil-web.onrender.com',
     'https://cobranca-facil-rose.vercel.app',
   ];
 
