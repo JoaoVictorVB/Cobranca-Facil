@@ -62,13 +62,19 @@ const Index = () => {
       ]);
       
       setStats({
-        totalSold: monthlySummary.totalExpected,
-        totalPaid: monthlySummary.totalReceived,
-        totalPending: monthlySummary.totalPending + monthlySummary.totalOverdue,
-        totalClients: clients.length
+        totalSold: monthlySummary?.totalExpected || 0,
+        totalPaid: monthlySummary?.totalReceived || 0,
+        totalPending: (monthlySummary?.totalPending || 0) + (monthlySummary?.totalOverdue || 0),
+        totalClients: clients?.length || 0
       });
     } catch (error) {
       console.error("Error loading stats:", error);
+      setStats({
+        totalSold: 0,
+        totalPaid: 0,
+        totalPending: 0,
+        totalClients: 0
+      });
     } finally {
       setLoading(false);
     }
