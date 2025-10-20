@@ -6,7 +6,7 @@ import { IProductRepository } from '../../../domain/product/repositories/product
 export class FindAllProductsUseCase {
   constructor(private readonly productRepository: IProductRepository) {}
 
-  async execute(): Promise<Product[]> {
-    return await this.productRepository.findAll();
+  async execute(userId?: string): Promise<Product[]> {
+    return await this.productRepository.findAll(undefined, undefined, userId);
   }
 }

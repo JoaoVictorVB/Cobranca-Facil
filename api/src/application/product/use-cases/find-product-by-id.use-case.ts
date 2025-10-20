@@ -7,8 +7,8 @@ import { IProductRepository } from '../../../domain/product/repositories/product
 export class FindProductByIdUseCase {
   constructor(private readonly productRepository: IProductRepository) {}
 
-  async execute(id: string): Promise<Product> {
-    const product = await this.productRepository.findById(id);
+  async execute(id: string, userId?: string): Promise<Product> {
+    const product = await this.productRepository.findById(id, userId);
 
     if (!product) {
       throw new ProductNotFoundError(id);

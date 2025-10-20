@@ -7,13 +7,13 @@ import { IUseCase } from '../../common/use-case.interface';
 export class DeleteClientUseCase implements IUseCase<string, void> {
   constructor(private readonly clientRepository: IClientRepository) {}
 
-  async execute(id: string): Promise<void> {
-    const client = await this.clientRepository.findById(id);
+  async execute(id: string, userId?: string): Promise<void> {
+    const client = await this.clientRepository.findById(id, userId);
 
     if (!client) {
       throw new ClientNotFoundError(id);
     }
 
-    await this.clientRepository.delete(id);
+    await this.clientRepository.delete(id, userId);
   }
 }

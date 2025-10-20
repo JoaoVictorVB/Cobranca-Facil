@@ -8,8 +8,8 @@ import { IUseCase } from '../../common/use-case.interface';
 export class GetClientByIdUseCase implements IUseCase<string, Client> {
   constructor(private readonly clientRepository: IClientRepository) {}
 
-  async execute(id: string): Promise<Client> {
-    const client = await this.clientRepository.findById(id);
+  async execute(id: string, userId?: string): Promise<Client> {
+    const client = await this.clientRepository.findById(id, userId);
 
     if (!client) {
       throw new ClientNotFoundError(id);

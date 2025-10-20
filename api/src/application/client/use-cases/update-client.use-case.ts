@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { Client } from '../../../domain/client/entities/client.entity';
 import {
-  ClientNotFoundError,
-  InvalidPhoneNumberError,
+    ClientNotFoundError,
+    InvalidPhoneNumberError,
 } from '../../../domain/client/errors/client.errors';
 import { IClientRepository } from '../../../domain/client/repositories/client.repository.interface';
 import { IUseCase } from '../../common/use-case.interface';
@@ -14,19 +14,16 @@ interface UpdateClientRequest {
 }
 
 @Injectable()
-export class UpdateClientUseCase
-  implements IUseCase<UpdateClientRequest, Client>
-{
+export class UpdateClientUseCase implements IUseCase<UpdateClientRequest, Client> {
   constructor(private readonly clientRepository: IClientRepository) {}
 
-  async execute(request: UpdateClientRequest): Promise<Client> {
-    const client = await this.clientRepository.findById(request.id);
+  async execute(request: UpdateClientRequest, userId?: string): Promise<Client> {
+    const client = await this.clientRepository.findById(request.id, userId);
 
     if (!client) {
       throw new ClientNotFoundError(request.id);
     }
 
-    // Validar telefone se fornecido
     if (request.data.phone && !this.isValidPhone(request.data.phone)) {
       throw new InvalidPhoneNumberError(request.data.phone);
     }
@@ -37,7 +34,7 @@ export class UpdateClientUseCase
       referredBy: request.data.referredBy,
     });
 
-    return await this.clientRepository.update(client);
+    return await this.clientRepository.update(client, userId);
   }
 
   private isValidPhone(phone: string): boolean {

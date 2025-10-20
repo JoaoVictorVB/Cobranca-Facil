@@ -8,7 +8,7 @@ import { PrismaService } from '../database/prisma.service';
 export class SaleRepository implements ISaleRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(sale: Sale): Promise<Sale> {
+  async create(sale: Sale, userId: string): Promise<Sale> {
     const created = await this.prisma.sale.create({
       data: {
         id: sale.id,
@@ -20,6 +20,7 @@ export class SaleRepository implements ISaleRepository {
         firstDueDate: sale.firstDueDate,
         totalPaid: sale.totalPaid.amount,
         saleDate: sale.saleDate,
+        userId: userId,
         createdAt: sale.createdAt,
         updatedAt: sale.updatedAt,
       },
@@ -28,37 +29,47 @@ export class SaleRepository implements ISaleRepository {
     return this.toDomain(created);
   }
 
-  async findById(id: string): Promise<Sale | null> {
-    const sale = await this.prisma.sale.findUnique({
-      where: { id },
+  async findById(id: string, userId?: string): Promise<Sale | null> {
+    const where: any = { id };
+    if (userId) where.userId = userId;
+
+    const sale = await this.prisma.sale.findFirst({
+      where,
     });
 
     return sale ? this.toDomain(sale) : null;
   }
 
-  async findAll(page: number = 1, limit: number = 50): Promise<Sale[]> {
+  async findAll(page: number = 1, limit: number = 50, userId?: string): Promise<Sale[]> {
     const skip = (page - 1) * limit;
     const sales = await this.prisma.sale.findMany({
       skip,
       take: limit,
+      where: userId ? { userId } : undefined,
       orderBy: { createdAt: 'desc' },
     });
 
     return sales.map((sale) => this.toDomain(sale));
   }
 
-  async findByClientId(clientId: string): Promise<Sale[]> {
+  async findByClientId(clientId: string, userId?: string): Promise<Sale[]> {
+    const where: any = { clientId };
+    if (userId) where.userId = userId;
+
     const sales = await this.prisma.sale.findMany({
-      where: { clientId },
+      where,
       orderBy: { saleDate: 'desc' },
     });
 
     return sales.map((sale) => this.toDomain(sale));
   }
 
-  async update(sale: Sale): Promise<Sale> {
-    const updated = await this.prisma.sale.update({
-      where: { id: sale.id },
+  async update(sale: Sale, userId?: string): Promise<Sale> {
+    const where: any = { id: sale.id };
+    if (userId) where.userId = userId;
+
+    await this.prisma.sale.updateMany({
+      where,
       data: {
         itemDescription: sale.itemDescription,
         totalValue: sale.totalValue.amount,
@@ -69,13 +80,16 @@ export class SaleRepository implements ISaleRepository {
       },
     });
 
-    return this.toDomain(updated);
+    const fetched = await this.prisma.sale.findFirst({ where });
+    if (!fetched) throw new Error('Sale not found after update');
+    return this.toDomain(fetched);
   }
 
-  async delete(id: string): Promise<void> {
-    await this.prisma.sale.delete({
-      where: { id },
-    });
+  async delete(id: string, userId?: string): Promise<void> {
+    const where: any = { id };
+    if (userId) where.userId = userId;
+
+    await this.prisma.sale.deleteMany({ where });
   }
 
   private toDomain(raw: any): Sale {
