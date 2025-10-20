@@ -36,7 +36,10 @@ import { SaleController } from './sale.controller';
     },
     {
       provide: PayInstallmentUseCase,
-      useFactory: (installmentRepository: InstallmentRepository, saleRepository: SaleRepository) => {
+      useFactory: (
+        installmentRepository: InstallmentRepository,
+        saleRepository: SaleRepository,
+      ) => {
         return new PayInstallmentUseCase(installmentRepository, saleRepository);
       },
       inject: ['IInstallmentRepository', 'ISaleRepository'],
