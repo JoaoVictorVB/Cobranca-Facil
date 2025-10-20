@@ -8,7 +8,9 @@ interface GetUpcomingInstallmentsRequest {
 }
 
 @Injectable()
-export class GetUpcomingInstallmentsUseCase implements IUseCase<GetUpcomingInstallmentsRequest, Installment[]> {
+export class GetUpcomingInstallmentsUseCase
+  implements IUseCase<GetUpcomingInstallmentsRequest, Installment[]>
+{
   constructor(private readonly installmentRepository: IInstallmentRepository) {}
 
   async execute(request: GetUpcomingInstallmentsRequest): Promise<Installment[]> {

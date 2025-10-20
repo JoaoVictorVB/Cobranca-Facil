@@ -3,11 +3,7 @@ import { HttpStatusCode } from '../../common/http-status-code.enum';
 
 export class SaleNotFoundError extends DomainError {
   constructor(saleId: string) {
-    super(
-      `Venda com ID '${saleId}' não foi encontrada`,
-      HttpStatusCode.NOT_FOUND,
-      'SaleNotFound',
-    );
+    super(`Venda com ID '${saleId}' não foi encontrada`, HttpStatusCode.NOT_FOUND, 'SaleNotFound');
   }
 }
 

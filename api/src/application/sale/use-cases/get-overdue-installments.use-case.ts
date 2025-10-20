@@ -10,7 +10,6 @@ export class GetOverdueInstallmentsUseCase implements IUseCase<void, Installment
   async execute(): Promise<Installment[]> {
     const overdueInstallments = await this.installmentRepository.findOverdue();
 
-    // Mark as overdue
     for (const installment of overdueInstallments) {
       installment.markAsOverdue();
       await this.installmentRepository.update(installment);

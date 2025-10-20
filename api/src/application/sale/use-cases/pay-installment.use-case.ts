@@ -16,34 +16,26 @@ interface PayInstallmentRequest {
 }
 
 @Injectable()
-export class PayInstallmentUseCase
-  implements IUseCase<PayInstallmentRequest, Installment>
-{
+export class PayInstallmentUseCase implements IUseCase<PayInstallmentRequest, Installment> {
   constructor(
     private readonly installmentRepository: IInstallmentRepository,
     private readonly saleRepository: ISaleRepository,
   ) {}
 
   async execute(request: PayInstallmentRequest): Promise<Installment> {
-    const installment = await this.installmentRepository.findById(
-      request.installmentId,
-    );
+    const installment = await this.installmentRepository.findById(request.installmentId);
 
     if (!installment) {
       throw new InstallmentNotFoundError(request.installmentId);
     }
 
-    // Verificar se já foi paga
     if (installment.isPaid()) {
       throw new InstallmentAlreadyPaidError(request.installmentId);
     }
 
-    // Marcar como paga
     installment.markAsPaid(request.amount, request.paidDate);
-    const updatedInstallment =
-      await this.installmentRepository.update(installment);
+    const updatedInstallment = await this.installmentRepository.update(installment);
 
-    // Atualizar total pago da venda
     const sale = await this.saleRepository.findById(installment.saleId);
     if (!sale) {
       throw new SaleNotFoundError(installment.saleId);
