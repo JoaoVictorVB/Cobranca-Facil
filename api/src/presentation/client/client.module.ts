@@ -7,10 +7,24 @@ import { GetClientByIdUseCase } from '../../application/client/use-cases/get-cli
 import { UpdateClientUseCase } from '../../application/client/use-cases/update-client.use-case';
 import { PrismaService } from '../../infrastructure/database/prisma.service';
 import { ClientRepository } from '../../infrastructure/repositories/client.repository';
-import { ClientController } from './client.controller';
+import {
+  CreateClientController,
+  DeleteClientController,
+  GetAllClientsController,
+  GetAllClientsWithSalesController,
+  GetClientByIdController,
+  UpdateClientController,
+} from './controllers';
 
 @Module({
-  controllers: [ClientController],
+  controllers: [
+    CreateClientController,
+    GetAllClientsController,
+    GetAllClientsWithSalesController,
+    GetClientByIdController,
+    UpdateClientController,
+    DeleteClientController,
+  ],
   providers: [
     PrismaService,
     {
