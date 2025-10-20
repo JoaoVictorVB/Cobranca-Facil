@@ -17,11 +17,9 @@ export class GetMonthlySummaryUseCase
   async execute(request: GetMonthlySummaryRequest): Promise<MonthlySummaryDto> {
     const { year, month } = request;
 
-    // Data inicial e final do mês
     const startDate = new Date(year, month - 1, 1);
     const endDate = new Date(year, month, 0, 23, 59, 59);
 
-    // Buscar todas as parcelas com vencimento no mês
     const installments = await this.prisma.installment.findMany({
       where: {
         dueDate: {
@@ -61,14 +59,12 @@ export class GetMonthlySummaryUseCase
         totalPending += installment.amount;
         upcomingInstallments++;
       } else {
-        // Pendente mas já venceu
         totalOverdue += installment.amount;
         overdueInstallments++;
       }
     }
 
-    const receivedPercentage =
-      totalExpected > 0 ? (totalReceived / totalExpected) * 100 : 0;
+    const receivedPercentage = totalExpected > 0 ? (totalReceived / totalExpected) * 100 : 0;
 
     return {
       month: `${year}-${String(month).padStart(2, '0')}`,

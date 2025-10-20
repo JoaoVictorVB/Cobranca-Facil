@@ -22,8 +22,8 @@ export class GetPaymentStatusUseCase implements IUseCase<void, PaymentStatusDto[
       const status = installment.status;
       const existing = statusMap.get(status) || { count: 0, totalAmount: 0 };
       existing.count += 1;
-      existing.totalAmount += 
-        status === 'pago' ? (installment.paidAmount || installment.amount) : installment.amount;
+      existing.totalAmount +=
+        status === 'pago' ? installment.paidAmount || installment.amount : installment.amount;
       statusMap.set(status, existing);
     }
 

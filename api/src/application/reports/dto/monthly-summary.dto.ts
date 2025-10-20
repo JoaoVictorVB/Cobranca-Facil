@@ -1,17 +1,17 @@
 export interface MonthlySummaryDto {
-  month: string; // YYYY-MM
-  totalExpected: number; // Total esperado de receber no mês
-  totalReceived: number; // Total efetivamente recebido
-  totalPending: number; // Total ainda pendente
-  totalOverdue: number; // Total em atraso
-  receivedPercentage: number; // Percentual recebido
-  upcomingInstallments: number; // Parcelas a vencer
-  overdueInstallments: number; // Parcelas atrasadas
-  paidInstallments: number; // Parcelas pagas
+  month: string;
+  totalExpected: number;
+  totalReceived: number;
+  totalPending: number;
+  totalOverdue: number;
+  receivedPercentage: number;
+  upcomingInstallments: number;
+  overdueInstallments: number;
+  paidInstallments: number;
 }
 
 export interface DailySalesDto {
-  date: string; // YYYY-MM-DD
+  date: string;
   totalSales: number;
   salesCount: number;
 }

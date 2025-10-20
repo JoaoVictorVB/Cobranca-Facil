@@ -8,9 +8,7 @@ interface GetTopClientsRequest {
 }
 
 @Injectable()
-export class GetTopClientsUseCase
-  implements IUseCase<GetTopClientsRequest, TopClientsDto[]>
-{
+export class GetTopClientsUseCase implements IUseCase<GetTopClientsRequest, TopClientsDto[]> {
   constructor(private readonly prisma: PrismaService) {}
 
   async execute(request: GetTopClientsRequest): Promise<TopClientsDto[]> {

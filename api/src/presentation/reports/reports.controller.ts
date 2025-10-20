@@ -7,12 +7,12 @@ import { GetPaymentStatusUseCase } from '../../application/reports/use-cases/get
 import { GetPeriodSummaryUseCase } from '../../application/reports/use-cases/get-period-summary.use-case';
 import { GetTopClientsUseCase } from '../../application/reports/use-cases/get-top-clients.use-case';
 import {
-    DailySalesResponseDto,
-    MonthComparisonResponseDto,
-    MonthlySummaryResponseDto,
-    PaymentStatusResponseDto,
-    PeriodSummaryResponseDto,
-    TopClientsResponseDto,
+  DailySalesResponseDto,
+  MonthComparisonResponseDto,
+  MonthlySummaryResponseDto,
+  PaymentStatusResponseDto,
+  PeriodSummaryResponseDto,
+  TopClientsResponseDto,
 } from './dto/reports.response.dto';
 
 @ApiTags('reports')
@@ -100,7 +100,12 @@ export class ReportsController {
 
   @Get('period-summary')
   @ApiOperation({ summary: 'Get summary for a custom date period' })
-  @ApiQuery({ name: 'startDate', required: true, type: String, description: 'Start date (YYYY-MM-DD)' })
+  @ApiQuery({
+    name: 'startDate',
+    required: true,
+    type: String,
+    description: 'Start date (YYYY-MM-DD)',
+  })
   @ApiQuery({ name: 'endDate', required: true, type: String, description: 'End date (YYYY-MM-DD)' })
   @ApiResponse({
     status: 200,
@@ -119,14 +124,18 @@ export class ReportsController {
 
   @Get('month-comparison')
   @ApiOperation({ summary: 'Compare multiple months' })
-  @ApiQuery({ name: 'months', required: true, type: String, description: 'Comma-separated months in YYYY-MM format' })
+  @ApiQuery({
+    name: 'months',
+    required: true,
+    type: String,
+    description: 'Comma-separated months in YYYY-MM format',
+  })
   @ApiResponse({
     status: 200,
     description: 'Month comparison retrieved successfully',
     type: MonthComparisonResponseDto,
   })
   async getMonthComparison(@Query('months') months: string): Promise<MonthComparisonResponseDto> {
-    // Parse "2024-10,2024-11,2024-12" into array of {year, month}
     const monthsArray = months.split(',').map((m) => {
       const [year, month] = m.trim().split('-');
       return { year: parseInt(year), month: parseInt(month) };

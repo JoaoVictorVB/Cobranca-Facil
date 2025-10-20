@@ -49,8 +49,7 @@ export class GetMonthComparisonUseCase
           }
         }
 
-        const receivedPercentage =
-          totalExpected > 0 ? (totalReceived / totalExpected) * 100 : 0;
+        const receivedPercentage = totalExpected > 0 ? (totalReceived / totalExpected) * 100 : 0;
 
         return {
           month: `${year}-${String(month).padStart(2, '0')}`,

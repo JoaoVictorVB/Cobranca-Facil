@@ -9,9 +9,7 @@ interface GetDailySalesRequest {
 }
 
 @Injectable()
-export class GetDailySalesUseCase
-  implements IUseCase<GetDailySalesRequest, DailySalesDto[]>
-{
+export class GetDailySalesUseCase implements IUseCase<GetDailySalesRequest, DailySalesDto[]> {
   constructor(private readonly prisma: PrismaService) {}
 
   async execute(request: GetDailySalesRequest): Promise<DailySalesDto[]> {
@@ -29,7 +27,6 @@ export class GetDailySalesUseCase
       },
     });
 
-    // Agrupar por data
     const salesByDate = new Map<string, { totalSales: number; salesCount: number }>();
 
     for (const sale of sales) {
@@ -40,7 +37,6 @@ export class GetDailySalesUseCase
       salesByDate.set(dateKey, existing);
     }
 
-    // Converter para array
     return Array.from(salesByDate.entries()).map(([date, data]) => ({
       date,
       totalSales: data.totalSales,

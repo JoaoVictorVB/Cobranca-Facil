@@ -17,7 +17,6 @@ export class GetPeriodSummaryUseCase
   async execute(request: GetPeriodSummaryRequest): Promise<PeriodSummaryDto> {
     const { startDate, endDate } = request;
 
-    // Buscar todas as parcelas com vencimento no período
     const installments = await this.prisma.installment.findMany({
       where: {
         dueDate: {
@@ -57,14 +56,12 @@ export class GetPeriodSummaryUseCase
         totalPending += installment.amount;
         pendingCount++;
       } else {
-        // Pendente mas já venceu
         totalOverdue += installment.amount;
         overdueCount++;
       }
     }
 
-    const receivedPercentage =
-      totalExpected > 0 ? (totalReceived / totalExpected) * 100 : 0;
+    const receivedPercentage = totalExpected > 0 ? (totalReceived / totalExpected) * 100 : 0;
 
     return {
       startDate: startDate.toISOString().split('T')[0],
