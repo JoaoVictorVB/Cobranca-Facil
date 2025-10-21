@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { Installment } from '../../../domain/sale/entities/installment.entity';
 import {
-    InstallmentAlreadyPaidError,
-    InstallmentNotFoundError,
-    SaleNotFoundError,
+  InstallmentAlreadyPaidError,
+  InstallmentNotFoundError,
+  SaleNotFoundError,
 } from '../../../domain/sale/errors/sale.errors';
 import { IInstallmentRepository } from '../../../domain/sale/repositories/installment.repository.interface';
 import { ISaleRepository } from '../../../domain/sale/repositories/sale.repository.interface';

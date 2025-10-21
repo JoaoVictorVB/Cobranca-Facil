@@ -11,17 +11,17 @@ import {
 import { IInstallmentRepository } from '../../../domain/sale/repositories/installment.repository.interface';
 import { ISaleRepository } from '../../../domain/sale/repositories/sale.repository.interface';
 import { IUseCase } from '../../common/use-case.interface';
-import { CreateSaleDto } from '../dto/create-sale.dto';
+import { CreateSaleData } from '../interfaces/sale.interfaces';
 
 @Injectable()
-export class CreateSaleUseCase implements IUseCase<CreateSaleDto, Sale> {
+export class CreateSaleUseCase implements IUseCase<CreateSaleData, Sale> {
   constructor(
     private readonly saleRepository: ISaleRepository,
     private readonly installmentRepository: IInstallmentRepository,
     private readonly clientRepository: IClientRepository,
   ) {}
 
-  async execute(request: CreateSaleDto, userId: string): Promise<Sale> {
+  async execute(request: CreateSaleData, userId: string): Promise<Sale> {
     if (request.totalValue <= 0) {
       throw new InvalidSaleValueError(request.totalValue);
     }
@@ -41,8 +41,15 @@ export class CreateSaleUseCase implements IUseCase<CreateSaleDto, Sale> {
       totalValue: request.totalValue,
       totalInstallments: request.totalInstallments,
       paymentFrequency: request.paymentFrequency,
-      firstDueDate: request.firstDueDate,
-      saleDate: request.saleDate,
+      firstDueDate:
+        typeof request.firstDueDate === 'string'
+          ? new Date(request.firstDueDate)
+          : request.firstDueDate,
+      saleDate: request.saleDate
+        ? typeof request.saleDate === 'string'
+          ? new Date(request.saleDate)
+          : request.saleDate
+        : undefined,
     });
 
     const createdSale = await this.saleRepository.create(sale, userId);
