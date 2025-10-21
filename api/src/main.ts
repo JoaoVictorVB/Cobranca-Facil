@@ -18,13 +18,26 @@ async function bootstrap() {
   ];
 
   app.enableCors({
-    origin:
-      process.env.NODE_ENV === 'production'
-        ? [
-            'https://cobranca-facil-web.onrender.com',
-            'https://cobranca-facil-rose.vercel.app',
-          ]
-        : allowedOrigins,
+    origin: (origin, callback) => {
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      const isLocalhost = origin.startsWith('http://localhost');
+      const isVercel = origin.includes('.vercel.app');
+      const isRender = origin.includes('cobranca-facil-web.onrender.com');
+      const isAllowed = allowedOrigins.includes(origin);
+
+      if (
+        process.env.NODE_ENV === 'production'
+          ? isVercel || isRender
+          : isLocalhost || isVercel || isRender || isAllowed
+      ) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
