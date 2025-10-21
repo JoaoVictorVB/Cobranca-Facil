@@ -27,7 +27,10 @@ import {
   ],
   providers: [
     PrismaService,
-    ClientRepository,
+    {
+      provide: 'IClientRepository',
+      useClass: ClientRepository,
+    },
     CreateClientUseCase,
     GetClientByIdUseCase,
     GetAllClientsUseCase,
@@ -35,6 +38,6 @@ import {
     UpdateClientUseCase,
     DeleteClientUseCase,
   ],
-  exports: [ClientRepository],
+  exports: ['IClientRepository'],
 })
 export class ClientModule {}

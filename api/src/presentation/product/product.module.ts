@@ -24,7 +24,10 @@ import {
   ],
   providers: [
     PrismaService,
-    ProductRepository,
+    {
+      provide: 'IProductRepository',
+      useClass: ProductRepository,
+    },
     CreateProductUseCase,
     FindAllProductsUseCase,
     FindProductByIdUseCase,

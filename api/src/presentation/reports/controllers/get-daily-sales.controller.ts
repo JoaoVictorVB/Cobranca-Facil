@@ -2,8 +2,9 @@ import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { GetDailySalesUseCase } from '../../../application/reports/use-cases/get-daily-sales.use-case';
 import { JwtAuthGuard } from '../../../auth/jwt-auth.guard';
-import { DailySalesResponseDto } from '../dto/reports.response.dto';
 import { SWAGGER_TAGS } from '../../../common/swagger/swagger-tags';
+import { createLocalDate, parseLocalDate } from '../../../common/utils/date.utils';
+import { DailySalesResponseDto } from '../dto/reports.response.dto';
 
 @ApiTags(SWAGGER_TAGS.REPORTS)
 @Controller('reports')
@@ -25,8 +26,10 @@ export class GetDailySalesController {
     @Query('endDate') endDate?: string,
   ): Promise<DailySalesResponseDto[]> {
     const now = new Date();
-    const start = startDate ? new Date(startDate) : new Date(now.getFullYear(), now.getMonth(), 1);
-    const end = endDate ? new Date(endDate) : now;
+    const start = startDate 
+      ? parseLocalDate(startDate) 
+      : createLocalDate(now.getFullYear(), now.getMonth() + 1, 1);
+    const end = endDate ? parseLocalDate(endDate) : now;
 
     return this.getDailySalesUseCase.execute({
       startDate: start,

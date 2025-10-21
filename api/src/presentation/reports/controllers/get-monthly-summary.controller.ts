@@ -2,8 +2,9 @@ import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { GetMonthlySummaryUseCase } from '../../../application/reports/use-cases/get-monthly-summary.use-case';
 import { JwtAuthGuard } from '../../../auth/jwt-auth.guard';
-import { MonthlySummaryResponseDto } from '../dto/reports.response.dto';
+import { User } from '../../../common/decorators/user.decorator';
 import { SWAGGER_TAGS } from '../../../common/swagger/swagger-tags';
+import { MonthlySummaryResponseDto } from '../dto/reports.response.dto';
 
 @ApiTags(SWAGGER_TAGS.REPORTS)
 @Controller('reports')
@@ -23,6 +24,7 @@ export class GetMonthlySummaryController {
   async handler(
     @Query('year') year?: string,
     @Query('month') month?: string,
+    @User('id') userId?: string,
   ): Promise<MonthlySummaryResponseDto> {
     const now = new Date();
     const targetYear = year ? parseInt(year) : now.getFullYear();
@@ -31,6 +33,6 @@ export class GetMonthlySummaryController {
     return this.getMonthlySummaryUseCase.execute({
       year: targetYear,
       month: targetMonth,
-    });
+    }, userId);
   }
 }

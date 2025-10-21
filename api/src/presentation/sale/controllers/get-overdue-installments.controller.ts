@@ -2,6 +2,7 @@ import { Controller, Get, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { GetOverdueInstallmentsUseCase } from '../../../application/sale/use-cases/get-overdue-installments.use-case';
 import { JwtAuthGuard } from '../../../auth/jwt-auth.guard';
+import { User } from '../../../common/decorators/user.decorator';
 import { SWAGGER_TAGS } from '../../../common/swagger/swagger-tags';
 import { InstallmentResponseDto } from '../dto/installment.response.dto';
 
@@ -18,8 +19,8 @@ export class GetOverdueInstallmentsController {
     description: 'Overdue installments retrieved successfully',
     type: [InstallmentResponseDto],
   })
-  async handler(): Promise<InstallmentResponseDto[]> {
-    const installments = await this.getOverdueInstallmentsUseCase.execute();
+  async handler(@User('id') userId?: string): Promise<InstallmentResponseDto[]> {
+    const installments = await this.getOverdueInstallmentsUseCase.execute(undefined, userId);
     return installments.map((installment) => InstallmentResponseDto.fromDomain(installment));
   }
 }

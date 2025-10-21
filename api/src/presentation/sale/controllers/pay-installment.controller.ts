@@ -2,9 +2,10 @@ import { Body, Controller, Param, Put, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { PayInstallmentUseCase } from '../../../application/sale/use-cases/pay-installment.use-case';
 import { JwtAuthGuard } from '../../../auth/jwt-auth.guard';
+import { SWAGGER_TAGS } from '../../../common/swagger/swagger-tags';
+import { parseLocalDate } from '../../../common/utils/date.utils';
 import { InstallmentResponseDto } from '../dto/installment.response.dto';
 import { PayInstallmentRequestDto } from '../dto/pay-installment.request.dto';
-import { SWAGGER_TAGS } from '../../../common/swagger/swagger-tags';
 
 @ApiTags(SWAGGER_TAGS.SALES)
 @Controller('sales')
@@ -23,7 +24,7 @@ export class PayInstallmentController {
     const installment = await this.payInstallmentUseCase.execute({
       installmentId: id,
       amount: dto.amount,
-      paidDate: dto.paidDate ? new Date(dto.paidDate) : undefined,
+      paidDate: dto.paidDate ? parseLocalDate(dto.paidDate) : undefined,
     });
     return InstallmentResponseDto.fromDomain(installment);
   }

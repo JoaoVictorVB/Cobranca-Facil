@@ -2,8 +2,9 @@ import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { GetPeriodSummaryUseCase } from '../../../application/reports/use-cases/get-period-summary.use-case';
 import { JwtAuthGuard } from '../../../auth/jwt-auth.guard';
-import { PeriodSummaryResponseDto } from '../dto/reports.response.dto';
 import { SWAGGER_TAGS } from '../../../common/swagger/swagger-tags';
+import { parseLocalDate } from '../../../common/utils/date.utils';
+import { PeriodSummaryResponseDto } from '../dto/reports.response.dto';
 
 @ApiTags(SWAGGER_TAGS.REPORTS)
 @Controller('reports')
@@ -29,9 +30,13 @@ export class GetPeriodSummaryController {
     @Query('startDate') startDate: string,
     @Query('endDate') endDate: string,
   ): Promise<PeriodSummaryResponseDto> {
+    const start = parseLocalDate(startDate);
+    const end = parseLocalDate(endDate);
+    end.setHours(23, 59, 59, 999); // Fim do dia
+    
     return this.getPeriodSummaryUseCase.execute({
-      startDate: new Date(startDate + 'T00:00:00'),
-      endDate: new Date(endDate + 'T23:59:59'),
+      startDate: start,
+      endDate: end,
     });
   }
 }
