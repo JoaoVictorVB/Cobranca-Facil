@@ -41,6 +41,8 @@
     "prisma": "^5.8.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
+    "typescript": "^5.3.3",
+    "ts-loader": "^9.5.4",
     "tsconfig-paths": "^4.2.0"
   },
   "devDependencies": {
@@ -53,8 +55,6 @@
     "eslint-config-prettier": "^9.1.2",
     "eslint-plugin-prettier": "^5.5.4",
     "prettier": "^3.6.2",
-    "ts-loader": "^9.5.4",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.3.3"
+    "ts-node": "^10.9.2"
   }
 }
