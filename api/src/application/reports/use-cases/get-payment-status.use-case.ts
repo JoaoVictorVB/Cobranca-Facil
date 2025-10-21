@@ -4,7 +4,7 @@ import { IUseCase } from '../../common/use-case.interface';
 import { PaymentStatus } from '../interfaces/reports.interfaces';
 
 @Injectable()
-export class GetPaymentStatusUseCase implements IUseCase<void, PaymentStatus[]> {
+export class GetPaymentStatusUseCase implements IUseCase<string | undefined, PaymentStatus[]> {
   constructor(private readonly prisma: PrismaService) {}
 
   async execute(userId?: string): Promise<PaymentStatus[]> {

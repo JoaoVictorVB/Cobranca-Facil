@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { PaymentStatus } from '../../../domain/common/enums';
 import { PrismaService } from '../../../infrastructure/database/prisma.service';
 import { IUseCase } from '../../common/use-case.interface';
 import { MonthlySummary } from '../interfaces/reports.interfaces';
@@ -75,9 +76,9 @@ export class GetMonthlySummaryUseCase
       if (dueInMonth) {
         totalExpected += amount;
         
-        if (installment.status === 'PAGO') {
+        if (installment.status === PaymentStatus.PAGO) {
           paidInstallments++;
-        } else if (installment.status === 'ATRASADO') {
+        } else if (installment.status === PaymentStatus.ATRASADO) {
           overdueInstallments++;
           totalOverdue += amount - paidAmount;
         } else {
