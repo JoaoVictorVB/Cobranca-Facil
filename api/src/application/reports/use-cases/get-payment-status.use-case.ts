@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../infrastructure/database/prisma.service';
 import { IUseCase } from '../../common/use-case.interface';
-import { PaymentStatusDto } from '../dto/monthly-summary.dto';
+import { PaymentStatus } from '../interfaces/reports.interfaces';
 
 @Injectable()
-export class GetPaymentStatusUseCase implements IUseCase<void, PaymentStatusDto[]> {
+export class GetPaymentStatusUseCase implements IUseCase<void, PaymentStatus[]> {
   constructor(private readonly prisma: PrismaService) {}
 
-  async execute(): Promise<PaymentStatusDto[]> {
+  async execute(): Promise<PaymentStatus[]> {
     const installments = await this.prisma.installment.findMany({
       select: {
         status: true,

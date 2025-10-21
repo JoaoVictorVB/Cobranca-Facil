@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../infrastructure/database/prisma.service';
 import { IUseCase } from '../../common/use-case.interface';
-import { MonthlySummaryDto } from '../dto/monthly-summary.dto';
+import { MonthlySummary } from '../interfaces/reports.interfaces';
 
 interface GetMonthlySummaryRequest {
   year: number;
@@ -10,11 +10,11 @@ interface GetMonthlySummaryRequest {
 
 @Injectable()
 export class GetMonthlySummaryUseCase
-  implements IUseCase<GetMonthlySummaryRequest, MonthlySummaryDto>
+  implements IUseCase<GetMonthlySummaryRequest, MonthlySummary>
 {
   constructor(private readonly prisma: PrismaService) {}
 
-  async execute(request: GetMonthlySummaryRequest): Promise<MonthlySummaryDto> {
+  async execute(request: GetMonthlySummaryRequest): Promise<MonthlySummary> {
     const { year, month } = request;
 
     const startDate = new Date(year, month - 1, 1);

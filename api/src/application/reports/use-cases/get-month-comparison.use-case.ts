@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../infrastructure/database/prisma.service';
 import { IUseCase } from '../../common/use-case.interface';
-import { MonthComparisonDto } from '../dto/period-summary.dto';
+import { MonthComparison } from '../interfaces/reports.interfaces';
 
 interface GetMonthComparisonRequest {
   months: { year: number; month: number }[];
@@ -9,11 +9,11 @@ interface GetMonthComparisonRequest {
 
 @Injectable()
 export class GetMonthComparisonUseCase
-  implements IUseCase<GetMonthComparisonRequest, MonthComparisonDto>
+  implements IUseCase<GetMonthComparisonRequest, MonthComparison>
 {
   constructor(private readonly prisma: PrismaService) {}
 
-  async execute(request: GetMonthComparisonRequest): Promise<MonthComparisonDto> {
+  async execute(request: GetMonthComparisonRequest): Promise<MonthComparison> {
     const monthsData = await Promise.all(
       request.months.map(async ({ year, month }) => {
         const startDate = new Date(year, month - 1, 1);

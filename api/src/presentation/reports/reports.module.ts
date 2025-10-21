@@ -6,10 +6,24 @@ import { GetPaymentStatusUseCase } from '../../application/reports/use-cases/get
 import { GetPeriodSummaryUseCase } from '../../application/reports/use-cases/get-period-summary.use-case';
 import { GetTopClientsUseCase } from '../../application/reports/use-cases/get-top-clients.use-case';
 import { PrismaService } from '../../infrastructure/database/prisma.service';
-import { ReportsController } from './reports.controller';
+import {
+  GetDailySalesController,
+  GetMonthComparisonController,
+  GetMonthlySummaryController,
+  GetPaymentStatusController,
+  GetPeriodSummaryController,
+  GetTopClientsController,
+} from './controllers';
 
 @Module({
-  controllers: [ReportsController],
+  controllers: [
+    GetMonthlySummaryController,
+    GetDailySalesController,
+    GetPaymentStatusController,
+    GetTopClientsController,
+    GetPeriodSummaryController,
+    GetMonthComparisonController,
+  ],
   providers: [
     PrismaService,
     GetMonthlySummaryUseCase,

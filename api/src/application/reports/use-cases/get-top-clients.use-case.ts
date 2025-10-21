@@ -1,17 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../infrastructure/database/prisma.service';
 import { IUseCase } from '../../common/use-case.interface';
-import { TopClientsDto } from '../dto/monthly-summary.dto';
+import { TopClient } from '../interfaces/reports.interfaces';
 
 interface GetTopClientsRequest {
   limit?: number;
 }
 
 @Injectable()
-export class GetTopClientsUseCase implements IUseCase<GetTopClientsRequest, TopClientsDto[]> {
+export class GetTopClientsUseCase implements IUseCase<GetTopClientsRequest, TopClient[]> {
   constructor(private readonly prisma: PrismaService) {}
 
-  async execute(request: GetTopClientsRequest): Promise<TopClientsDto[]> {
+  async execute(request: GetTopClientsRequest): Promise<TopClient[]> {
     const limit = request.limit || 5;
 
     const clients = await this.prisma.client.findMany({

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../infrastructure/database/prisma.service';
 import { IUseCase } from '../../common/use-case.interface';
-import { DailySalesDto } from '../dto/monthly-summary.dto';
+import { DailySales } from '../interfaces/reports.interfaces';
 
 interface GetDailySalesRequest {
   startDate: Date;
@@ -9,10 +9,10 @@ interface GetDailySalesRequest {
 }
 
 @Injectable()
-export class GetDailySalesUseCase implements IUseCase<GetDailySalesRequest, DailySalesDto[]> {
+export class GetDailySalesUseCase implements IUseCase<GetDailySalesRequest, DailySales[]> {
   constructor(private readonly prisma: PrismaService) {}
 
-  async execute(request: GetDailySalesRequest): Promise<DailySalesDto[]> {
+  async execute(request: GetDailySalesRequest): Promise<DailySales[]> {
     const { startDate, endDate } = request;
 
     const sales = await this.prisma.sale.findMany({
