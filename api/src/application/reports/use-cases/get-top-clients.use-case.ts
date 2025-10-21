@@ -11,10 +11,11 @@ interface GetTopClientsRequest {
 export class GetTopClientsUseCase implements IUseCase<GetTopClientsRequest, TopClient[]> {
   constructor(private readonly prisma: PrismaService) {}
 
-  async execute(request: GetTopClientsRequest): Promise<TopClient[]> {
+  async execute(request: GetTopClientsRequest, userId?: string): Promise<TopClient[]> {
     const limit = request.limit || 5;
 
     const clients = await this.prisma.client.findMany({
+      where: userId ? { userId } : undefined,
       include: {
         sales: {
           include: {
@@ -31,17 +32,20 @@ export class GetTopClientsUseCase implements IUseCase<GetTopClientsRequest, TopC
         let totalPending = 0;
 
         for (const sale of client.sales) {
-          totalPurchases += sale.totalValue;
-          totalPaid += sale.totalPaid;
-          totalPending += sale.totalValue - sale.totalPaid;
+          const saleValue = Number(sale.totalValue);
+          const salePaid = Number(sale.totalPaid);
+          
+          totalPurchases += saleValue;
+          totalPaid += salePaid;
+          totalPending += saleValue - salePaid;
         }
 
         return {
           clientId: client.id,
           clientName: client.name,
-          totalPurchases,
-          totalPaid,
-          totalPending,
+          totalPurchases: Number(totalPurchases.toFixed(2)),
+          totalPaid: Number(totalPaid.toFixed(2)),
+          totalPending: Number(totalPending.toFixed(2)),
         };
       })
       .sort((a, b) => b.totalPurchases - a.totalPurchases)

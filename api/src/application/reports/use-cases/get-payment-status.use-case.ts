@@ -7,8 +7,15 @@ import { PaymentStatus } from '../interfaces/reports.interfaces';
 export class GetPaymentStatusUseCase implements IUseCase<void, PaymentStatus[]> {
   constructor(private readonly prisma: PrismaService) {}
 
-  async execute(): Promise<PaymentStatus[]> {
+  async execute(userId?: string): Promise<PaymentStatus[]> {
     const installments = await this.prisma.installment.findMany({
+      where: userId ? {
+        sale: {
+          client: {
+            userId,
+          },
+        },
+      } : undefined,
       select: {
         status: true,
         amount: true,
@@ -22,15 +29,20 @@ export class GetPaymentStatusUseCase implements IUseCase<void, PaymentStatus[]> 
       const status = installment.status;
       const existing = statusMap.get(status) || { count: 0, totalAmount: 0 };
       existing.count += 1;
-      existing.totalAmount +=
-        status === 'pago' ? installment.paidAmount || installment.amount : installment.amount;
+      
+      // Converter Decimal para number corretamente
+      const amountToAdd = status === 'pago' 
+        ? Number(installment.paidAmount || installment.amount)
+        : Number(installment.amount);
+      
+      existing.totalAmount += amountToAdd;
       statusMap.set(status, existing);
     }
 
     return Array.from(statusMap.entries()).map(([status, data]) => ({
       status: status as 'pago' | 'pendente' | 'atrasado',
       count: data.count,
-      totalAmount: data.totalAmount,
+      totalAmount: Number(data.totalAmount.toFixed(2)), // Garantir 2 casas decimais
     }));
   }
 }

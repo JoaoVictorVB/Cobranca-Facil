@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { PhoneValidator } from '../../../common/validators/phone.validator';
 import { Client } from '../../../domain/client/entities/client.entity';
 import { InvalidPhoneNumberError } from '../../../domain/client/errors/client.errors';
@@ -8,7 +8,10 @@ import { CreateClientData } from '../interfaces/client.interfaces';
 
 @Injectable()
 export class CreateClientUseCase implements IUseCase<CreateClientData, Client> {
-  constructor(private readonly clientRepository: IClientRepository) {}
+  constructor(
+    @Inject('IClientRepository')
+    private readonly clientRepository: IClientRepository,
+  ) {}
 
   async execute(request: CreateClientData, userId: string): Promise<Client> {
     if (request.phone && !PhoneValidator.isValid(request.phone)) {

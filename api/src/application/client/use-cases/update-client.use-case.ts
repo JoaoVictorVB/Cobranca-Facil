@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { PhoneValidator } from '../../../common/validators/phone.validator';
 import { Client } from '../../../domain/client/entities/client.entity';
 import {
@@ -16,7 +16,10 @@ interface UpdateClientRequest {
 
 @Injectable()
 export class UpdateClientUseCase implements IUseCase<UpdateClientRequest, Client> {
-  constructor(private readonly clientRepository: IClientRepository) {}
+  constructor(
+    @Inject('IClientRepository')
+    private readonly clientRepository: IClientRepository
+  ) {}
 
   async execute(request: UpdateClientRequest, userId?: string): Promise<Client> {
     const client = await this.clientRepository.findById(request.id, userId);
@@ -38,3 +41,4 @@ export class UpdateClientUseCase implements IUseCase<UpdateClientRequest, Client
     return await this.clientRepository.update(client, userId);
   }
 }
+

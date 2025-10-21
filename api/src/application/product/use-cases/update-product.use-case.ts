@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { Product } from '../../../domain/product/entities/product.entity';
 import {
   ProductAlreadyExistsError,
@@ -9,7 +9,10 @@ import { UpdateProductData } from '../interfaces/product.interfaces';
 
 @Injectable()
 export class UpdateProductUseCase {
-  constructor(private readonly productRepository: IProductRepository) {}
+  constructor(
+    @Inject('IProductRepository')
+    private readonly productRepository: IProductRepository,
+  ) {}
 
   async execute(input: UpdateProductData, userId?: string): Promise<Product> {
     const product = await this.productRepository.findById(input.id, userId);
@@ -37,3 +40,4 @@ export class UpdateProductUseCase {
     return await this.productRepository.update(product, userId);
   }
 }
+

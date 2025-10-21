@@ -1,7 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { Installment } from '../../../domain/sale/entities/installment.entity';
 import {
-  InstallmentAlreadyPaidError,
   InstallmentNotFoundError,
   SaleNotFoundError,
 } from '../../../domain/sale/errors/sale.errors';
@@ -18,8 +17,10 @@ interface PayInstallmentRequest {
 @Injectable()
 export class PayInstallmentUseCase implements IUseCase<PayInstallmentRequest, Installment> {
   constructor(
-    private readonly installmentRepository: IInstallmentRepository,
+    @Inject('ISaleRepository')
     private readonly saleRepository: ISaleRepository,
+    @Inject('IInstallmentRepository')
+    private readonly installmentRepository: IInstallmentRepository,
   ) {}
 
   async execute(request: PayInstallmentRequest): Promise<Installment> {
@@ -29,9 +30,9 @@ export class PayInstallmentUseCase implements IUseCase<PayInstallmentRequest, In
       throw new InstallmentNotFoundError(request.installmentId);
     }
 
-    if (installment.isPaid()) {
-      throw new InstallmentAlreadyPaidError(request.installmentId);
-    }
+    // Verificar se já tinha algum valor pago (PAGO ou PARCIAL)
+    const hadPreviousPayment = installment.paidAmount && installment.paidAmount.amount > 0;
+    const previousPaidAmount = installment.paidAmount?.amount || 0;
 
     installment.markAsPaid(request.amount, request.paidDate);
     const updatedInstallment = await this.installmentRepository.update(installment);
@@ -41,9 +42,14 @@ export class PayInstallmentUseCase implements IUseCase<PayInstallmentRequest, In
       throw new SaleNotFoundError(installment.saleId);
     }
 
+    // Se já tinha pagamento (completo OU parcial), remover o valor anterior
+    if (hadPreviousPayment) {
+      sale.removePayment(previousPaidAmount);
+    }
     sale.addPayment(request.amount);
     await this.saleRepository.update(sale);
 
     return updatedInstallment;
   }
 }
+

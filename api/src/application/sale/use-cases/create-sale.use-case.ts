@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { addBiweekly, addMonths, parseLocalDate } from '../../../common/utils/date.utils';
 import { ClientNotFoundError } from '../../../domain/client/errors/client.errors';
 import { IClientRepository } from '../../../domain/client/repositories/client.repository.interface';
 import { PaymentFrequency } from '../../../domain/common/enums';
@@ -16,8 +17,11 @@ import { CreateSaleData } from '../interfaces/sale.interfaces';
 @Injectable()
 export class CreateSaleUseCase implements IUseCase<CreateSaleData, Sale> {
   constructor(
+    @Inject('ISaleRepository')
     private readonly saleRepository: ISaleRepository,
+    @Inject('IInstallmentRepository')
     private readonly installmentRepository: IInstallmentRepository,
+    @Inject('IClientRepository')
     private readonly clientRepository: IClientRepository,
   ) {}
 
@@ -43,11 +47,11 @@ export class CreateSaleUseCase implements IUseCase<CreateSaleData, Sale> {
       paymentFrequency: request.paymentFrequency,
       firstDueDate:
         typeof request.firstDueDate === 'string'
-          ? new Date(request.firstDueDate)
+          ? parseLocalDate(request.firstDueDate)
           : request.firstDueDate,
       saleDate: request.saleDate
         ? typeof request.saleDate === 'string'
-          ? new Date(request.saleDate)
+          ? parseLocalDate(request.saleDate)
           : request.saleDate
         : undefined,
     });
@@ -63,25 +67,35 @@ export class CreateSaleUseCase implements IUseCase<CreateSaleData, Sale> {
   private generateInstallments(sale: Sale): Installment[] {
     const installments: Installment[] = [];
     const installmentValue = sale.calculateInstallmentValue();
-    const dueDate = new Date(sale.firstDueDate);
+    const firstDueDate = new Date(sale.firstDueDate);
 
     for (let i = 1; i <= sale.totalInstallments; i++) {
+      let dueDate: Date;
+      
+      if (i === 1) {
+        // Primeira parcela usa a data informada
+        dueDate = new Date(firstDueDate);
+      } else {
+        if (sale.paymentFrequency === PaymentFrequency.MENSAL) {
+          // Mensal: adiciona (i-1) meses mantendo o dia fixo
+          dueDate = addMonths(firstDueDate, i - 1);
+        } else {
+          // Quinzenal: adiciona 15 dias alternadamente
+          dueDate = addBiweekly(firstDueDate, i - 1);
+        }
+      }
+
       const installment = Installment.create({
         saleId: sale.id,
         installmentNumber: i,
         amount: installmentValue.amount,
-        dueDate: new Date(dueDate),
+        dueDate,
       });
 
       installments.push(installment);
-
-      if (sale.paymentFrequency === PaymentFrequency.MENSAL) {
-        dueDate.setMonth(dueDate.getMonth() + 1);
-      } else {
-        dueDate.setDate(dueDate.getDate() + 15);
-      }
     }
 
     return installments;
   }
 }
+

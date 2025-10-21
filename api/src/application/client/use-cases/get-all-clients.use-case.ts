@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { Client } from '../../../domain/client/entities/client.entity';
 import { IClientRepository } from '../../../domain/client/repositories/client.repository.interface';
 import { IUseCase } from '../../common/use-case.interface';
@@ -10,9 +10,13 @@ interface GetAllClientsRequest {
 
 @Injectable()
 export class GetAllClientsUseCase implements IUseCase<GetAllClientsRequest, Client[]> {
-  constructor(private readonly clientRepository: IClientRepository) {}
+  constructor(
+    @Inject('IClientRepository')
+    private readonly clientRepository: IClientRepository
+  ) {}
 
   async execute(request: GetAllClientsRequest, userId?: string): Promise<Client[]> {
     return await this.clientRepository.findAll(request.page, request.limit, userId);
   }
 }
+
