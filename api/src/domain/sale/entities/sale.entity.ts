@@ -120,6 +120,12 @@ export class Sale extends Entity<SaleProps> {
     this.props.updatedAt = new Date();
   }
 
+  public removePayment(amount: number): void {
+    const payment = Money.create(amount);
+    this.props.totalPaid = this.props.totalPaid.subtract(payment);
+    this.props.updatedAt = new Date();
+  }
+
   public getRemainingBalance(): Money {
     return this.props.totalValue.subtract(this.props.totalPaid);
   }
