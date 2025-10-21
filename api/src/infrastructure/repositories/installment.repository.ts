@@ -69,7 +69,7 @@ export class InstallmentRepository implements IInstallmentRepository {
     return installments.map((installment) => this.toDomain(installment));
   }
 
-  async findOverdue(): Promise<Installment[]> {
+  async findOverdue(userId?: string): Promise<Installment[]> {
     const installments = await this.prisma.installment.findMany({
       where: {
         dueDate: {
@@ -78,6 +78,13 @@ export class InstallmentRepository implements IInstallmentRepository {
         status: {
           in: [PaymentStatus.PENDENTE, PaymentStatus.ATRASADO],
         },
+        ...(userId ? {
+          sale: {
+            client: {
+              userId,
+            },
+          },
+        } : {}),
       },
       orderBy: { dueDate: 'asc' },
     });
@@ -85,7 +92,7 @@ export class InstallmentRepository implements IInstallmentRepository {
     return installments.map((installment) => this.toDomain(installment));
   }
 
-  async findByDueDateRange(startDate: Date, endDate: Date): Promise<Installment[]> {
+  async findByDueDateRange(startDate: Date, endDate: Date, userId?: string): Promise<Installment[]> {
     const installments = await this.prisma.installment.findMany({
       where: {
         dueDate: {
@@ -95,6 +102,13 @@ export class InstallmentRepository implements IInstallmentRepository {
         status: {
           not: PaymentStatus.PAGO,
         },
+        ...(userId ? {
+          sale: {
+            client: {
+              userId,
+            },
+          },
+        } : {}),
       },
       orderBy: { dueDate: 'asc' },
     });
