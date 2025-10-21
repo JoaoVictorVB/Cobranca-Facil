@@ -32,7 +32,7 @@ export class GetPeriodSummaryController {
   ): Promise<PeriodSummaryResponseDto> {
     const start = parseLocalDate(startDate);
     const end = parseLocalDate(endDate);
-    end.setHours(23, 59, 59, 999); // Fim do dia
+    end.setHours(23, 59, 59, 999);
     
     return this.getPeriodSummaryUseCase.execute({
       startDate: start,

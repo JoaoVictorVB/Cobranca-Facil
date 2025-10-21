@@ -1,4 +1,4 @@
-import { api } from './api';
+﻿import { api } from './api';
 import { PaymentFrequency, PaymentStatus } from './sale.service';
 
 export interface ClientWithSales {
@@ -51,7 +51,6 @@ export interface ClientStats {
 
 class ClientWithSalesService {
   async findAllWithSales(): Promise<ClientWithSales[]> {
-    // Agora usando endpoint dedicado que retorna vendas e parcelas
     const response = await api.get<ClientWithSales[]>('/clients/with-sales', {
       params: { page: 1, limit: 50 }
     });

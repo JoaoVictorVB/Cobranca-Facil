@@ -30,7 +30,6 @@ export class GetPaymentStatusUseCase implements IUseCase<void, PaymentStatus[]> 
       const existing = statusMap.get(status) || { count: 0, totalAmount: 0 };
       existing.count += 1;
       
-      // Converter Decimal para number corretamente
       const amountToAdd = status === 'pago' 
         ? Number(installment.paidAmount || installment.amount)
         : Number(installment.amount);
@@ -42,7 +41,7 @@ export class GetPaymentStatusUseCase implements IUseCase<void, PaymentStatus[]> 
     return Array.from(statusMap.entries()).map(([status, data]) => ({
       status: status as 'pago' | 'pendente' | 'atrasado',
       count: data.count,
-      totalAmount: Number(data.totalAmount.toFixed(2)), // Garantir 2 casas decimais
+      totalAmount: Number(data.totalAmount.toFixed(2)),
     }));
   }
 }

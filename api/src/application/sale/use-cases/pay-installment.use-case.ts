@@ -30,7 +30,6 @@ export class PayInstallmentUseCase implements IUseCase<PayInstallmentRequest, In
       throw new InstallmentNotFoundError(request.installmentId);
     }
 
-    // Verificar se já tinha algum valor pago (PAGO ou PARCIAL)
     const hadPreviousPayment = installment.paidAmount && installment.paidAmount.amount > 0;
     const previousPaidAmount = installment.paidAmount?.amount || 0;
 
@@ -42,7 +41,6 @@ export class PayInstallmentUseCase implements IUseCase<PayInstallmentRequest, In
       throw new SaleNotFoundError(installment.saleId);
     }
 
-    // Se já tinha pagamento (completo OU parcial), remover o valor anterior
     if (hadPreviousPayment) {
       sale.removePayment(previousPaidAmount);
     }

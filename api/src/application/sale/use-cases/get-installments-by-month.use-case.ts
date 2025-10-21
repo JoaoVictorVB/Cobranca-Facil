@@ -20,10 +20,7 @@ export class GetInstallmentsByMonthUseCase
   async execute(request: GetInstallmentsByMonthRequest, userId?: string): Promise<Installment[]> {
     const { year, month } = request;
     
-    // Criar data de início (primeiro dia do mês)
     const startDate = new Date(year, month - 1, 1);
-    
-    // Criar data de fim (último dia do mês às 23:59:59)
     const endDate = new Date(year, month, 0, 23, 59, 59);
 
     return await this.installmentRepository.findByDueDateRange(startDate, endDate, userId);

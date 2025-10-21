@@ -1,4 +1,4 @@
-import { Lock, Mail, User as UserIcon, UserPlus } from "lucide-react";
+﻿import { Lock, Mail, User as UserIcon, UserPlus } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Alert, AlertDescription } from "../components/ui/alert";
@@ -21,9 +21,8 @@ export function Register() {
     e.preventDefault();
     setError("");
 
-    // Validações
     if (password !== confirmPassword) {
-      setError("As senhas não coincidem");
+      setError("As senhas nÃ£o coincidem");
       return;
     }
 
@@ -107,7 +106,7 @@ export function Register() {
                 <Input
                   id="password"
                   type="password"
-                  placeholder="Mínimo 6 caracteres"
+                  placeholder="MÃ­nimo 6 caracteres"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="pl-10"
@@ -154,7 +153,7 @@ export function Register() {
 
           <div className="mt-6 text-center text-sm text-muted-foreground">
             <p>
-              Já tem uma conta?{" "}
+              JÃ¡ tem uma conta?{" "}
               <Link to="/login" className="text-primary hover:underline font-medium">
                 Fazer login
               </Link>

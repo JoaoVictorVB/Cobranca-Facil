@@ -98,21 +98,15 @@ export class Installment extends Entity<InstallmentProps> {
   public markAsPaid(amount: number, paidDate?: Date): void {
     const payment = Money.create(amount);
 
-    // Permitir pagamentos parciais
-    // Se o valor pago for menor, manter como PENDENTE ou ATRASADO
-    // Se for igual ou maior, marcar como PAGO
     if (payment.isLessThan(this.props.amount)) {
-      // Pagamento parcial - mantém status pendente/atrasado mas registra o valor pago
       this.props.paidAmount = payment;
       this.props.paidDate = paidDate || new Date();
-      // Não muda o status para PAGO, apenas registra o pagamento parcial
       if (this.isOverdue()) {
         this.props.status = PaymentStatus.ATRASADO;
       } else {
         this.props.status = PaymentStatus.PENDENTE;
       }
     } else {
-      // Pagamento completo ou superior
       this.props.status = PaymentStatus.PAGO;
       this.props.paidAmount = payment;
       this.props.paidDate = paidDate || new Date();

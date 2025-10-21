@@ -73,14 +73,11 @@ export class CreateSaleUseCase implements IUseCase<CreateSaleData, Sale> {
       let dueDate: Date;
       
       if (i === 1) {
-        // Primeira parcela usa a data informada
         dueDate = new Date(firstDueDate);
       } else {
         if (sale.paymentFrequency === PaymentFrequency.MENSAL) {
-          // Mensal: adiciona (i-1) meses mantendo o dia fixo
           dueDate = addMonths(firstDueDate, i - 1);
         } else {
-          // Quinzenal: adiciona 15 dias alternadamente
           dueDate = addBiweekly(firstDueDate, i - 1);
         }
       }
