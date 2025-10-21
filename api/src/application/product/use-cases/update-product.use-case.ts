@@ -5,18 +5,13 @@ import {
   ProductNotFoundError,
 } from '../../../domain/product/errors/product.errors';
 import { IProductRepository } from '../../../domain/product/repositories/product.repository.interface';
-
-export interface UpdateProductInput {
-  id: string;
-  name?: string;
-  description?: string;
-}
+import { UpdateProductData } from '../interfaces/product.interfaces';
 
 @Injectable()
 export class UpdateProductUseCase {
   constructor(private readonly productRepository: IProductRepository) {}
 
-  async execute(input: UpdateProductInput, userId?: string): Promise<Product> {
+  async execute(input: UpdateProductData, userId?: string): Promise<Product> {
     const product = await this.productRepository.findById(input.id, userId);
 
     if (!product) {
