@@ -5,12 +5,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 import { Client, clientService } from "@/services/client.service";
 import { Product, productService } from "@/services/product.service";
 import { PaymentFrequency, saleService } from "@/services/sale.service";
 import { ApiErrorCode, isApiError } from "@/types/errors";
-import { ShoppingCart } from "lucide-react";
+import { Info, ShoppingCart } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
 interface AddSaleDialogProps {
@@ -99,14 +100,18 @@ export const AddSaleDialog = ({ onSuccess }: AddSaleDialogProps) => {
         return;
       }
 
+      // Adiciona horário meio-dia para evitar problemas de timezone
+      const firstDueDateWithTime = formData.firstDueDate ? `${formData.firstDueDate}T12:00:00` : '';
+      const saleDateWithTime = formData.saleDate ? `${formData.saleDate}T12:00:00` : '';
+
       await saleService.create({
         clientId,
         itemDescription: formData.itemDescription,
         totalValue: parseFloat(formData.totalValue),
         totalInstallments: parseInt(formData.totalInstallments),
         paymentFrequency: formData.paymentFrequency,
-        firstDueDate: formData.firstDueDate,
-        saleDate: formData.saleDate,
+        firstDueDate: firstDueDateWithTime,
+        saleDate: saleDateWithTime,
       });
 
       toast({
@@ -156,7 +161,8 @@ export const AddSaleDialog = ({ onSuccess }: AddSaleDialogProps) => {
           Nova Venda
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
+        <TooltipProvider delayDuration={200}>
         <DialogHeader>
           <DialogTitle className="text-2xl flex items-center gap-2">
             <ShoppingCart className="h-6 w-6" />
@@ -261,7 +267,21 @@ export const AddSaleDialog = ({ onSuccess }: AddSaleDialogProps) => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="firstDueDate">Data do Primeiro Vencimento *</Label>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="firstDueDate">Data do Primeiro Vencimento *</Label>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Info className="h-3 w-3 text-muted-foreground/60 hover:text-muted-foreground cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="max-w-xs">
+                      <p className="text-sm">
+                        <strong>Data em que a primeira parcela vence.</strong><br/>
+                        Se mensal: próximas parcelas sempre no mesmo dia (ex: dia 10)<br/>
+                        Se quinzenal: alterna entre dia X e dia X+15
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
                 <Input
                   id="firstDueDate"
                   type="date"
@@ -312,23 +332,35 @@ export const AddSaleDialog = ({ onSuccess }: AddSaleDialogProps) => {
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2 md:col-span-3">
-                <Label htmlFor="totalValue">Valor Total (R$) *</Label>
-                <Input
-                  id="totalValue"
-                  type="number"
-                  step="0.01"
-                  min="0.01"
-                  value={formData.totalValue}
-                  onChange={(e) => setFormData({ ...formData, totalValue: e.target.value })}
-                  placeholder="0.00"
-                  required
-                />
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="totalValue">Valor Total (R$) *</Label>
+              <Input
+                id="totalValue"
+                type="number"
+                step="0.01"
+                min="0.01"
+                value={formData.totalValue}
+                onChange={(e) => setFormData({ ...formData, totalValue: e.target.value })}
+                placeholder="0.00"
+                required
+              />
+            </div>
 
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="totalInstallments">Nº de Parcelas *</Label>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="totalInstallments">Nº de Parcelas *</Label>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Info className="h-3 w-3 text-muted-foreground/60 hover:text-muted-foreground cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="max-w-xs">
+                      <p className="text-sm">
+                        Quantas vezes o valor será dividido. Cada parcela terá o mesmo valor.
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
                 <Select
                   value={formData.totalInstallments}
                   onValueChange={(value) => setFormData({ ...formData, totalInstallments: value })}
@@ -347,7 +379,20 @@ export const AddSaleDialog = ({ onSuccess }: AddSaleDialogProps) => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="paymentFrequency">Frequência *</Label>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="paymentFrequency">Frequência *</Label>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Info className="h-3 w-3 text-muted-foreground/60 hover:text-muted-foreground cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="max-w-xs">
+                      <p className="text-sm">
+                        <strong>Mensal:</strong> Uma parcela por mês, sempre no mesmo dia<br/>
+                        <strong>Quinzenal:</strong> Uma parcela a cada 15 dias (dia X e dia X+15)
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
                 <Select
                   value={formData.paymentFrequency}
                   onValueChange={(value) => 
@@ -382,6 +427,7 @@ export const AddSaleDialog = ({ onSuccess }: AddSaleDialogProps) => {
             </Button>
           </DialogFooter>
         </form>
+        </TooltipProvider>
       </DialogContent>
     </Dialog>
   );

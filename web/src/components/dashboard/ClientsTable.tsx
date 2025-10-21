@@ -1,13 +1,13 @@
 import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,12 +17,13 @@ import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 import { ClientWithSales, clientWithSalesService } from "@/services/client-with-sales.service";
 import { clientService } from "@/services/client.service";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { ArrowDown, ArrowUp, CalendarIcon, Eye, Filter, Phone, Trash2, User, X } from "lucide-react";
+import { ArrowDown, ArrowUp, CalendarIcon, Eye, Filter, Info, Phone, Trash2, User, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -46,7 +47,7 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
   const [filterBy, setFilterBy] = useState<FilterOption>('all');
   const [localDateStart, setLocalDateStart] = useState("");
   const [localDateEnd, setLocalDateEnd] = useState("");
-  const [showFilters, setShowFilters] = useState(true);
+  const [showFilters, setShowFilters] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -54,6 +55,18 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
     if (dateRangeStart) setLocalDateStart(dateRangeStart);
     if (dateRangeEnd) setLocalDateEnd(dateRangeEnd);
   }, [dateRangeStart, dateRangeEnd]);
+
+  // Helper para extrair apenas a data sem problemas de timezone
+  const getDateOnly = (dateString: string): string => {
+    // Se já tem 'T', pega apenas a parte da data
+    if (dateString.includes('T')) {
+      return dateString.split('T')[0];
+    }
+    // Se não tem 'T', cria um objeto Date com horário meio-dia local
+    const [year, month, day] = dateString.split('-').map(Number);
+    const date = new Date(year, month - 1, day, 12, 0, 0);
+    return date.toISOString().split('T')[0];
+  };
 
   const loadClients = useCallback(async () => {
     try {
@@ -188,8 +201,10 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
       filtered = filtered.filter(client => {
         return client.sales?.some(sale => 
           sale.installments?.some(inst => {
-            const instDate = new Date(inst.dueDate).toISOString().split('T')[0];
-            return instDate === dateFilter;
+            // Verifica tanto a data de vencimento quanto a data de pagamento
+            const dueDate = getDateOnly(inst.dueDate);
+            const paidDate = inst.paidDate ? getDateOnly(inst.paidDate) : null;
+            return dueDate === dateFilter || paidDate === dateFilter;
           })
         );
       });
@@ -202,8 +217,14 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
       filtered = filtered.filter(client => {
         return client.sales?.some(sale => 
           sale.installments?.some(inst => {
-            const instDate = new Date(inst.dueDate);
-            return instDate >= startDate && instDate <= endDate;
+            // Verifica tanto a data de vencimento quanto a data de pagamento
+            const dueDate = new Date(inst.dueDate);
+            const paidDate = inst.paidDate ? new Date(inst.paidDate) : null;
+            
+            const dueDateInRange = dueDate >= startDate && dueDate <= endDate;
+            const paidDateInRange = paidDate && paidDate >= startDate && paidDate <= endDate;
+            
+            return dueDateInRange || paidDateInRange;
           })
         );
       });
@@ -285,11 +306,23 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
 
   return (
     <Card className="shadow-lg">
+      <TooltipProvider delayDuration={200}>
       <CardHeader className="bg-gradient-to-r from-primary/5 to-primary/10 border-b">
-        <CardTitle className="flex items-center gap-2">
+        <div className="flex items-center gap-2">
           <User className="h-5 w-5" />
-          Clientes Cadastrados
-        </CardTitle>
+          <CardTitle>Clientes Cadastrados</CardTitle>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Info className="h-4 w-4 text-muted-foreground/60 hover:text-muted-foreground cursor-help" />
+            </TooltipTrigger>
+            <TooltipContent side="top" className="max-w-xs">
+              <p className="text-sm">
+                <strong>Gerencie seus clientes aqui.</strong><br/>
+                Veja o saldo devedor, ordene por nome ou dívida, filtre por status de pagamento e clique em "Ver Detalhes" para acessar as vendas e parcelas de cada cliente.
+              </p>
+            </TooltipContent>
+          </Tooltip>
+        </div>
         <CardDescription>
           {filteredAndSortedClients.length} de {clients.length} cliente{clients.length !== 1 ? "s" : ""} {filteredAndSortedClients.length === clients.length ? "cadastrado" : "encontrado"}{filteredAndSortedClients.length !== 1 ? "s" : ""}
         </CardDescription>
@@ -699,6 +732,7 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
           </Table>
         </div>
       </CardContent>
+      </TooltipProvider>
     </Card>
   );
 };

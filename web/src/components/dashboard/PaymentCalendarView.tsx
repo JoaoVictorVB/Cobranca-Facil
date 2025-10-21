@@ -1,8 +1,9 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Installment, installmentService, PaymentStatus } from "@/services/installment.service";
 import { format } from "date-fns";
-import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
+import { Calendar, ChevronLeft, ChevronRight, Info } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "../ui/button";
 
@@ -25,18 +26,35 @@ export const PaymentCalendar = ({ onDateClick, selectedDate, onClearFilter }: Pa
   const loadInstallments = useCallback(async () => {
     try {
       setLoading(true);
-      const upcoming = await installmentService.getUpcoming();
-      setInstallments(upcoming);
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth() + 1; // getMonth() retorna 0-11, precisamos 1-12
+      
+      console.log('📅 Carregando parcelas para:', { year, month });
+      
+      const monthInstallments = await installmentService.getByMonth(year, month);
+      
+      console.log('📦 Parcelas encontradas:', monthInstallments.length);
+      console.log('📦 Parcelas:', monthInstallments);
+      
+      setInstallments(monthInstallments);
     } catch (error) {
       console.error("Error loading installments:", error);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [currentDate]);
 
   useEffect(() => {
     loadInstallments();
   }, [loadInstallments]);
+
+  // Helper para extrair dia/mês/ano de uma data sem problemas de timezone
+  const getLocalDateParts = (dateString: string) => {
+    // Se tem 'T', remove a parte de tempo
+    const dateOnly = dateString.split('T')[0];
+    const [year, month, day] = dateOnly.split('-').map(Number);
+    return { year, month: month - 1, day }; // month - 1 porque JS usa 0-11
+  };
 
   const getDaysInMonth = (date: Date) => {
     const year = date.getFullYear();
@@ -58,13 +76,43 @@ export const PaymentCalendar = ({ onDateClick, selectedDate, onClearFilter }: Pa
     for (let day = 1; day <= daysInMonth; day++) {
       const currentDay = new Date(year, month, day);
       const dayInstallments = installments.filter((inst) => {
-        const instDate = new Date(inst.dueDate);
-        return (
-          instDate.getDate() === day &&
-          instDate.getMonth() === month &&
-          instDate.getFullYear() === year
+        // Verifica se a parcela vence neste dia (usando parsing sem timezone)
+        const dueDateParts = getLocalDateParts(inst.dueDate);
+        const matchDueDate = (
+          dueDateParts.day === day &&
+          dueDateParts.month === month &&
+          dueDateParts.year === year
         );
+        
+        // Verifica se a parcela foi paga neste dia (usando parsing sem timezone)
+        let matchPaidDate = false;
+        if (inst.paidDate) {
+          const paidDateParts = getLocalDateParts(inst.paidDate);
+          matchPaidDate = (
+            paidDateParts.day === day &&
+            paidDateParts.month === month &&
+            paidDateParts.year === year
+          );
+        }
+        
+        const match = matchDueDate || matchPaidDate;
+        
+        if (match) {
+          console.log(`✅ Parcela encontrada no dia ${day}:`, {
+            dueDate: inst.dueDate,
+            paidDate: inst.paidDate,
+            amount: inst.amount,
+            status: inst.status,
+            matchedBy: matchDueDate ? 'dueDate' : 'paidDate'
+          });
+        }
+        
+        return match;
       });
+
+      if (dayInstallments.length > 0) {
+        console.log(`📌 Dia ${day} tem ${dayInstallments.length} parcela(s)`);
+      }
 
       days.push({
         date: currentDay,
@@ -135,12 +183,25 @@ export const PaymentCalendar = ({ onDateClick, selectedDate, onClearFilter }: Pa
 
   return (
     <Card className="shadow-lg">
+      <TooltipProvider delayDuration={200}>
       <CardHeader className="bg-gradient-to-r from-primary/5 to-primary/10 border-b">
         <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
+          <div className="flex items-center gap-2">
             <Calendar className="h-5 w-5" />
-            Calendário de Pagamentos
-          </CardTitle>
+            <CardTitle>Calendário de Pagamentos</CardTitle>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-4 w-4 text-muted-foreground/60 hover:text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent side="top" className="max-w-xs">
+                <p className="text-sm">
+                  <strong>Visualize os vencimentos mensais.</strong><br/>
+                  🟢 Verde = Paga | 🔴 Vermelho = Atrasada | 🔵 Azul = A vencer<br/>
+                  Clique em um dia para filtrar os clientes
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
           <Select
             value={currentDate.toISOString()}
             onValueChange={(value) => setCurrentDate(new Date(value))}
@@ -173,6 +234,9 @@ export const PaymentCalendar = ({ onDateClick, selectedDate, onClearFilter }: Pa
                 <span>
                   📅 Filtrado por: {new Date(selectedDate + 'T00:00:00').toLocaleDateString('pt-BR')}
                 </span>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Vá para a aba "Clientes" para ver os resultados filtrados
+                </p>
               </div>
               <Button
                 variant="ghost"
@@ -292,6 +356,7 @@ export const PaymentCalendar = ({ onDateClick, selectedDate, onClearFilter }: Pa
           </div>
         </div>
       </CardContent>
+      </TooltipProvider>
     </Card>
   );
 };
