@@ -84,7 +84,7 @@ export default function ClientDetails() {
         title: "âœ… Venda ExcluÃ­da",
         description: `A venda "${saleDescription}" e todas as suas parcelas foram removidas.`,
       });
-      loadClientDetails(); // Recarrega os dados
+      loadClientDetails();
     } catch (error) {
       console.error("Error deleting sale:", error);
       toast({
@@ -278,14 +278,14 @@ export default function ClientDetails() {
               <p className="font-medium">{client.referredBy || "-"}</p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">EndereÃ§o</p>
+              <p className="text-sm text-muted-foreground">Endereço</p>
               <p className="font-medium">{client.address || "-"}</p>
             </div>
           </div>
 
           {client.observation && (
             <div className="pt-2 border-t">
-              <p className="text-sm text-muted-foreground">ObservaÃ§Ãµes</p>
+              <p className="text-sm text-muted-foreground">Observações</p>
               <p className="font-medium mt-1">{client.observation}</p>
             </div>
           )}
@@ -332,7 +332,7 @@ export default function ClientDetails() {
                   </TooltipTrigger>
                   <TooltipContent side="top" className="max-w-xs">
                     <p className="text-sm">
-                      Valor restante a receber de parcelas ainda nÃ£o pagas. <strong>Importante:</strong> Acompanhe este valor para cobranÃ§as futuras.
+                      Valor restante a receber de parcelas ainda não pagas. <strong>Importante:</strong> Acompanhe este valor para cobranças futuras.
                     </p>
                   </TooltipContent>
                 </Tooltip>
@@ -343,7 +343,7 @@ export default function ClientDetails() {
         </CardContent>
       </Card>
 
-      {/* Filtros e OrdenaÃ§Ã£o */}
+      {}
       <Card>
         <CardHeader>
           <div className="flex justify-between items-center">
@@ -545,7 +545,7 @@ export default function ClientDetails() {
                       <AlertDialogDescription>
                         Tem certeza que deseja excluir a venda "{sale.itemDescription}"? 
                         Isso vai deletar permanentemente a venda e todas as {sale.totalInstallments} parcelas associadas.
-                        Esta aÃ§Ã£o nÃ£o pode ser desfeita.
+                        Esta ação não pode ser desfeita.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -574,7 +574,7 @@ export default function ClientDetails() {
                   <TableHead>Pago</TableHead>
                   <TableHead>Data Pagamento</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>AÃ§Ã£o</TableHead>
+                  <TableHead>Ação</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -750,7 +750,7 @@ export default function ClientDetails() {
                                     Atualizando...
                                   </>
                                 ) : (
-                                  "Salvar AlteraÃ§Ãµes"
+                                  "Salvar Alterações"
                                 )}
                               </Button>
                             </div>

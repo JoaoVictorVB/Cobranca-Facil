@@ -38,7 +38,7 @@ export const AddSaleDialog = ({ onSuccess }: AddSaleDialogProps) => {
     totalInstallments: "1",
     paymentFrequency: PaymentFrequency.MENSAL,
     saleDate: new Date().toISOString().split('T')[0],
-    firstDueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30 dias a partir de hoje
+    firstDueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], 
   });
 
   const loadClients = useCallback(async () => {
@@ -226,21 +226,21 @@ export const AddSaleDialog = ({ onSuccess }: AddSaleDialogProps) => {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="newClientAddress">EndereÃ§o</Label>
+                    <Label htmlFor="newClientAddress">Endereço</Label>
                     <Input
                       id="newClientAddress"
                       value={formData.newClientAddress}
                       onChange={(e) => setFormData({ ...formData, newClientAddress: e.target.value })}
-                      placeholder="Rua, nÃºmero, bairro, cidade"
+                      placeholder="Rua, número, bairro, cidade"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="newClientObservation">ObservaÃ§Ãµes</Label>
+                    <Label htmlFor="newClientObservation">Observações</Label>
                     <Textarea
                       id="newClientObservation"
                       value={formData.newClientObservation}
                       onChange={(e) => setFormData({ ...formData, newClientObservation: e.target.value })}
-                      placeholder="InformaÃ§Ãµes adicionais sobre o cliente"
+                      placeholder="Informações adicionais sobre o cliente"
                       rows={3}
                     />
                   </div>
@@ -286,7 +286,7 @@ export const AddSaleDialog = ({ onSuccess }: AddSaleDialogProps) => {
                   type="date"
                   value={formData.firstDueDate}
                   onChange={(e) => setFormData({ ...formData, firstDueDate: e.target.value })}
-                  min={formData.saleDate} // NÃ£o pode ser antes da data da compra
+                  min={formData.saleDate} 
                   required
                 />
               </div>
@@ -320,12 +320,12 @@ export const AddSaleDialog = ({ onSuccess }: AddSaleDialogProps) => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="itemDescription">DescriÃ§Ã£o do Produto/ServiÃ§o *</Label>
+              <Label htmlFor="itemDescription">Descrição do Produto/Serviço *</Label>
               <Textarea
                 id="itemDescription"
                 value={formData.itemDescription}
                 onChange={(e) => setFormData({ ...formData, itemDescription: e.target.value })}
-                placeholder="Descreva o produto ou serviÃ§o vendido"
+                placeholder="Descreva o produto ou serviço vendido"
                 required
                 rows={2}
               />

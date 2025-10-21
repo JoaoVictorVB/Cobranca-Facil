@@ -11,9 +11,9 @@ interface PaymentStatusChartProps {
 }
 
 const COLORS = {
-  pago: '#10b981', // green
-  pendente: '#f59e0b', // yellow
-  atrasado: '#ef4444', // red
+  pago: '#10b981', 
+  pendente: '#f59e0b', 
+  atrasado: '#ef4444', 
 };
 
 const STATUS_LABELS = {

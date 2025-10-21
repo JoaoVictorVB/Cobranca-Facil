@@ -27,7 +27,7 @@ export const PaymentCalendar = ({ onDateClick, selectedDate, onClearFilter }: Pa
     try {
       setLoading(true);
       const year = currentDate.getFullYear();
-      const month = currentDate.getMonth() + 1; // getMonth() retorna 0-11, precisamos 1-12
+      const month = currentDate.getMonth() + 1;
       
       console.log('ðŸ“… Carregando parcelas para:', { year, month });
       
@@ -51,7 +51,7 @@ export const PaymentCalendar = ({ onDateClick, selectedDate, onClearFilter }: Pa
   const getLocalDateParts = (dateString: string) => {
     const dateOnly = dateString.split('T')[0];
     const [year, month, day] = dateOnly.split('-').map(Number);
-    return { year, month: month - 1, day }; // month - 1 porque JS usa 0-11
+    return { year, month: month - 1, day };
   };
 
   const getDaysInMonth = (date: Date) => {
@@ -247,7 +247,7 @@ export const PaymentCalendar = ({ onDateClick, selectedDate, onClearFilter }: Pa
           </div>
         )}
 
-        {/* Header com navegaÃ§Ã£o */}
+        {/* Header com navegação */}
         <div className="flex items-center justify-between mb-6">
           <Button
             variant="outline"

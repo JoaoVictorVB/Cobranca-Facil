@@ -328,7 +328,7 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
               <Filter className="h-4 w-4" />
-              Filtros e OrdenaÃ§Ã£o
+              Filtros e Ordenação
             </div>
             <Button
               variant="outline"
@@ -350,7 +350,7 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
             </Button>
           </div>
           
-          {/* Filtro de data vindo do calendÃ¡rio - sempre visÃ­vel */}
+          {}
           {(dateFilter || (localDateStart && localDateEnd)) && (
             <div className="p-3 bg-primary/10 border border-primary/20 rounded-lg flex items-center justify-between">
               <span className="text-sm font-medium">
@@ -388,7 +388,7 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
               />
             </div>
 
-            {/* OrdenaÃ§Ã£o */}
+            {/* Ordenação */}
             <div className="space-y-2">
               <label className="text-sm font-medium">Ordenar por</label>
               <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortOption)}>
@@ -563,8 +563,8 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
                 </Popover>
               </div>
             </div>
-            
-            {/* BotÃµes de aÃ§Ã£o para filtro de data */}
+
+            {/* Botões de ação para filtro de data */}
             {(localDateStart || localDateEnd || dateFilter) && (
               <div className="flex gap-2">
                 {(localDateStart || localDateEnd) && (
@@ -591,7 +591,7 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
                     className="gap-2"
                   >
                     <X className="h-4 w-4" />
-                    Limpar Data EspecÃ­fica
+                    Limpar Data Específica
                   </Button>
                 )}
               </div>
@@ -619,7 +619,7 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
                 <TableHead>Total Compras</TableHead>
                 <TableHead>Pago</TableHead>
                 <TableHead>Pendente</TableHead>
-                <TableHead className="text-center">AÃ§Ãµes</TableHead>
+                <TableHead className="text-center">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -700,9 +700,9 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
-                              <AlertDialogTitle>Confirmar remoÃ§Ã£o</AlertDialogTitle>
+                              <AlertDialogTitle>Confirmar remoção</AlertDialogTitle>
                               <AlertDialogDescription>
-                                Tem certeza que deseja remover o cliente {client.name}? Esta aÃ§Ã£o nÃ£o pode ser desfeita.
+                                Tem certeza que deseja remover o cliente {client.name}? Esta ação não pode ser desfeita.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>

@@ -109,7 +109,7 @@ const Index = () => {
         <div className="flex items-center justify-between">
           <div className="space-y-1">
             <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-              Dashboard de CobranÃ§as
+              Dashboard de Cobranças
             </h1>
             <p className="text-lg text-muted-foreground">
               Gerencie suas vendas e pagamentos de forma simples e eficiente
