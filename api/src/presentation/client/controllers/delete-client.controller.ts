@@ -9,8 +9,9 @@ import {
 import { DeleteClientUseCase } from '../../../application/client/use-cases/delete-client.use-case';
 import { JwtAuthGuard } from '../../../auth/jwt-auth.guard';
 import { User } from '../../../common/decorators/user.decorator';
+import { SWAGGER_TAGS } from '../../../common/swagger/swagger-tags';
 
-@ApiTags('clients')
+@ApiTags(SWAGGER_TAGS.CLIENTS)
 @Controller('clients')
 @UseGuards(JwtAuthGuard)
 export class DeleteClientController {

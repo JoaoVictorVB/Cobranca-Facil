@@ -27,53 +27,14 @@ import {
   ],
   providers: [
     PrismaService,
-    {
-      provide: 'IClientRepository',
-      useClass: ClientRepository,
-    },
-    {
-      provide: CreateClientUseCase,
-      useFactory: (clientRepository: ClientRepository) => {
-        return new CreateClientUseCase(clientRepository);
-      },
-      inject: ['IClientRepository'],
-    },
-    {
-      provide: GetClientByIdUseCase,
-      useFactory: (clientRepository: ClientRepository) => {
-        return new GetClientByIdUseCase(clientRepository);
-      },
-      inject: ['IClientRepository'],
-    },
-    {
-      provide: GetAllClientsUseCase,
-      useFactory: (clientRepository: ClientRepository) => {
-        return new GetAllClientsUseCase(clientRepository);
-      },
-      inject: ['IClientRepository'],
-    },
-    {
-      provide: GetAllClientsWithSalesUseCase,
-      useFactory: (clientRepository: ClientRepository) => {
-        return new GetAllClientsWithSalesUseCase(clientRepository);
-      },
-      inject: ['IClientRepository'],
-    },
-    {
-      provide: UpdateClientUseCase,
-      useFactory: (clientRepository: ClientRepository) => {
-        return new UpdateClientUseCase(clientRepository);
-      },
-      inject: ['IClientRepository'],
-    },
-    {
-      provide: DeleteClientUseCase,
-      useFactory: (clientRepository: ClientRepository) => {
-        return new DeleteClientUseCase(clientRepository);
-      },
-      inject: ['IClientRepository'],
-    },
+    ClientRepository,
+    CreateClientUseCase,
+    GetClientByIdUseCase,
+    GetAllClientsUseCase,
+    GetAllClientsWithSalesUseCase,
+    UpdateClientUseCase,
+    DeleteClientUseCase,
   ],
-  exports: ['IClientRepository'],
+  exports: [ClientRepository],
 })
 export class ClientModule {}

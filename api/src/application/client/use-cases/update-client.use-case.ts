@@ -1,16 +1,17 @@
 import { Injectable } from '@nestjs/common';
+import { PhoneValidator } from '../../../common/validators/phone.validator';
 import { Client } from '../../../domain/client/entities/client.entity';
 import {
-    ClientNotFoundError,
-    InvalidPhoneNumberError,
+  ClientNotFoundError,
+  InvalidPhoneNumberError,
 } from '../../../domain/client/errors/client.errors';
 import { IClientRepository } from '../../../domain/client/repositories/client.repository.interface';
 import { IUseCase } from '../../common/use-case.interface';
-import { UpdateClientDto } from '../dto/update-client.dto';
+import { UpdateClientData } from '../interfaces/client.interfaces';
 
 interface UpdateClientRequest {
   id: string;
-  data: UpdateClientDto;
+  data: UpdateClientData;
 }
 
 @Injectable()
@@ -24,7 +25,7 @@ export class UpdateClientUseCase implements IUseCase<UpdateClientRequest, Client
       throw new ClientNotFoundError(request.id);
     }
 
-    if (request.data.phone && !this.isValidPhone(request.data.phone)) {
+    if (request.data.phone && !PhoneValidator.isValid(request.data.phone)) {
       throw new InvalidPhoneNumberError(request.data.phone);
     }
 
@@ -35,10 +36,5 @@ export class UpdateClientUseCase implements IUseCase<UpdateClientRequest, Client
     });
 
     return await this.clientRepository.update(client, userId);
-  }
-
-  private isValidPhone(phone: string): boolean {
-    const phoneRegex = /^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$/;
-    return phoneRegex.test(phone);
   }
 }
