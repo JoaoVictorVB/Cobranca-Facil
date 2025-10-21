@@ -1,7 +1,7 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { setupSwagger } from './common/swagger/swagger.config';
 import { GlobalExceptionFilter } from './infrastructure/filters/global-exception.filter';
 import { LoggingInterceptor } from './infrastructure/interceptors/logging.interceptor';
 
@@ -38,23 +38,13 @@ async function bootstrap() {
     }),
   );
 
-  const config = new DocumentBuilder()
-    .setTitle('Cobrança Fácil API')
-    .setDescription('API robusta e escalável para sistema de cobrança')
-    .setVersion('1.0')
-    .addTag('clients')
-    .addTag('sales')
-    .addTag('products')
-    .build();
-
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document);
+  setupSwagger(app);
 
   const port = process.env.PORT || 3001;
   await app.listen(port);
 
   console.log(`🚀 Application is running on: http://localhost:${port}`);
-  console.log(`📚 Swagger documentation: http://localhost:${port}/api/docs`);
+  console.log(`📚 Swagger documentation: http://localhost:${port}/docs`);
   console.log(
     `🌍 CORS enabled for: ${process.env.NODE_ENV === 'production' ? 'production origins' : 'development origins'}`,
   );
