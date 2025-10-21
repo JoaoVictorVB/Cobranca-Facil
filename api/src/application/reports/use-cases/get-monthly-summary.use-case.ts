@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../infrastructure/database/prisma.service';
 import { IUseCase } from '../../common/use-case.interface';
-import { MonthlySummaryDto } from '../dto/monthly-summary.dto';
+import { MonthlySummary } from '../interfaces/reports.interfaces';
 
 interface GetMonthlySummaryRequest {
   year: number;
@@ -10,24 +10,39 @@ interface GetMonthlySummaryRequest {
 
 @Injectable()
 export class GetMonthlySummaryUseCase
-  implements IUseCase<GetMonthlySummaryRequest, MonthlySummaryDto>
+  implements IUseCase<GetMonthlySummaryRequest, MonthlySummary>
 {
   constructor(private readonly prisma: PrismaService) {}
 
-  async execute(request: GetMonthlySummaryRequest): Promise<MonthlySummaryDto> {
+  async execute(request: GetMonthlySummaryRequest, userId?: string): Promise<MonthlySummary> {
     const { year, month } = request;
 
-    // Data inicial e final do mês
     const startDate = new Date(year, month - 1, 1);
     const endDate = new Date(year, month, 0, 23, 59, 59);
 
-    // Buscar todas as parcelas com vencimento no mês
     const installments = await this.prisma.installment.findMany({
       where: {
-        dueDate: {
-          gte: startDate,
-          lte: endDate,
-        },
+        OR: [
+          {
+            dueDate: {
+              gte: startDate,
+              lte: endDate,
+            },
+          },
+          {
+            paidDate: {
+              gte: startDate,
+              lte: endDate,
+            },
+          },
+        ],
+        ...(userId ? {
+          sale: {
+            client: {
+              userId,
+            },
+          },
+        } : {}),
       },
       include: {
         sale: {
@@ -49,34 +64,47 @@ export class GetMonthlySummaryUseCase
     const now = new Date();
 
     for (const installment of installments) {
-      totalExpected += installment.amount;
+      const amount = Number(installment.amount);
+      const paidAmount = Number(installment.paidAmount || 0);
+      
+      const dueInMonth = installment.dueDate >= startDate && installment.dueDate <= endDate;
+      const paidInMonth = installment.paidDate && 
+                          installment.paidDate >= startDate && 
+                          installment.paidDate <= endDate;
 
-      if (installment.status === 'pago') {
-        totalReceived += installment.paidAmount || installment.amount;
-        paidInstallments++;
-      } else if (installment.status === 'atrasado') {
-        totalOverdue += installment.amount;
-        overdueInstallments++;
-      } else if (installment.dueDate > now) {
-        totalPending += installment.amount;
-        upcomingInstallments++;
-      } else {
-        // Pendente mas já venceu
-        totalOverdue += installment.amount;
-        overdueInstallments++;
+      if (dueInMonth) {
+        totalExpected += amount;
+        
+        if (installment.status === 'PAGO') {
+          paidInstallments++;
+        } else if (installment.status === 'ATRASADO') {
+          overdueInstallments++;
+          totalOverdue += amount - paidAmount;
+        } else {
+          if (installment.dueDate < now) {
+            overdueInstallments++;
+            totalOverdue += amount - paidAmount;
+          } else {
+            upcomingInstallments++;
+            totalPending += amount - paidAmount;
+          }
+        }
+      }
+
+      if (paidInMonth) {
+        totalReceived += paidAmount;
       }
     }
 
-    const receivedPercentage =
-      totalExpected > 0 ? (totalReceived / totalExpected) * 100 : 0;
+    const receivedPercentage = totalExpected > 0 ? (totalReceived / totalExpected) * 100 : 0;
 
     return {
       month: `${year}-${String(month).padStart(2, '0')}`,
-      totalExpected,
-      totalReceived,
-      totalPending,
-      totalOverdue,
-      receivedPercentage,
+      totalExpected: Number(totalExpected.toFixed(2)),
+      totalReceived: Number(totalReceived.toFixed(2)),
+      totalPending: Number(totalPending.toFixed(2)),
+      totalOverdue: Number(totalOverdue.toFixed(2)),
+      receivedPercentage: Number(receivedPercentage.toFixed(2)),
       upcomingInstallments,
       overdueInstallments,
       paidInstallments,

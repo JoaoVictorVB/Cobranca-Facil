@@ -1,4 +1,4 @@
-import { AddProductDialog } from "@/components/dashboard/AddProductDialog";
+﻿import { AddProductDialog } from "@/components/dashboard/AddProductDialog";
 import { AddSaleDialog } from "@/components/dashboard/AddSaleDialog";
 import { ClientsTable } from "@/components/dashboard/ClientsTable";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
@@ -57,19 +57,32 @@ const Index = () => {
   const loadStats = useCallback(async () => {
     try {
       setLoading(true);
-      const [clients, monthlySummary] = await Promise.all([
+      const [clients, paymentStatus] = await Promise.all([
         clientService.findAll(),
-        reportsService.getMonthlySummary()
+        reportsService.getPaymentStatus()
       ]);
       
+      let totalSold = 0;
+      let totalPaid = 0;
+      let totalPending = 0;
+      
+      paymentStatus.forEach(status => {
+        if (status.status === 'pago') {
+          totalPaid += status.totalAmount;
+        } else if (status.status === 'pendente' || status.status === 'atrasado') {
+          totalPending += status.totalAmount;
+        }
+      });
+      
+      totalSold = totalPaid + totalPending;
+      
       setStats({
-        totalSold: monthlySummary?.totalExpected || 0,
-        totalPaid: monthlySummary?.totalReceived || 0,
-        totalPending: (monthlySummary?.totalPending || 0) + (monthlySummary?.totalOverdue || 0),
+        totalSold,
+        totalPaid,
+        totalPending,
         totalClients: clients?.length || 0
       });
       
-      // Incrementa refreshKey para forçar reload do componente Home
       setRefreshKey(prev => prev + 1);
     } catch (error) {
       console.error("Error loading stats:", error);
@@ -96,7 +109,7 @@ const Index = () => {
         <div className="flex items-center justify-between">
           <div className="space-y-1">
             <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-              Dashboard de Cobranças
+              Dashboard de CobranÃ§as
             </h1>
             <p className="text-lg text-muted-foreground">
               Gerencie suas vendas e pagamentos de forma simples e eficiente
@@ -121,7 +134,7 @@ const Index = () => {
               <TabsList className="grid w-full max-w-2xl grid-cols-3">
                 <TabsTrigger value="home">Dashboard</TabsTrigger>
                 <TabsTrigger value="clients">Clientes</TabsTrigger>
-                <TabsTrigger value="calendar">Calendário</TabsTrigger>
+                <TabsTrigger value="calendar">CalendÃ¡rio</TabsTrigger>
               </TabsList>
               
               <TabsContent value="home" className="mt-6">
@@ -146,7 +159,6 @@ const Index = () => {
                     setSelectedDate(date);
                     setDateRangeStart(undefined);
                     setDateRangeEnd(undefined);
-                    setActiveTab("clients");
                   }}
                   onClearFilter={clearAllFilters}
                 />

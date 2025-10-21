@@ -13,10 +13,6 @@ export class ProductNotFoundError extends DomainError {
 
 export class ProductAlreadyExistsError extends DomainError {
   constructor(name: string) {
-    super(
-      `Produto com nome '${name}' já existe`,
-      HttpStatusCode.CONFLICT,
-      'ProductAlreadyExists',
-    );
+    super(`Produto com nome '${name}' já existe`, HttpStatusCode.CONFLICT, 'ProductAlreadyExists');
   }
 }

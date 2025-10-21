@@ -2,8 +2,17 @@ import { toast } from '@/hooks/use-toast';
 import axios, { AxiosError } from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const API_TIMEOUT = Number(import.meta.env.VITE_API_TIMEOUT) || 10000;
+const IS_PRODUCTION = import.meta.env.VITE_APP_ENV === 'production';
 
-// Interface para o formato de erro da API
+if (!IS_PRODUCTION) {
+  console.log('🔧 API Configuration:', {
+    baseURL: API_URL,
+    timeout: API_TIMEOUT,
+    environment: import.meta.env.VITE_APP_ENV || 'development',
+  });
+}
+
 export interface ApiErrorResponse {
   statusCode: number;
   error: string;
@@ -12,7 +21,6 @@ export interface ApiErrorResponse {
   path: string;
 }
 
-// Tipos de erros customizados
 export class ApiError extends Error {
   constructor(
     message: string,
@@ -30,13 +38,15 @@ export const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 10000, // 10 segundos
+  timeout: API_TIMEOUT,
 });
 
-// Request interceptor
 api.interceptors.request.use(
   (config) => {
-    // Pode adicionar tokens aqui no futuro
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
     return config;
   },
   (error) => {
@@ -44,11 +54,9 @@ api.interceptors.request.use(
   }
 );
 
-// Response interceptor com tratamento de erros
 api.interceptors.response.use(
   (response) => response,
   async (error: AxiosError<ApiErrorResponse>) => {
-    // Erro de rede ou timeout
     if (!error.response) {
       toast({
         title: '❌ Erro de Conexão',
@@ -65,7 +73,6 @@ api.interceptors.response.use(
 
     const errorResponse = error.response.data;
     
-    // Criar erro customizado
     const apiError = new ApiError(
       errorResponse.message || 'Erro desconhecido',
       errorResponse.statusCode || error.response.status,
@@ -73,10 +80,8 @@ api.interceptors.response.use(
       errorResponse.path || error.config?.url || '',
     );
 
-    // Tratar erros específicos
     switch (errorResponse.statusCode) {
       case 400:
-        // Bad Request - Validação
         toast({
           title: '⚠️ Dados Inválidos',
           description: errorResponse.message,
@@ -84,8 +89,26 @@ api.interceptors.response.use(
         });
         break;
 
+      case 401: {
+        const isAuthRoute = errorResponse.path?.includes('/auth/');
+        
+        if (!isAuthRoute) {
+          toast({
+            title: '🔒 Não Autorizado',
+            description: 'Sua sessão expirou. Faça login novamente.',
+            variant: 'destructive',
+          });
+          localStorage.removeItem('auth_token');
+          localStorage.removeItem('auth_user');
+          localStorage.removeItem('isAuthenticated');
+          if (window.location.pathname !== '/login' && window.location.pathname !== '/register') {
+            window.location.href = '/login';
+          }
+        }
+        break;
+      }
+
       case 404:
-        // Not Found
         toast({
           title: '🔍 Não Encontrado',
           description: errorResponse.message,
@@ -94,7 +117,6 @@ api.interceptors.response.use(
         break;
 
       case 409:
-        // Conflict
         toast({
           title: '⚠️ Conflito',
           description: errorResponse.message,
@@ -103,7 +125,6 @@ api.interceptors.response.use(
         break;
 
       case 422:
-        // Unprocessable Entity
         toast({
           title: '⚠️ Erro de Validação',
           description: errorResponse.message,
@@ -112,7 +133,6 @@ api.interceptors.response.use(
         break;
 
       case 500:
-        // Internal Server Error
         toast({
           title: '❌ Erro no Servidor',
           description: 'Ocorreu um erro interno. Tente novamente mais tarde.',

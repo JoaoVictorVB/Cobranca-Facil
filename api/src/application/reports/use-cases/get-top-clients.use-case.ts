@@ -1,22 +1,21 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../infrastructure/database/prisma.service';
 import { IUseCase } from '../../common/use-case.interface';
-import { TopClientsDto } from '../dto/monthly-summary.dto';
+import { TopClient } from '../interfaces/reports.interfaces';
 
 interface GetTopClientsRequest {
   limit?: number;
 }
 
 @Injectable()
-export class GetTopClientsUseCase
-  implements IUseCase<GetTopClientsRequest, TopClientsDto[]>
-{
+export class GetTopClientsUseCase implements IUseCase<GetTopClientsRequest, TopClient[]> {
   constructor(private readonly prisma: PrismaService) {}
 
-  async execute(request: GetTopClientsRequest): Promise<TopClientsDto[]> {
+  async execute(request: GetTopClientsRequest, userId?: string): Promise<TopClient[]> {
     const limit = request.limit || 5;
 
     const clients = await this.prisma.client.findMany({
+      where: userId ? { userId } : undefined,
       include: {
         sales: {
           include: {
@@ -33,17 +32,20 @@ export class GetTopClientsUseCase
         let totalPending = 0;
 
         for (const sale of client.sales) {
-          totalPurchases += sale.totalValue;
-          totalPaid += sale.totalPaid;
-          totalPending += sale.totalValue - sale.totalPaid;
+          const saleValue = Number(sale.totalValue);
+          const salePaid = Number(sale.totalPaid);
+          
+          totalPurchases += saleValue;
+          totalPaid += salePaid;
+          totalPending += saleValue - salePaid;
         }
 
         return {
           clientId: client.id,
           clientName: client.name,
-          totalPurchases,
-          totalPaid,
-          totalPending,
+          totalPurchases: Number(totalPurchases.toFixed(2)),
+          totalPaid: Number(totalPaid.toFixed(2)),
+          totalPending: Number(totalPending.toFixed(2)),
         };
       })
       .sort((a, b) => b.totalPurchases - a.totalPurchases)

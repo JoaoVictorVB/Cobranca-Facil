@@ -7,58 +7,36 @@ import { GetClientByIdUseCase } from '../../application/client/use-cases/get-cli
 import { UpdateClientUseCase } from '../../application/client/use-cases/update-client.use-case';
 import { PrismaService } from '../../infrastructure/database/prisma.service';
 import { ClientRepository } from '../../infrastructure/repositories/client.repository';
-import { ClientController } from './client.controller';
+import {
+  CreateClientController,
+  DeleteClientController,
+  GetAllClientsController,
+  GetAllClientsWithSalesController,
+  GetClientByIdController,
+  UpdateClientController,
+} from './controllers';
 
 @Module({
-  controllers: [ClientController],
+  controllers: [
+    CreateClientController,
+    GetAllClientsController,
+    GetAllClientsWithSalesController,
+    GetClientByIdController,
+    UpdateClientController,
+    DeleteClientController,
+  ],
   providers: [
     PrismaService,
     {
       provide: 'IClientRepository',
       useClass: ClientRepository,
     },
-    {
-      provide: CreateClientUseCase,
-      useFactory: (clientRepository: ClientRepository) => {
-        return new CreateClientUseCase(clientRepository);
-      },
-      inject: ['IClientRepository'],
-    },
-    {
-      provide: GetClientByIdUseCase,
-      useFactory: (clientRepository: ClientRepository) => {
-        return new GetClientByIdUseCase(clientRepository);
-      },
-      inject: ['IClientRepository'],
-    },
-    {
-      provide: GetAllClientsUseCase,
-      useFactory: (clientRepository: ClientRepository) => {
-        return new GetAllClientsUseCase(clientRepository);
-      },
-      inject: ['IClientRepository'],
-    },
-    {
-      provide: GetAllClientsWithSalesUseCase,
-      useFactory: (clientRepository: ClientRepository) => {
-        return new GetAllClientsWithSalesUseCase(clientRepository);
-      },
-      inject: ['IClientRepository'],
-    },
-    {
-      provide: UpdateClientUseCase,
-      useFactory: (clientRepository: ClientRepository) => {
-        return new UpdateClientUseCase(clientRepository);
-      },
-      inject: ['IClientRepository'],
-    },
-    {
-      provide: DeleteClientUseCase,
-      useFactory: (clientRepository: ClientRepository) => {
-        return new DeleteClientUseCase(clientRepository);
-      },
-      inject: ['IClientRepository'],
-    },
+    CreateClientUseCase,
+    GetClientByIdUseCase,
+    GetAllClientsUseCase,
+    GetAllClientsWithSalesUseCase,
+    UpdateClientUseCase,
+    DeleteClientUseCase,
   ],
   exports: ['IClientRepository'],
 })

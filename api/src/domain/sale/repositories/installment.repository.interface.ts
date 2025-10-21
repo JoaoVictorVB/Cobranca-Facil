@@ -5,8 +5,8 @@ export interface IInstallmentRepository {
   createMany(installments: Installment[]): Promise<Installment[]>;
   findById(id: string): Promise<Installment | null>;
   findBySaleId(saleId: string): Promise<Installment[]>;
-  findOverdue(): Promise<Installment[]>;
-  findByDueDateRange(startDate: Date, endDate: Date): Promise<Installment[]>;
+  findOverdue(userId?: string): Promise<Installment[]>;
+  findByDueDateRange(startDate: Date, endDate: Date, userId?: string): Promise<Installment[]>;
   update(installment: Installment): Promise<Installment>;
   delete(id: string): Promise<void>;
 }

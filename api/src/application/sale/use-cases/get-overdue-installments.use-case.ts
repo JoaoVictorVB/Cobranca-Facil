@@ -1,16 +1,18 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { Installment } from '../../../domain/sale/entities/installment.entity';
 import { IInstallmentRepository } from '../../../domain/sale/repositories/installment.repository.interface';
 import { IUseCase } from '../../common/use-case.interface';
 
 @Injectable()
 export class GetOverdueInstallmentsUseCase implements IUseCase<void, Installment[]> {
-  constructor(private readonly installmentRepository: IInstallmentRepository) {}
+  constructor(
+    @Inject('IInstallmentRepository')
+    private readonly installmentRepository: IInstallmentRepository,
+  ) {}
 
-  async execute(): Promise<Installment[]> {
-    const overdueInstallments = await this.installmentRepository.findOverdue();
+  async execute(_request: void, userId?: string): Promise<Installment[]> {
+    const overdueInstallments = await this.installmentRepository.findOverdue(userId);
 
-    // Mark as overdue
     for (const installment of overdueInstallments) {
       installment.markAsOverdue();
       await this.installmentRepository.update(installment);
@@ -19,3 +21,4 @@ export class GetOverdueInstallmentsUseCase implements IUseCase<void, Installment
     return overdueInstallments;
   }
 }
+

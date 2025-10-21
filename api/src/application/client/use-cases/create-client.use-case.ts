@@ -1,17 +1,20 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { PhoneValidator } from '../../../common/validators/phone.validator';
 import { Client } from '../../../domain/client/entities/client.entity';
 import { InvalidPhoneNumberError } from '../../../domain/client/errors/client.errors';
 import { IClientRepository } from '../../../domain/client/repositories/client.repository.interface';
 import { IUseCase } from '../../common/use-case.interface';
-import { CreateClientDto } from '../dto/create-client.dto';
+import { CreateClientData } from '../interfaces/client.interfaces';
 
 @Injectable()
-export class CreateClientUseCase implements IUseCase<CreateClientDto, Client> {
-  constructor(private readonly clientRepository: IClientRepository) {}
+export class CreateClientUseCase implements IUseCase<CreateClientData, Client> {
+  constructor(
+    @Inject('IClientRepository')
+    private readonly clientRepository: IClientRepository,
+  ) {}
 
-  async execute(request: CreateClientDto): Promise<Client> {
-    // Validar telefone se fornecido
-    if (request.phone && !this.isValidPhone(request.phone)) {
+  async execute(request: CreateClientData, userId: string): Promise<Client> {
+    if (request.phone && !PhoneValidator.isValid(request.phone)) {
       throw new InvalidPhoneNumberError(request.phone);
     }
 
@@ -21,12 +24,6 @@ export class CreateClientUseCase implements IUseCase<CreateClientDto, Client> {
       referredBy: request.referredBy,
     });
 
-    return await this.clientRepository.create(client);
-  }
-
-  private isValidPhone(phone: string): boolean {
-    // Regex básico para telefone brasileiro: (XX) XXXXX-XXXX ou (XX) XXXX-XXXX
-    const phoneRegex = /^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$/;
-    return phoneRegex.test(phone);
+    return await this.clientRepository.create(client, userId);
   }
 }

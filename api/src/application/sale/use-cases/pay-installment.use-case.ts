@@ -1,9 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { Installment } from '../../../domain/sale/entities/installment.entity';
 import {
-    InstallmentAlreadyPaidError,
-    InstallmentNotFoundError,
-    SaleNotFoundError,
+  InstallmentNotFoundError,
+  SaleNotFoundError,
 } from '../../../domain/sale/errors/sale.errors';
 import { IInstallmentRepository } from '../../../domain/sale/repositories/installment.repository.interface';
 import { ISaleRepository } from '../../../domain/sale/repositories/sale.repository.interface';
@@ -16,42 +15,39 @@ interface PayInstallmentRequest {
 }
 
 @Injectable()
-export class PayInstallmentUseCase
-  implements IUseCase<PayInstallmentRequest, Installment>
-{
+export class PayInstallmentUseCase implements IUseCase<PayInstallmentRequest, Installment> {
   constructor(
-    private readonly installmentRepository: IInstallmentRepository,
+    @Inject('ISaleRepository')
     private readonly saleRepository: ISaleRepository,
+    @Inject('IInstallmentRepository')
+    private readonly installmentRepository: IInstallmentRepository,
   ) {}
 
   async execute(request: PayInstallmentRequest): Promise<Installment> {
-    const installment = await this.installmentRepository.findById(
-      request.installmentId,
-    );
+    const installment = await this.installmentRepository.findById(request.installmentId);
 
     if (!installment) {
       throw new InstallmentNotFoundError(request.installmentId);
     }
 
-    // Verificar se já foi paga
-    if (installment.isPaid()) {
-      throw new InstallmentAlreadyPaidError(request.installmentId);
-    }
+    const hadPreviousPayment = installment.paidAmount && installment.paidAmount.amount > 0;
+    const previousPaidAmount = installment.paidAmount?.amount || 0;
 
-    // Marcar como paga
     installment.markAsPaid(request.amount, request.paidDate);
-    const updatedInstallment =
-      await this.installmentRepository.update(installment);
+    const updatedInstallment = await this.installmentRepository.update(installment);
 
-    // Atualizar total pago da venda
     const sale = await this.saleRepository.findById(installment.saleId);
     if (!sale) {
       throw new SaleNotFoundError(installment.saleId);
     }
 
+    if (hadPreviousPayment) {
+      sale.removePayment(previousPaidAmount);
+    }
     sale.addPayment(request.amount);
     await this.saleRepository.update(sale);
 
     return updatedInstallment;
   }
 }
+

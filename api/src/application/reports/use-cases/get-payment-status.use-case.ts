@@ -1,14 +1,21 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../infrastructure/database/prisma.service';
 import { IUseCase } from '../../common/use-case.interface';
-import { PaymentStatusDto } from '../dto/monthly-summary.dto';
+import { PaymentStatus } from '../interfaces/reports.interfaces';
 
 @Injectable()
-export class GetPaymentStatusUseCase implements IUseCase<void, PaymentStatusDto[]> {
+export class GetPaymentStatusUseCase implements IUseCase<void, PaymentStatus[]> {
   constructor(private readonly prisma: PrismaService) {}
 
-  async execute(): Promise<PaymentStatusDto[]> {
+  async execute(userId?: string): Promise<PaymentStatus[]> {
     const installments = await this.prisma.installment.findMany({
+      where: userId ? {
+        sale: {
+          client: {
+            userId,
+          },
+        },
+      } : undefined,
       select: {
         status: true,
         amount: true,
@@ -22,15 +29,19 @@ export class GetPaymentStatusUseCase implements IUseCase<void, PaymentStatusDto[
       const status = installment.status;
       const existing = statusMap.get(status) || { count: 0, totalAmount: 0 };
       existing.count += 1;
-      existing.totalAmount += 
-        status === 'pago' ? (installment.paidAmount || installment.amount) : installment.amount;
+      
+      const amountToAdd = status === 'pago' 
+        ? Number(installment.paidAmount || installment.amount)
+        : Number(installment.amount);
+      
+      existing.totalAmount += amountToAdd;
       statusMap.set(status, existing);
     }
 
     return Array.from(statusMap.entries()).map(([status, data]) => ({
       status: status as 'pago' | 'pendente' | 'atrasado',
       count: data.count,
-      totalAmount: data.totalAmount,
+      totalAmount: Number(data.totalAmount.toFixed(2)),
     }));
   }
 }

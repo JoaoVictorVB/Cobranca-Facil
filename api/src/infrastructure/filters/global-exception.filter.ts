@@ -1,10 +1,10 @@
 import {
-    ArgumentsHost,
-    Catch,
-    ExceptionFilter,
-    HttpException,
-    HttpStatus,
-    Logger,
+  ArgumentsHost,
+  Catch,
+  ExceptionFilter,
+  HttpException,
+  HttpStatus,
+  Logger,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { DomainError } from '../../domain/common/domain-error';
@@ -18,11 +18,8 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest();
 
-    // Domain Error (Erro de negócio)
     if (exception instanceof DomainError) {
-      this.logger.warn(
-        `Domain Error: ${exception.error} - ${exception.message}`,
-      );
+      this.logger.warn(`Domain Error: ${exception.error} - ${exception.message}`);
 
       return response.status(exception.httpStatusCode).json({
         statusCode: exception.httpStatusCode,
@@ -33,7 +30,6 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       });
     }
 
-    // HTTP Exception do NestJS
     if (exception instanceof HttpException) {
       const status = exception.getStatus();
       const exceptionResponse = exception.getResponse();
@@ -52,7 +48,6 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       });
     }
 
-    // Erro desconhecido
     this.logger.error(
       `Unexpected Error: ${exception}`,
       exception instanceof Error ? exception.stack : '',

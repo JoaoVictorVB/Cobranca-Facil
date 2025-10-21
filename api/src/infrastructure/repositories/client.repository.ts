@@ -7,7 +7,7 @@ import { PrismaService } from '../database/prisma.service';
 export class ClientRepository implements IClientRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(client: Client): Promise<Client> {
+  async create(client: Client, userId: string): Promise<Client> {
     const created = await this.prisma.client.create({
       data: {
         id: client.id,
@@ -16,6 +16,7 @@ export class ClientRepository implements IClientRepository {
         referredBy: client.referredBy,
         observation: client.observation,
         address: client.address,
+        userId,
         createdAt: client.createdAt,
         updatedAt: client.updatedAt,
       },
@@ -24,30 +25,35 @@ export class ClientRepository implements IClientRepository {
     return this.toDomain(created);
   }
 
-  async findById(id: string): Promise<Client | null> {
-    const client = await this.prisma.client.findUnique({
-      where: { id },
+  async findById(id: string, userId?: string): Promise<Client | null> {
+    const where: any = { id };
+    if (userId) where.userId = userId;
+
+    const client = await this.prisma.client.findFirst({
+      where,
     });
 
     return client ? this.toDomain(client) : null;
   }
 
-  async findAll(page: number = 1, limit: number = 50): Promise<Client[]> {
+  async findAll(page: number = 1, limit: number = 50, userId?: string): Promise<Client[]> {
     const skip = (page - 1) * limit;
     const clients = await this.prisma.client.findMany({
       skip,
       take: limit,
+      where: userId ? { userId } : undefined,
       orderBy: { createdAt: 'desc' },
     });
 
     return clients.map((client) => this.toDomain(client));
   }
 
-  async findAllWithSales(page: number = 1, limit: number = 50): Promise<any[]> {
+  async findAllWithSales(page: number = 1, limit: number = 50, userId?: string): Promise<any[]> {
     const skip = (page - 1) * limit;
     const clients = await this.prisma.client.findMany({
       skip,
       take: limit,
+      where: userId ? { userId } : undefined,
       orderBy: { createdAt: 'desc' },
       include: {
         sales: {
@@ -60,7 +66,6 @@ export class ClientRepository implements IClientRepository {
       },
     });
 
-    // Calcular totalPaid para cada sale
     return clients.map((client) => ({
       ...client,
       sales: client.sales.map((sale) => {
@@ -79,9 +84,12 @@ export class ClientRepository implements IClientRepository {
     }));
   }
 
-  async update(client: Client): Promise<Client> {
-    const updated = await this.prisma.client.update({
-      where: { id: client.id },
+  async update(client: Client, userId?: string): Promise<Client> {
+    const where: any = { id: client.id };
+    if (userId) where.userId = userId;
+
+    await this.prisma.client.updateMany({
+      where,
       data: {
         name: client.name,
         phone: client.phone?.value,
@@ -92,21 +100,23 @@ export class ClientRepository implements IClientRepository {
       },
     });
 
-    return this.toDomain(updated);
+    const fetched = await this.prisma.client.findFirst({ where });
+    if (!fetched) throw new Error('Client not found after update');
+    return this.toDomain(fetched);
   }
 
-  async delete(id: string): Promise<void> {
-    await this.prisma.client.delete({
-      where: { id },
-    });
+  async delete(id: string, userId?: string): Promise<void> {
+    const where: any = { id };
+    if (userId) where.userId = userId;
+
+    await this.prisma.client.deleteMany({ where });
   }
 
-  async findByName(name: string): Promise<Client[]> {
+  async findByName(name: string, userId?: string): Promise<Client[]> {
     const clients = await this.prisma.client.findMany({
       where: {
-        name: {
-          contains: name,
-        },
+        name: { contains: name },
+        ...(userId ? { userId } : {}),
       },
     });
 

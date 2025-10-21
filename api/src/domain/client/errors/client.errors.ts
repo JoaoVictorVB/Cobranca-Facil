@@ -13,11 +13,7 @@ export class ClientNotFoundError extends DomainError {
 
 export class ClientAlreadyExistsError extends DomainError {
   constructor(name: string) {
-    super(
-      `Cliente com nome '${name}' já existe`,
-      HttpStatusCode.CONFLICT,
-      'ClientAlreadyExists',
-    );
+    super(`Cliente com nome '${name}' já existe`, HttpStatusCode.CONFLICT, 'ClientAlreadyExists');
   }
 }
 

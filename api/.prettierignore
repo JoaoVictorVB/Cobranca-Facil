@@ -1,0 +1,27 @@
+# Dependências
+node_modules
+dist
+build
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+
+# Testes
+coverage
+
+# IDEs
+.idea
+.vscode
+
+# Env
+.env
+.env.local
+
+# Prisma
+prisma/migrations
+
+# Build
+*.tsbuildinfo

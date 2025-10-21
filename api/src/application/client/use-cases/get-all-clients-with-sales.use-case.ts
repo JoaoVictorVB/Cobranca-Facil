@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { IClientRepository } from '../../../domain/client/repositories/client.repository.interface';
 
 export interface ClientWithSalesResponse {
@@ -40,15 +40,19 @@ export interface InstallmentResponse {
 
 @Injectable()
 export class GetAllClientsWithSalesUseCase {
-  constructor(private readonly clientRepository: IClientRepository) {}
+  constructor(
+    @Inject('IClientRepository')
+    private readonly clientRepository: IClientRepository
+  ) {}
 
-  async execute(request: {
-    page?: number;
-    limit?: number;
-  }): Promise<ClientWithSalesResponse[]> {
-    return await this.clientRepository.findAllWithSales(
-      request.page,
-      request.limit,
-    );
+  async execute(
+    request: {
+      page?: number;
+      limit?: number;
+    },
+    userId?: string,
+  ): Promise<ClientWithSalesResponse[]> {
+    return await this.clientRepository.findAllWithSales(request.page, request.limit, userId);
   }
 }
+

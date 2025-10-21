@@ -1,13 +1,13 @@
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
+﻿import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,12 +17,13 @@ import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 import { ClientWithSales, clientWithSalesService } from "@/services/client-with-sales.service";
 import { clientService } from "@/services/client.service";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { ArrowDown, ArrowUp, CalendarIcon, Eye, Filter, Phone, Trash2, User, X } from "lucide-react";
+import { ArrowDown, ArrowUp, CalendarIcon, Eye, Filter, Info, Phone, Trash2, User, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -46,7 +47,7 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
   const [filterBy, setFilterBy] = useState<FilterOption>('all');
   const [localDateStart, setLocalDateStart] = useState("");
   const [localDateEnd, setLocalDateEnd] = useState("");
-  const [showFilters, setShowFilters] = useState(true);
+  const [showFilters, setShowFilters] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -54,6 +55,15 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
     if (dateRangeStart) setLocalDateStart(dateRangeStart);
     if (dateRangeEnd) setLocalDateEnd(dateRangeEnd);
   }, [dateRangeStart, dateRangeEnd]);
+
+  const getDateOnly = (dateString: string): string => {
+    if (dateString.includes('T')) {
+      return dateString.split('T')[0];
+    }
+    const [year, month, day] = dateString.split('-').map(Number);
+    const date = new Date(year, month - 1, day, 12, 0, 0);
+    return date.toISOString().split('T')[0];
+  };
 
   const loadClients = useCallback(async () => {
     try {
@@ -75,7 +85,7 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
     try {
       await clientService.delete(id);
       toast({
-        title: "✅ Cliente Removido",
+        title: "âœ… Cliente Removido",
         description: "Cliente removido com sucesso.",
       });
       loadClients();
@@ -146,7 +156,7 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
     today.setHours(0, 0, 0, 0);
     const isOverdue = nextDate < today;
     
-    return format(nextDate, "dd/MM/yyyy", { locale: ptBR }) + (isOverdue ? ' ⚠️' : '');
+    return format(nextDate, "dd/MM/yyyy", { locale: ptBR }) + (isOverdue ? ' âš ï¸' : '');
   };
 
   const calculateClientStats = (client: ClientWithSales) => {
@@ -188,8 +198,9 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
       filtered = filtered.filter(client => {
         return client.sales?.some(sale => 
           sale.installments?.some(inst => {
-            const instDate = new Date(inst.dueDate).toISOString().split('T')[0];
-            return instDate === dateFilter;
+            const dueDate = getDateOnly(inst.dueDate);
+            const paidDate = inst.paidDate ? getDateOnly(inst.paidDate) : null;
+            return dueDate === dateFilter || paidDate === dateFilter;
           })
         );
       });
@@ -202,8 +213,13 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
       filtered = filtered.filter(client => {
         return client.sales?.some(sale => 
           sale.installments?.some(inst => {
-            const instDate = new Date(inst.dueDate);
-            return instDate >= startDate && instDate <= endDate;
+            const dueDate = new Date(inst.dueDate);
+            const paidDate = inst.paidDate ? new Date(inst.paidDate) : null;
+            
+            const dueDateInRange = dueDate >= startDate && dueDate <= endDate;
+            const paidDateInRange = paidDate && paidDate >= startDate && paidDate <= endDate;
+            
+            return dueDateInRange || paidDateInRange;
           })
         );
       });
@@ -285,11 +301,23 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
 
   return (
     <Card className="shadow-lg">
+      <TooltipProvider delayDuration={200}>
       <CardHeader className="bg-gradient-to-r from-primary/5 to-primary/10 border-b">
-        <CardTitle className="flex items-center gap-2">
+        <div className="flex items-center gap-2">
           <User className="h-5 w-5" />
-          Clientes Cadastrados
-        </CardTitle>
+          <CardTitle>Clientes Cadastrados</CardTitle>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Info className="h-4 w-4 text-muted-foreground/60 hover:text-muted-foreground cursor-help" />
+            </TooltipTrigger>
+            <TooltipContent side="top" className="max-w-xs">
+              <p className="text-sm">
+                <strong>Gerencie seus clientes aqui.</strong><br/>
+                Veja o saldo devedor, ordene por nome ou dÃ­vida, filtre por status de pagamento e clique em "Ver Detalhes" para acessar as vendas e parcelas de cada cliente.
+              </p>
+            </TooltipContent>
+          </Tooltip>
+        </div>
         <CardDescription>
           {filteredAndSortedClients.length} de {clients.length} cliente{clients.length !== 1 ? "s" : ""} {filteredAndSortedClients.length === clients.length ? "cadastrado" : "encontrado"}{filteredAndSortedClients.length !== 1 ? "s" : ""}
         </CardDescription>
@@ -300,7 +328,7 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
               <Filter className="h-4 w-4" />
-              Filtros e Ordenação
+              Filtros e OrdenaÃ§Ã£o
             </div>
             <Button
               variant="outline"
@@ -322,14 +350,14 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
             </Button>
           </div>
           
-          {/* Filtro de data vindo do calendário - sempre visível */}
+          {/* Filtro de data vindo do calendÃ¡rio - sempre visÃ­vel */}
           {(dateFilter || (localDateStart && localDateEnd)) && (
             <div className="p-3 bg-primary/10 border border-primary/20 rounded-lg flex items-center justify-between">
               <span className="text-sm font-medium">
                 {dateFilter ? (
                   <>Filtrado por pagamentos em: {format(new Date(dateFilter + 'T00:00:00'), "dd/MM/yyyy", { locale: ptBR })}</>
                 ) : (
-                  <>Período: {format(new Date(localDateStart + 'T00:00:00'), "dd/MM/yyyy", { locale: ptBR })} até {format(new Date(localDateEnd + 'T00:00:00'), "dd/MM/yyyy", { locale: ptBR })}</>
+                  <>PerÃ­odo: {format(new Date(localDateStart + 'T00:00:00'), "dd/MM/yyyy", { locale: ptBR })} atÃ© {format(new Date(localDateEnd + 'T00:00:00'), "dd/MM/yyyy", { locale: ptBR })}</>
                 )}
               </span>
               <Button
@@ -360,7 +388,7 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
               />
             </div>
 
-            {/* Ordenação */}
+            {/* OrdenaÃ§Ã£o */}
             <div className="space-y-2">
               <label className="text-sm font-medium">Ordenar por</label>
               <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortOption)}>
@@ -395,13 +423,13 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
                   <SelectItem value="debt-desc">
                     <div className="flex items-center gap-2">
                       <ArrowDown className="h-4 w-4" />
-                      Maior Dívida
+                      Maior DÃ­vida
                     </div>
                   </SelectItem>
                   <SelectItem value="debt-asc">
                     <div className="flex items-center gap-2">
                       <ArrowUp className="h-4 w-4" />
-                      Menor Dívida
+                      Menor DÃ­vida
                     </div>
                   </SelectItem>
                 </SelectContent>
@@ -417,17 +445,17 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos os Clientes</SelectItem>
-                  <SelectItem value="with-debt">Com Pendência</SelectItem>
+                  <SelectItem value="with-debt">Com PendÃªncia</SelectItem>
                   <SelectItem value="paid">Totalmente Pago</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
 
-          {/* Filtro por data específica */}
+          {/* Filtro por data especÃ­fica */}
           <div className="space-y-2 pt-2 border-t">
             <div>
-              <label className="text-sm font-medium">Filtrar por Data Específica</label>
+              <label className="text-sm font-medium">Filtrar por Data EspecÃ­fica</label>
               <p className="text-xs text-muted-foreground mt-1">Clientes com vencimento em uma data exata</p>
             </div>
             <Popover>
@@ -442,7 +470,7 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
                   ) : localDateStart && !localDateEnd ? (
                     format(new Date(localDateStart + 'T00:00:00'), "dd/MM/yyyy", { locale: ptBR })
                   ) : (
-                    <span>Selecione uma data específica</span>
+                    <span>Selecione uma data especÃ­fica</span>
                   )}
                 </Button>
               </PopoverTrigger>
@@ -453,7 +481,6 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
                   onSelect={(date) => {
                     if (date) {
                       const dateStr = format(date, "yyyy-MM-dd");
-                      // Limpa os filtros de intervalo ao selecionar data específica
                       setLocalDateStart("");
                       setLocalDateEnd("");
                       onSetSpecificDate?.(dateStr);
@@ -505,7 +532,7 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
                 </Popover>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Até</label>
+                <label className="text-sm font-medium">AtÃ©</label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
@@ -537,7 +564,7 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
               </div>
             </div>
             
-            {/* Botões de ação para filtro de data */}
+            {/* BotÃµes de aÃ§Ã£o para filtro de data */}
             {(localDateStart || localDateEnd || dateFilter) && (
               <div className="flex gap-2">
                 {(localDateStart || localDateEnd) && (
@@ -564,7 +591,7 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
                     className="gap-2"
                   >
                     <X className="h-4 w-4" />
-                    Limpar Data Específica
+                    Limpar Data EspecÃ­fica
                   </Button>
                 )}
               </div>
@@ -587,12 +614,12 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
                 </TableHead>
                 <TableHead>Indicado por</TableHead>
                 <TableHead>Tipo Pagamento</TableHead>
-                <TableHead>Próximo Vencimento</TableHead>
+                <TableHead>PrÃ³ximo Vencimento</TableHead>
                 <TableHead>Parcelas</TableHead>
                 <TableHead>Total Compras</TableHead>
                 <TableHead>Pago</TableHead>
                 <TableHead>Pendente</TableHead>
-                <TableHead className="text-center">Ações</TableHead>
+                <TableHead className="text-center">AÃ§Ãµes</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -673,9 +700,9 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
-                              <AlertDialogTitle>Confirmar remoção</AlertDialogTitle>
+                              <AlertDialogTitle>Confirmar remoÃ§Ã£o</AlertDialogTitle>
                               <AlertDialogDescription>
-                                Tem certeza que deseja remover o cliente {client.name}? Esta ação não pode ser desfeita.
+                                Tem certeza que deseja remover o cliente {client.name}? Esta aÃ§Ã£o nÃ£o pode ser desfeita.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
@@ -699,6 +726,7 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
           </Table>
         </div>
       </CardContent>
+      </TooltipProvider>
     </Card>
   );
 };

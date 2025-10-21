@@ -1,4 +1,4 @@
-import { BarChart3, Calendar as CalendarIcon } from "lucide-react";
+﻿import { BarChart3, Calendar as CalendarIcon } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PaymentStatusChart } from "../components/dashboard/PaymentStatusChart";
@@ -27,12 +27,25 @@ export function Home() {
   const getMonthOptions = () => {
     const options = [];
     const now = new Date();
-    for (let i = 0; i < 12; i++) {
+    
+    for (let i = 6; i >= 1; i--) {
+      const date = new Date(now.getFullYear(), now.getMonth() + i, 1);
+      const value = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      const label = date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+      options.push({ value, label: `${label} (Futuro)` });
+    }
+    
+    const currentValue = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    const currentLabel = now.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+    options.push({ value: currentValue, label: `${currentLabel} (Atual)` });
+    
+    for (let i = 1; i <= 11; i++) {
       const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const value = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
       const label = date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
       options.push({ value, label });
     }
+    
     return options;
   };
 
@@ -53,8 +66,8 @@ export function Home() {
     } catch (error) {
       console.error("Error loading dashboard data:", error);
       toast({
-        title: "❌ Erro",
-        description: "Não foi possível carregar os dados da dashboard",
+        title: "âŒ Erro",
+        description: "NÃ£o foi possÃ­vel carregar os dados da dashboard",
         variant: "destructive",
       });
     } finally {
@@ -83,7 +96,7 @@ export function Home() {
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold">Dashboard</h1>
-          <p className="text-muted-foreground">Visão geral do seu negócio</p>
+          <p className="text-muted-foreground">VisÃ£o geral do seu negÃ³cio</p>
         </div>
         
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -119,7 +132,7 @@ export function Home() {
   if (!monthlySummary) {
     return (
       <div className="flex items-center justify-center h-96">
-        <p className="text-muted-foreground">Nenhum dado disponível</p>
+        <p className="text-muted-foreground">Nenhum dado disponÃ­vel</p>
       </div>
     );
   }
@@ -137,14 +150,14 @@ export function Home() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold">Dashboard</h1>
-          <p className="text-muted-foreground">Visão geral do seu negócio</p>
+          <p className="text-muted-foreground">VisÃ£o geral do seu negÃ³cio</p>
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
           <Select value={selectedMonth} onValueChange={handleMonthChange}>
             <SelectTrigger className="w-full sm:w-[200px]">
               <CalendarIcon className="h-4 w-4 mr-2 flex-shrink-0" />
               <SelectValue>
-                {getMonthOptions().find(opt => opt.value === selectedMonth)?.label || 'Selecionar mês'}
+                {getMonthOptions().find(opt => opt.value === selectedMonth)?.label || 'Selecionar mÃªs'}
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
@@ -157,7 +170,7 @@ export function Home() {
           </Select>
           <Button onClick={() => navigate('/analytics')} className="gap-2 w-full sm:w-auto">
             <BarChart3 className="h-4 w-4" />
-            Ver Análises Detalhadas
+            Ver AnÃ¡lises Detalhadas
           </Button>
         </div>
       </div>
@@ -173,9 +186,9 @@ export function Home() {
       <div className="grid gap-4 md:grid-cols-7">
         <Card className="md:col-span-3">
           <CardHeader>
-            <CardTitle>Aproveitamento do Mês</CardTitle>
+            <CardTitle>Aproveitamento do MÃªs</CardTitle>
             <CardDescription>
-              {monthlySummary.receivedPercentage.toFixed(1)}% do esperado já foi recebido
+              {monthlySummary.receivedPercentage.toFixed(1)}% do esperado jÃ¡ foi recebido
             </CardDescription>
           </CardHeader>
           <CardContent>

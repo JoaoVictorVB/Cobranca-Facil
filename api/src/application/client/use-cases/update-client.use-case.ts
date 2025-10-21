@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { PhoneValidator } from '../../../common/validators/phone.validator';
 import { Client } from '../../../domain/client/entities/client.entity';
 import {
   ClientNotFoundError,
@@ -6,28 +7,28 @@ import {
 } from '../../../domain/client/errors/client.errors';
 import { IClientRepository } from '../../../domain/client/repositories/client.repository.interface';
 import { IUseCase } from '../../common/use-case.interface';
-import { UpdateClientDto } from '../dto/update-client.dto';
+import { UpdateClientData } from '../interfaces/client.interfaces';
 
 interface UpdateClientRequest {
   id: string;
-  data: UpdateClientDto;
+  data: UpdateClientData;
 }
 
 @Injectable()
-export class UpdateClientUseCase
-  implements IUseCase<UpdateClientRequest, Client>
-{
-  constructor(private readonly clientRepository: IClientRepository) {}
+export class UpdateClientUseCase implements IUseCase<UpdateClientRequest, Client> {
+  constructor(
+    @Inject('IClientRepository')
+    private readonly clientRepository: IClientRepository
+  ) {}
 
-  async execute(request: UpdateClientRequest): Promise<Client> {
-    const client = await this.clientRepository.findById(request.id);
+  async execute(request: UpdateClientRequest, userId?: string): Promise<Client> {
+    const client = await this.clientRepository.findById(request.id, userId);
 
     if (!client) {
       throw new ClientNotFoundError(request.id);
     }
 
-    // Validar telefone se fornecido
-    if (request.data.phone && !this.isValidPhone(request.data.phone)) {
+    if (request.data.phone && !PhoneValidator.isValid(request.data.phone)) {
       throw new InvalidPhoneNumberError(request.data.phone);
     }
 
@@ -37,11 +38,7 @@ export class UpdateClientUseCase
       referredBy: request.data.referredBy,
     });
 
-    return await this.clientRepository.update(client);
-  }
-
-  private isValidPhone(phone: string): boolean {
-    const phoneRegex = /^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$/;
-    return phoneRegex.test(phone);
+    return await this.clientRepository.update(client, userId);
   }
 }
+

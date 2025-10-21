@@ -18,7 +18,6 @@ export class Phone extends ValueObject<PhoneProps> {
       throw new Error('Phone cannot be empty');
     }
 
-    // Remove non-numeric characters
     const cleanPhone = phone.replace(/\D/g, '');
 
     if (cleanPhone.length < 10 || cleanPhone.length > 11) {

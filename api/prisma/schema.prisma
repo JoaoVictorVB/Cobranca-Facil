@@ -28,6 +28,9 @@ model Client {
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   sales Sale[]
 
   @@map("clients")
@@ -40,12 +43,16 @@ model Product {
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@map("products")
 }
 
 model Sale {
   id                String           @id @default(uuid())
   clientId          String           @map("client_id")
+  userId            String           @map("user_id")
   itemDescription   String           @map("item_description")
   totalValue        Float            @map("total_value")
   totalInstallments Int              @map("total_installments")
@@ -57,6 +64,7 @@ model Sale {
   updatedAt         DateTime         @updatedAt @map("updated_at")
 
   client       Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   installments Installment[]
 
   @@map("sales")
@@ -77,4 +85,18 @@ model Installment {
   sale Sale @relation(fields: [saleId], references: [id], onDelete: Cascade)
 
   @@map("installments")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  clients  Client[]
+  products Product[]
+  sales    Sale[]
+
+  @@map("users")
 }

@@ -59,6 +59,10 @@ export const saleService = {
     return response.data;
   },
 
+  async delete(saleId: string): Promise<void> {
+    await api.delete(`/sales/${saleId}`);
+  },
+
   async payInstallment(installmentId: string, data: PayInstallmentDto): Promise<Installment> {
     const response = await api.put<Installment>(`/sales/installments/${installmentId}/pay`, data);
     return response.data;

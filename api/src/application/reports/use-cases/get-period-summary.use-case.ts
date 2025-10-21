@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../infrastructure/database/prisma.service';
 import { IUseCase } from '../../common/use-case.interface';
-import { PeriodSummaryDto } from '../dto/period-summary.dto';
+import { PeriodSummary } from '../interfaces/reports.interfaces';
 
 interface GetPeriodSummaryRequest {
   startDate: Date;
@@ -9,15 +9,12 @@ interface GetPeriodSummaryRequest {
 }
 
 @Injectable()
-export class GetPeriodSummaryUseCase
-  implements IUseCase<GetPeriodSummaryRequest, PeriodSummaryDto>
-{
+export class GetPeriodSummaryUseCase implements IUseCase<GetPeriodSummaryRequest, PeriodSummary> {
   constructor(private readonly prisma: PrismaService) {}
 
-  async execute(request: GetPeriodSummaryRequest): Promise<PeriodSummaryDto> {
+  async execute(request: GetPeriodSummaryRequest): Promise<PeriodSummary> {
     const { startDate, endDate } = request;
 
-    // Buscar todas as parcelas com vencimento no período
     const installments = await this.prisma.installment.findMany({
       where: {
         dueDate: {
@@ -57,14 +54,12 @@ export class GetPeriodSummaryUseCase
         totalPending += installment.amount;
         pendingCount++;
       } else {
-        // Pendente mas já venceu
         totalOverdue += installment.amount;
         overdueCount++;
       }
     }
 
-    const receivedPercentage =
-      totalExpected > 0 ? (totalReceived / totalExpected) * 100 : 0;
+    const receivedPercentage = totalExpected > 0 ? (totalReceived / totalExpected) * 100 : 0;
 
     return {
       startDate: startDate.toISOString().split('T')[0],

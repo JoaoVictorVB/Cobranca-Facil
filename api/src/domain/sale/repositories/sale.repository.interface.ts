@@ -1,10 +1,10 @@
 import { Sale } from '../entities/sale.entity';
 
 export interface ISaleRepository {
-  create(sale: Sale): Promise<Sale>;
-  findById(id: string): Promise<Sale | null>;
-  findAll(page?: number, limit?: number): Promise<Sale[]>;
-  findByClientId(clientId: string): Promise<Sale[]>;
-  update(sale: Sale): Promise<Sale>;
-  delete(id: string): Promise<void>;
+  create(sale: Sale, userId: string): Promise<Sale>;
+  findById(id: string, userId?: string): Promise<Sale | null>;
+  findAll(page?: number, limit?: number, userId?: string): Promise<Sale[]>;
+  findByClientId(clientId: string, userId?: string): Promise<Sale[]>;
+  update(sale: Sale, userId?: string): Promise<Sale>;
+  delete(id: string, userId?: string): Promise<void>;
 }

@@ -99,12 +99,19 @@ export class Installment extends Entity<InstallmentProps> {
     const payment = Money.create(amount);
 
     if (payment.isLessThan(this.props.amount)) {
-      throw new Error('Payment amount is less than installment amount');
+      this.props.paidAmount = payment;
+      this.props.paidDate = paidDate || new Date();
+      if (this.isOverdue()) {
+        this.props.status = PaymentStatus.ATRASADO;
+      } else {
+        this.props.status = PaymentStatus.PENDENTE;
+      }
+    } else {
+      this.props.status = PaymentStatus.PAGO;
+      this.props.paidAmount = payment;
+      this.props.paidDate = paidDate || new Date();
     }
-
-    this.props.status = PaymentStatus.PAGO;
-    this.props.paidAmount = payment;
-    this.props.paidDate = paidDate || new Date();
+    
     this.props.updatedAt = new Date();
   }
 
