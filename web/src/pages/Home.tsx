@@ -27,12 +27,28 @@ export function Home() {
   const getMonthOptions = () => {
     const options = [];
     const now = new Date();
-    for (let i = 0; i < 12; i++) {
+    
+    // Adicionar 6 meses futuros
+    for (let i = 6; i >= 1; i--) {
+      const date = new Date(now.getFullYear(), now.getMonth() + i, 1);
+      const value = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      const label = date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+      options.push({ value, label: `${label} (Futuro)` });
+    }
+    
+    // Adicionar mês atual
+    const currentValue = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    const currentLabel = now.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+    options.push({ value: currentValue, label: `${currentLabel} (Atual)` });
+    
+    // Adicionar 11 meses passados
+    for (let i = 1; i <= 11; i++) {
       const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const value = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
       const label = date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
       options.push({ value, label });
     }
+    
     return options;
   };
 

@@ -57,15 +57,30 @@ const Index = () => {
   const loadStats = useCallback(async () => {
     try {
       setLoading(true);
-      const [clients, monthlySummary] = await Promise.all([
+      const [clients, paymentStatus] = await Promise.all([
         clientService.findAll(),
-        reportsService.getMonthlySummary()
+        reportsService.getPaymentStatus()
       ]);
       
+      // Calcular totais a partir do payment status (que inclui TODOS os dados do usuário)
+      let totalSold = 0;
+      let totalPaid = 0;
+      let totalPending = 0;
+      
+      paymentStatus.forEach(status => {
+        if (status.status === 'pago') {
+          totalPaid += status.totalAmount;
+        } else if (status.status === 'pendente' || status.status === 'atrasado') {
+          totalPending += status.totalAmount;
+        }
+      });
+      
+      totalSold = totalPaid + totalPending;
+      
       setStats({
-        totalSold: monthlySummary?.totalExpected || 0,
-        totalPaid: monthlySummary?.totalReceived || 0,
-        totalPending: (monthlySummary?.totalPending || 0) + (monthlySummary?.totalOverdue || 0),
+        totalSold,
+        totalPaid,
+        totalPending,
         totalClients: clients?.length || 0
       });
       
@@ -146,7 +161,7 @@ const Index = () => {
                     setSelectedDate(date);
                     setDateRangeStart(undefined);
                     setDateRangeEnd(undefined);
-                    setActiveTab("clients");
+                    // Removido: setActiveTab("clients") - não força mudança de aba
                   }}
                   onClearFilter={clearAllFilters}
                 />
