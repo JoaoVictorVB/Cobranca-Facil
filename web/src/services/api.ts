@@ -1,7 +1,19 @@
 import { toast } from '@/hooks/use-toast';
 import axios, { AxiosError } from 'axios';
 
+// Configurações da API a partir das variáveis de ambiente
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const API_TIMEOUT = Number(import.meta.env.VITE_API_TIMEOUT) || 10000;
+const IS_PRODUCTION = import.meta.env.VITE_APP_ENV === 'production';
+
+// Log da configuração em desenvolvimento
+if (!IS_PRODUCTION) {
+  console.log('🔧 API Configuration:', {
+    baseURL: API_URL,
+    timeout: API_TIMEOUT,
+    environment: import.meta.env.VITE_APP_ENV || 'development',
+  });
+}
 
 // Interface para o formato de erro da API
 export interface ApiErrorResponse {
@@ -30,13 +42,17 @@ export const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 10000, // 10 segundos
+  timeout: API_TIMEOUT,
 });
 
 // Request interceptor
 api.interceptors.request.use(
   (config) => {
-    // Pode adicionar tokens aqui no futuro
+    // Adicionar token de autenticação se existir
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
     return config;
   },
   (error) => {
@@ -83,6 +99,29 @@ api.interceptors.response.use(
           variant: 'destructive',
         });
         break;
+
+      case 401: {
+        // Unauthorized - Não autenticado ou token inválido
+        // Não mostrar toast e não limpar dados se o erro for em rotas de auth
+        const isAuthRoute = errorResponse.path?.includes('/auth/');
+        
+        if (!isAuthRoute) {
+          toast({
+            title: '🔒 Não Autorizado',
+            description: 'Sua sessão expirou. Faça login novamente.',
+            variant: 'destructive',
+          });
+          // Limpar dados de autenticação
+          localStorage.removeItem('auth_token');
+          localStorage.removeItem('auth_user');
+          localStorage.removeItem('isAuthenticated');
+          // Redirecionar para login apenas se não estiver em páginas públicas
+          if (window.location.pathname !== '/login' && window.location.pathname !== '/register') {
+            window.location.href = '/login';
+          }
+        }
+        break;
+      }
 
       case 404:
         // Not Found

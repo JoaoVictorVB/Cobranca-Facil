@@ -39,6 +39,22 @@ class InstallmentService {
     const response = await api.get<Installment[]>('/sales/installments/overdue');
     return response.data;
   }
+
+  async getByMonth(year: number, month: number): Promise<Installment[]> {
+    console.log('🔍 Buscando parcelas diretamente do backend:', { year, month });
+    
+    try {
+      const response = await api.get<Installment[]>('/sales/installments/by-month', {
+        params: { year, month }
+      });
+      
+      console.log('✅ Resposta do backend:', response.data.length, 'parcelas');
+      return response.data;
+    } catch (error) {
+      console.error('❌ Erro ao buscar parcelas:', error);
+      return [];
+    }
+  }
 }
 
 export const installmentService = new InstallmentService();
