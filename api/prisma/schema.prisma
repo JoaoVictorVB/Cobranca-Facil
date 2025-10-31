@@ -16,6 +16,7 @@ enum PaymentStatus {
   pendente
   pago
   atrasado
+  parcial
 }
 
 model Client {

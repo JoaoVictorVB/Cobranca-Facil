@@ -3,8 +3,8 @@ import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiQuery, ApiTags } from '@
 import { GetAllClientsUseCase } from '../../../application/client/use-cases/get-all-clients.use-case';
 import { JwtAuthGuard } from '../../../auth/jwt-auth.guard';
 import { User } from '../../../common/decorators/user.decorator';
-import { ClientResponseDto } from '../dto/client.response.dto';
 import { SWAGGER_TAGS } from '../../../common/swagger/swagger-tags';
+import { ClientResponseDto } from '../dto/client.response.dto';
 
 @ApiTags(SWAGGER_TAGS.CLIENTS)
 @Controller('clients')

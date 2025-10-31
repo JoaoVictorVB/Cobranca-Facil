@@ -12,11 +12,10 @@ interface GetAllClientsRequest {
 export class GetAllClientsUseCase implements IUseCase<GetAllClientsRequest, Client[]> {
   constructor(
     @Inject('IClientRepository')
-    private readonly clientRepository: IClientRepository
+    private readonly clientRepository: IClientRepository,
   ) {}
 
   async execute(request: GetAllClientsRequest, userId?: string): Promise<Client[]> {
-    return await this.clientRepository.findAll(request.page, request.limit, userId);
+    return await this.clientRepository.findAll(userId, request.page, request.limit);
   }
 }
-

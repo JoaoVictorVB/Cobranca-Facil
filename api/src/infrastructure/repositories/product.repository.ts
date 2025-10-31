@@ -33,14 +33,18 @@ export class ProductRepository implements IProductRepository {
     return product ? this.toDomain(product) : null;
   }
 
-  async findAll(page: number = 1, limit: number = 50, userId?: string): Promise<Product[]> {
-    const skip = (page - 1) * limit;
-    const products = await this.prisma.product.findMany({
-      skip,
-      take: limit,
+  async findAll(userId?: string, page?: number, limit?: number): Promise<Product[]> {
+    const query: any = {
       where: userId ? { userId } : undefined,
       orderBy: { createdAt: 'desc' },
-    });
+    };
+
+    if (page && limit) {
+      query.skip = (page - 1) * limit;
+      query.take = limit;
+    }
+
+    const products = await this.prisma.product.findMany(query);
 
     return products.map((product) => this.toDomain(product));
   }
