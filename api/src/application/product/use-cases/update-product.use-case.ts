@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Product } from '../../../domain/product/entities/product.entity';
 import {
-  ProductAlreadyExistsError,
-  ProductNotFoundError,
+    ProductAlreadyExistsError,
+    ProductNotFoundError,
 } from '../../../domain/product/errors/product.errors';
 import { IProductRepository } from '../../../domain/product/repositories/product.repository.interface';
 import { UpdateProductData } from '../interfaces/product.interfaces';
@@ -22,7 +22,7 @@ export class UpdateProductUseCase {
     }
 
     if (input.name && input.name !== product.name) {
-      const existingProducts = await this.productRepository.findAll(undefined, undefined, userId);
+      const existingProducts = await this.productRepository.findAll(userId);
       const nameExists = existingProducts.some(
         (p) => p.name.toLowerCase() === input.name!.toLowerCase() && p.id !== input.id,
       );
@@ -40,4 +40,3 @@ export class UpdateProductUseCase {
     return await this.productRepository.update(product, userId);
   }
 }
-

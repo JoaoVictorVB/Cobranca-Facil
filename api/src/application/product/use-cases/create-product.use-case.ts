@@ -12,7 +12,7 @@ export class CreateProductUseCase {
   ) {}
 
   async execute(input: CreateProductData, userId: string): Promise<Product> {
-    const existingProducts = await this.productRepository.findAll(undefined, undefined, userId);
+    const existingProducts = await this.productRepository.findAll(userId);
     const productExists = existingProducts.some(
       (p) => p.name.toLowerCase() === input.name.toLowerCase(),
     );
@@ -29,4 +29,3 @@ export class CreateProductUseCase {
     return await this.productRepository.create(product, userId);
   }
 }
-

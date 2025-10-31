@@ -10,7 +10,6 @@ export class FindAllProductsUseCase {
   ) {}
 
   async execute(userId?: string): Promise<Product[]> {
-    return await this.productRepository.findAll(undefined, undefined, userId);
+    return await this.productRepository.findAll(userId);
   }
 }
-
