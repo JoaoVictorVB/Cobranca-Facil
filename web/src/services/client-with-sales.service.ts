@@ -51,9 +51,7 @@ export interface ClientStats {
 
 class ClientWithSalesService {
   async findAllWithSales(): Promise<ClientWithSales[]> {
-    const response = await api.get<ClientWithSales[]>('/clients/with-sales', {
-      params: { page: 1, limit: 50 }
-    });
+    const response = await api.get<ClientWithSales[]>('/clients/with-sales');
     return response.data;
   }
 
@@ -95,7 +93,7 @@ class ClientWithSalesService {
     ) || 0;
     const paidInstallments = totalInstallments - stats.remainingInstallments;
     
-    return `${paidInstallments} de ${totalInstallments} restantes`;
+    return `${paidInstallments} de ${totalInstallments}`;
   }
 }
 

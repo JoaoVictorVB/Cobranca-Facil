@@ -19,7 +19,7 @@ export interface DailySales {
 }
 
 export interface PaymentStatus {
-  status: 'pago' | 'pendente' | 'atrasado';
+  status: 'pago' | 'pendente' | 'atrasado' | 'parcial';
   count: number;
   totalAmount: number;
 }
@@ -30,6 +30,12 @@ export interface TopClient {
   totalPurchases: number;
   totalPaid: number;
   totalPending: number;
+}
+
+export interface RevenueChartData {
+  month: string;
+  expected: number;
+  received: number;
 }
 
 export interface PeriodSummary {
@@ -59,6 +65,17 @@ export interface MonthComparison {
   months: MonthData[];
 }
 
+export interface MonthlyExpectedRevenue {
+  month: string;
+  year: number;
+  expected: number;
+}
+
+export interface ClientStatus {
+  status: string;
+  count: number;
+}
+
 export const reportsService = {
   async getMonthlySummary(year?: number, month?: number): Promise<MonthlySummary> {
     const params = new URLSearchParams();
@@ -83,11 +100,29 @@ export const reportsService = {
     return response.data;
   },
 
-  async getTopClients(limit?: number): Promise<TopClient[]> {
+  async getPaymentStatusChart(): Promise<PaymentStatus[]> {
+    const response = await api.get<PaymentStatus[]>('/reports/payment-status-chart');
+    return response.data;
+  },
+
+  async getRevenueChart(): Promise<RevenueChartData[]> {
+    const response = await api.get<RevenueChartData[]>('/reports/revenue-chart');
+    return response.data;
+  },
+
+  async getTopClients(limit: number = 5): Promise<TopClient[]> {
     const params = new URLSearchParams();
-    if (limit) params.append('limit', limit.toString());
+    params.append('limit', limit.toString());
     
     const response = await api.get<TopClient[]>(`/reports/top-clients?${params}`);
+    return response.data;
+  },
+
+  async getTopClientsChart(limit: number = 10): Promise<TopClient[]> {
+    const params = new URLSearchParams();
+    params.append('limit', limit.toString());
+    
+    const response = await api.get<TopClient[]>(`/reports/top-clients-chart?${params}`);
     return response.data;
   },
 
@@ -105,6 +140,20 @@ export const reportsService = {
     params.append('months', months.join(','));
     
     const response = await api.get<MonthComparison>(`/reports/month-comparison?${params}`);
+    return response.data;
+  },
+
+  async getExpectedRevenue(): Promise<MonthlyExpectedRevenue[]> {
+    const response = await api.get<MonthlyExpectedRevenue[]>('/reports/expected-revenue');
+    return response.data;
+  },
+
+  async getClientsStatus(year?: number, month?: number): Promise<ClientStatus[]> {
+    const params = new URLSearchParams();
+    if (year) params.append('year', year.toString());
+    if (month) params.append('month', month.toString());
+    
+    const response = await api.get<ClientStatus[]>(`/reports/clients-status?${params}`);
     return response.data;
   },
 };
