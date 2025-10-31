@@ -1,4 +1,4 @@
-﻿import {
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -65,7 +65,7 @@ export default function ClientDetails() {
       console.error("Error loading client:", error);
       toast({
         title: "Erro ao carregar",
-        description: "NÃ£o foi possÃ­vel carregar os dados do cliente",
+        description: "Não foi possível carregar os dados do cliente",
         variant: "destructive",
       });
     } finally {
@@ -81,7 +81,7 @@ export default function ClientDetails() {
     try {
       await saleService.delete(saleId);
       toast({
-        title: "âœ… Venda ExcluÃ­da",
+        title: "✅ Venda Excluída",
         description: `A venda "${saleDescription}" e todas as suas parcelas foram removidas.`,
       });
       loadClientDetails();
@@ -89,7 +89,7 @@ export default function ClientDetails() {
       console.error("Error deleting sale:", error);
       toast({
         title: "Erro ao excluir",
-        description: "NÃ£o foi possÃ­vel excluir a venda",
+        description: "Não foi possível excluir a venda",
         variant: "destructive",
       });
     }
@@ -190,18 +190,18 @@ export default function ClientDetails() {
 
       if (isPartialPayment) {
         toast({
-          title: "âš ï¸ Pagamento Parcial Registrado",
+          title: "⚠️ Pagamento Parcial Registrado",
           description: `Pago: ${formatCurrency(paidValue)} de ${formatCurrency(originalAmount)}. Restante: ${formatCurrency(originalAmount - paidValue)}`,
           variant: "default",
         });
       } else if (difference > 0) {
         toast({
-          title: "âœ… Pagamento Completo com Excedente",
+          title: "… Pagamento Completo com Excedente",
           description: `Valor maior que o combinado: ${formatCurrency(difference)}`,
         });
       } else {
         toast({
-          title: "âœ… Pagamento registrado com sucesso!",
+          title: "… Pagamento registrado com sucesso!",
           description: "Pagamento registrado no valor combinado",
         });
       }
@@ -212,8 +212,8 @@ export default function ClientDetails() {
     } catch (error) {
       console.error("Error paying installment:", error);
       toast({
-        title: "âŒ Erro ao registrar pagamento",
-        description: "NÃ£o foi possÃ­vel processar o pagamento. Tente novamente.",
+        title: "❌ Erro ao registrar pagamento",
+        description: "Não foi possível processar o pagamento. Tente novamente.",
         variant: "destructive",
       });
     } finally {
@@ -240,7 +240,7 @@ export default function ClientDetails() {
       <div className="container mx-auto p-6">
         <Card>
           <CardContent className="p-6">
-            <p className="text-center text-muted-foreground">Cliente nÃ£o encontrado</p>
+            <p className="text-center text-muted-foreground">Cliente não encontrado</p>
             <div className="flex justify-center mt-4">
               <Button variant="outline" onClick={() => navigate("/?tab=clients")}>
                 <ArrowLeft className="mr-2 h-4 w-4" />
@@ -316,7 +316,7 @@ export default function ClientDetails() {
                   </TooltipTrigger>
                   <TooltipContent side="top" className="max-w-xs">
                     <p className="text-sm">
-                      Valor total jÃ¡ recebido de todas as parcelas pagas por este cliente.
+                      Valor total já recebido de todas as parcelas pagas por este cliente.
                     </p>
                   </TooltipContent>
                 </Tooltip>
@@ -356,7 +356,7 @@ export default function ClientDetails() {
                 <TooltipContent side="top" className="max-w-xs">
                   <p className="text-sm">
                     <strong>Lista de todas as vendas deste cliente.</strong><br/>
-                    VocÃª pode expandir cada venda para ver as parcelas, registrar pagamentos, ou excluir vendas completas.
+                    Você pode expandir cada venda para ver as parcelas, registrar pagamentos, ou excluir vendas completas.
                   </p>
                 </TooltipContent>
               </Tooltip>
@@ -541,7 +541,7 @@ export default function ClientDetails() {
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>Confirmar ExclusÃ£o</AlertDialogTitle>
+                      <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
                       <AlertDialogDescription>
                         Tem certeza que deseja excluir a venda "{sale.itemDescription}"? 
                         Isso vai deletar permanentemente a venda e todas as {sale.totalInstallments} parcelas associadas.
@@ -554,7 +554,7 @@ export default function ClientDetails() {
                         onClick={() => handleDeleteSale(sale.id, sale.itemDescription)}
                         className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                       >
-                        Confirmar ExclusÃ£o
+                        Confirmar Exclusão
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
@@ -652,12 +652,12 @@ export default function ClientDetails() {
                                 />
                                 {paymentAmount && parseFloat(paymentAmount) < Number(installment.amount) && (
                                   <p className="text-sm text-yellow-600 dark:text-yellow-400 mt-1">
-                                    âš ï¸ Pagamento parcial - Restante: {formatCurrency(Number(installment.amount) - parseFloat(paymentAmount))}
+                                    ⚠️ Pagamento parcial - Restante: {formatCurrency(Number(installment.amount) - parseFloat(paymentAmount))}
                                   </p>
                                 )}
                                 {paymentAmount && parseFloat(paymentAmount) > Number(installment.amount) && (
                                   <p className="text-sm text-blue-600 dark:text-blue-400 mt-1">
-                                    â„¹ï¸ Valor acima do esperado - Excedente: {formatCurrency(parseFloat(paymentAmount) - Number(installment.amount))}
+                                    ℹ️ Valor acima do esperado - Excedente: {formatCurrency(parseFloat(paymentAmount) - Number(installment.amount))}
                                   </p>
                                 )}
                               </div>
@@ -720,17 +720,17 @@ export default function ClientDetails() {
                                 />
                                 {paymentAmount && parseFloat(paymentAmount) < Number(installment.amount) && (
                                   <p className="text-sm text-yellow-600 dark:text-yellow-400 mt-1">
-                                    âš ï¸ Pagamento parcial - Restante: {formatCurrency(Number(installment.amount) - parseFloat(paymentAmount))}
+                                    ⚠️ Pagamento parcial - Restante: {formatCurrency(Number(installment.amount) - parseFloat(paymentAmount))}
                                   </p>
                                 )}
                                 {paymentAmount && parseFloat(paymentAmount) > Number(installment.amount) && (
                                   <p className="text-sm text-blue-600 dark:text-blue-400 mt-1">
-                                    â„¹ï¸ Valor acima do esperado - Excedente: {formatCurrency(parseFloat(paymentAmount) - Number(installment.amount))}
+                                    ℹ️ Valor acima do esperado - Excedente: {formatCurrency(parseFloat(paymentAmount) - Number(installment.amount))}
                                   </p>
                                 )}
                                 {paymentAmount && parseFloat(paymentAmount) === Number(installment.amount) && (
                                   <p className="text-sm text-green-600 dark:text-green-400 mt-1">
-                                    âœ… Valor exato da parcela
+                                    ✅ Valor exato da parcela
                                   </p>
                                 )}
                               </div>

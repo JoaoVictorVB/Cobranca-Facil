@@ -33,10 +33,8 @@ export const clientService = {
     return response.data;
   },
 
-  async findAll(page: number = 1, limit: number = 50): Promise<Client[]> {
-    const response = await api.get<Client[]>('/clients', {
-      params: { page, limit },
-    });
+  async findAll(): Promise<Client[]> {
+    const response = await api.get<Client[]>('/clients');
     return response.data;
   },
 

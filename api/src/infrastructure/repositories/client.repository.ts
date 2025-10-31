@@ -36,23 +36,24 @@ export class ClientRepository implements IClientRepository {
     return client ? this.toDomain(client) : null;
   }
 
-  async findAll(page: number = 1, limit: number = 50, userId?: string): Promise<Client[]> {
-    const skip = (page - 1) * limit;
-    const clients = await this.prisma.client.findMany({
-      skip,
-      take: limit,
+  async findAll(userId?: string, page?: number, limit?: number): Promise<Client[]> {
+    const query: any = {
       where: userId ? { userId } : undefined,
       orderBy: { createdAt: 'desc' },
-    });
+    };
+
+    if (page && limit) {
+      query.skip = (page - 1) * limit;
+      query.take = limit;
+    }
+
+    const clients = await this.prisma.client.findMany(query);
 
     return clients.map((client) => this.toDomain(client));
   }
 
-  async findAllWithSales(page: number = 1, limit: number = 50, userId?: string): Promise<any[]> {
-    const skip = (page - 1) * limit;
-    const clients = await this.prisma.client.findMany({
-      skip,
-      take: limit,
+  async findAllWithSales(userId?: string, page?: number, limit?: number): Promise<any[]> {
+    const query: any = {
       where: userId ? { userId } : undefined,
       orderBy: { createdAt: 'desc' },
       include: {
@@ -64,7 +65,14 @@ export class ClientRepository implements IClientRepository {
           },
         },
       },
-    });
+    };
+
+    if (page && limit) {
+      query.skip = (page - 1) * limit;
+      query.take = limit;
+    }
+
+    const clients = await this.prisma.client.findMany(query);
 
     return clients.map((client) => ({
       ...client,

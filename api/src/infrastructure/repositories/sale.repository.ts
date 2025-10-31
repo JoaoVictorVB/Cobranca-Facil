@@ -40,14 +40,18 @@ export class SaleRepository implements ISaleRepository {
     return sale ? this.toDomain(sale) : null;
   }
 
-  async findAll(page: number = 1, limit: number = 50, userId?: string): Promise<Sale[]> {
-    const skip = (page - 1) * limit;
-    const sales = await this.prisma.sale.findMany({
-      skip,
-      take: limit,
+  async findAll(userId?: string, page?: number, limit?: number): Promise<Sale[]> {
+    const query: any = {
       where: userId ? { userId } : undefined,
       orderBy: { createdAt: 'desc' },
-    });
+    };
+
+    if (page && limit) {
+      query.skip = (page - 1) * limit;
+      query.take = limit;
+    }
+
+    const sales = await this.prisma.sale.findMany(query);
 
     return sales.map((sale) => this.toDomain(sale));
   }

@@ -15,17 +15,20 @@ export class GetTopClientsController {
   @Get('top-clients')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get top clients by purchase value' })
-  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Number of top clients to return (default: 5)',
+  })
   @ApiOkResponse({
     description: 'Top clients retrieved successfully',
     type: [TopClientsResponseDto],
   })
   async handler(
-    @Query('limit') limit?: string,
+    @Query('limit') limit?: number,
     @User('id') userId?: string,
   ): Promise<TopClientsResponseDto[]> {
-    return this.getTopClientsUseCase.execute({
-      limit: limit ? parseInt(limit) : 5,
-    }, userId);
+    return this.getTopClientsUseCase.execute({ limit }, userId);
   }
 }

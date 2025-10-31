@@ -17,7 +17,7 @@ export interface DailySales {
 }
 
 export interface PaymentStatus {
-  status: 'pago' | 'pendente' | 'atrasado';
+  status: 'pago' | 'pendente' | 'atrasado' | 'parcial';
   count: number;
   totalAmount: number;
 }

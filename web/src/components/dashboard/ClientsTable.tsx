@@ -1,4 +1,4 @@
-﻿import {
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -23,9 +23,10 @@ import { ClientWithSales, clientWithSalesService } from "@/services/client-with-
 import { clientService } from "@/services/client.service";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { ArrowDown, ArrowUp, CalendarIcon, Eye, Filter, Info, Phone, Trash2, User, X } from "lucide-react";
+import { ArrowDown, ArrowUp, CalendarIcon, Edit, Eye, Filter, Info, Phone, Trash2, User, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { EditClientDialog } from "./EditClientDialog";
 
 interface ClientsTableProps {
   onUpdate?: () => void;
@@ -37,7 +38,9 @@ interface ClientsTableProps {
 }
 
 type SortOption = 'name-asc' | 'name-desc' | 'date-asc' | 'date-desc' | 'debt-asc' | 'debt-desc';
-type FilterOption = 'all' | 'with-debt' | 'paid';
+type FilterOption = 'all' | 'up-to-date' | 'overdue' | 'upcoming';
+
+const STORAGE_KEY = 'clientsTableFilters';
 
 export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEnd, onClearFilters, onSetSpecificDate }: ClientsTableProps) => {
   const [clients, setClients] = useState<ClientWithSales[]>([]);
@@ -48,8 +51,36 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
   const [localDateStart, setLocalDateStart] = useState("");
   const [localDateEnd, setLocalDateEnd] = useState("");
   const [showFilters, setShowFilters] = useState(false);
+  const [editingClient, setEditingClient] = useState<ClientWithSales | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Carregar filtros salvos ao montar o componente
+  useEffect(() => {
+    const savedFilters = sessionStorage.getItem(STORAGE_KEY);
+    if (savedFilters) {
+      try {
+        const filters = JSON.parse(savedFilters);
+        if (filters.searchTerm) setSearchTerm(filters.searchTerm);
+        if (filters.sortBy) setSortBy(filters.sortBy);
+        if (filters.filterBy) setFilterBy(filters.filterBy);
+        if (filters.showFilters !== undefined) setShowFilters(filters.showFilters);
+      } catch (error) {
+        console.error("Error loading saved filters:", error);
+      }
+    }
+  }, []);
+
+  // Salvar filtros sempre que mudarem
+  useEffect(() => {
+    const filters = {
+      searchTerm,
+      sortBy,
+      filterBy,
+      showFilters,
+    };
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(filters));
+  }, [searchTerm, sortBy, filterBy, showFilters]);
 
   useEffect(() => {
     if (dateRangeStart) setLocalDateStart(dateRangeStart);
@@ -85,7 +116,7 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
     try {
       await clientService.delete(id);
       toast({
-        title: "âœ… Cliente Removido",
+        title: "… Cliente Removido",
         description: "Cliente removido com sucesso.",
       });
       loadClients();
@@ -121,6 +152,18 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
     return new Date(dateString).toLocaleDateString("pt-BR");
   };
 
+  const getLastPurchaseDate = (client: ClientWithSales): string => {
+    if (!client.sales || client.sales.length === 0) return "-";
+    
+    const latestSale = client.sales.reduce((latest, sale) => {
+      const saleDate = new Date(sale.saleDate);
+      const latestDate = new Date(latest.saleDate);
+      return saleDate > latestDate ? sale : latest;
+    });
+    
+    return format(new Date(latestSale.saleDate), "dd/MM/yyyy", { locale: ptBR });
+  };
+
   const hasOverdueInstallments = (client: ClientWithSales) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -131,6 +174,20 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
         const dueDate = new Date(inst.dueDate);
         dueDate.setHours(0, 0, 0, 0);
         return dueDate < today;
+      })
+    ) || false;
+  };
+
+  const hasUpcomingInstallments = (client: ClientWithSales) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    return client.sales?.some(sale => 
+      sale.installments?.some(inst => {
+        if (inst.status === 'pago') return false;
+        const dueDate = new Date(inst.dueDate);
+        dueDate.setHours(0, 0, 0, 0);
+        return dueDate >= today;
       })
     ) || false;
   };
@@ -156,7 +213,27 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
     today.setHours(0, 0, 0, 0);
     const isOverdue = nextDate < today;
     
-    return format(nextDate, "dd/MM/yyyy", { locale: ptBR }) + (isOverdue ? ' âš ï¸' : '');
+    return format(nextDate, "dd/MM/yyyy", { locale: ptBR }) + (isOverdue ? ' ⚠️' : '');
+  };
+
+  const getNextInstallmentAmount = (client: ClientWithSales): number => {
+    let nextDate: Date | null = null;
+    let nextAmount = 0;
+
+    client.sales?.forEach(sale => {
+      sale.installments?.forEach(inst => {
+        if (inst.status !== 'pago') {
+          const dueDateStr = inst.dueDate.includes('T') ? inst.dueDate : inst.dueDate + 'T00:00:00';
+          const dueDate = new Date(dueDateStr);
+          if (!nextDate || dueDate < nextDate) {
+            nextDate = dueDate;
+            nextAmount = inst.amount;
+          }
+        }
+      });
+    });
+
+    return nextAmount;
   };
 
   const calculateClientStats = (client: ClientWithSales) => {
@@ -227,11 +304,12 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
 
     if (filterBy !== 'all') {
       filtered = filtered.filter(client => {
-        const stats = calculateClientStats(client);
-        if (filterBy === 'with-debt') {
-          return stats.totalPending > 0;
-        } else if (filterBy === 'paid') {
-          return stats.totalPending === 0 && stats.totalSales > 0;
+        if (filterBy === 'overdue') {
+          return hasOverdueInstallments(client);
+        } else if (filterBy === 'up-to-date') {
+          return !hasOverdueInstallments(client);
+        } else if (filterBy === 'upcoming') {
+          return hasUpcomingInstallments(client) && !hasOverdueInstallments(client);
         }
         return true;
       });
@@ -300,9 +378,9 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
   }
 
   return (
-    <Card className="shadow-lg">
+    <Card className="shadow-lg w-full rounded-none border-x-0">
       <TooltipProvider delayDuration={200}>
-      <CardHeader className="bg-gradient-to-r from-primary/5 to-primary/10 border-b">
+      <CardHeader className="bg-gradient-to-r from-primary/5 to-primary/10 border-b px-6">
         <div className="flex items-center gap-2">
           <User className="h-5 w-5" />
           <CardTitle>Clientes Cadastrados</CardTitle>
@@ -313,7 +391,8 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
             <TooltipContent side="top" className="max-w-xs">
               <p className="text-sm">
                 <strong>Gerencie seus clientes aqui.</strong><br/>
-                Veja o saldo devedor, ordene por nome ou dÃ­vida, filtre por status de pagamento e clique em "Ver Detalhes" para acessar as vendas e parcelas de cada cliente.
+                Filtre por <strong>Em Dia</strong> (sem parcelas atrasadas) ou <strong>Atrasados</strong> (com vencimentos passados). 
+                Ordene por nome, data ou dívida. Clique em "Ver Detalhes" para acessar as vendas completas.
               </p>
             </TooltipContent>
           </Tooltip>
@@ -322,42 +401,65 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
           {filteredAndSortedClients.length} de {clients.length} cliente{clients.length !== 1 ? "s" : ""} {filteredAndSortedClients.length === clients.length ? "cadastrado" : "encontrado"}{filteredAndSortedClients.length !== 1 ? "s" : ""}
         </CardDescription>
       </CardHeader>
-      <CardContent className="p-6">
+      <CardContent className="p-0">
         {/* Filtros */}
-        <div className="flex flex-col gap-4 mb-6">
+        <div className="flex flex-col gap-4 mb-6 px-6 pt-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
               <Filter className="h-4 w-4" />
               Filtros e Ordenação
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowFilters(!showFilters)}
-              className="gap-2"
-            >
-              {showFilters ? (
-                <>
-                  <ArrowUp className="h-4 w-4" />
-                  Ocultar Filtros
-                </>
-              ) : (
-                <>
-                  <ArrowDown className="h-4 w-4" />
-                  Mostrar Filtros
-                </>
+              {(searchTerm || sortBy !== 'name-asc' || filterBy !== 'all') && (
+                <Badge variant="secondary" className="ml-2">
+                  {[searchTerm, sortBy !== 'name-asc', filterBy !== 'all'].filter(Boolean).length} ativo{[searchTerm, sortBy !== 'name-asc', filterBy !== 'all'].filter(Boolean).length !== 1 ? 's' : ''}
+                </Badge>
               )}
-            </Button>
+            </div>
+            <div className="flex gap-2">
+              {(searchTerm || sortBy !== 'name-asc' || filterBy !== 'all') && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setSearchTerm("");
+                    setSortBy('name-asc');
+                    setFilterBy('all');
+                    sessionStorage.removeItem(STORAGE_KEY);
+                  }}
+                  className="gap-2 text-muted-foreground hover:text-foreground"
+                >
+                  <X className="h-4 w-4" />
+                  Limpar Filtros
+                </Button>
+              )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowFilters(!showFilters)}
+                className="gap-2"
+              >
+                {showFilters ? (
+                  <>
+                    <ArrowUp className="h-4 w-4" />
+                    Ocultar Filtros
+                  </>
+                ) : (
+                  <>
+                    <ArrowDown className="h-4 w-4" />
+                    Mostrar Filtros
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
           
-          {}
+          {/* Filtro de data vindo do calendário - sempre visível */}
           {(dateFilter || (localDateStart && localDateEnd)) && (
             <div className="p-3 bg-primary/10 border border-primary/20 rounded-lg flex items-center justify-between">
               <span className="text-sm font-medium">
                 {dateFilter ? (
                   <>Filtrado por pagamentos em: {format(new Date(dateFilter + 'T00:00:00'), "dd/MM/yyyy", { locale: ptBR })}</>
                 ) : (
-                  <>PerÃ­odo: {format(new Date(localDateStart + 'T00:00:00'), "dd/MM/yyyy", { locale: ptBR })} atÃ© {format(new Date(localDateEnd + 'T00:00:00'), "dd/MM/yyyy", { locale: ptBR })}</>
+                  <>Período: {format(new Date(localDateStart + 'T00:00:00'), "dd/MM/yyyy", { locale: ptBR })} até {format(new Date(localDateEnd + 'T00:00:00'), "dd/MM/yyyy", { locale: ptBR })}</>
                 )}
               </span>
               <Button
@@ -423,13 +525,13 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
                   <SelectItem value="debt-desc">
                     <div className="flex items-center gap-2">
                       <ArrowDown className="h-4 w-4" />
-                      Maior DÃ­vida
+                      Maior Dívida
                     </div>
                   </SelectItem>
                   <SelectItem value="debt-asc">
                     <div className="flex items-center gap-2">
                       <ArrowUp className="h-4 w-4" />
-                      Menor DÃ­vida
+                      Menor Dívida
                     </div>
                   </SelectItem>
                 </SelectContent>
@@ -438,24 +540,40 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
 
             {/* Filtro por status */}
             <div className="space-y-2">
-              <label className="text-sm font-medium">Filtrar por</label>
+              <label className="text-sm font-medium">Situação</label>
               <Select value={filterBy} onValueChange={(value) => setFilterBy(value as FilterOption)}>
                 <SelectTrigger className="w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos os Clientes</SelectItem>
-                  <SelectItem value="with-debt">Com PendÃªncia</SelectItem>
-                  <SelectItem value="paid">Totalmente Pago</SelectItem>
+                  <SelectItem value="up-to-date">
+                    <div className="flex items-center gap-2">
+                      <span className="text-green-600">✓</span>
+                      Em Dia
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="upcoming">
+                    <div className="flex items-center gap-2">
+                      <span className="text-blue-600">⏰</span>
+                      A Vencer
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="overdue">
+                    <div className="flex items-center gap-2">
+                      <span className="text-red-600">⚠</span>
+                      Atrasados
+                    </div>
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
 
-          {/* Filtro por data especÃ­fica */}
+          {/* Filtro por data específica */}
           <div className="space-y-2 pt-2 border-t">
             <div>
-              <label className="text-sm font-medium">Filtrar por Data EspecÃ­fica</label>
+              <label className="text-sm font-medium">Filtrar por Data Específica</label>
               <p className="text-xs text-muted-foreground mt-1">Clientes com vencimento em uma data exata</p>
             </div>
             <Popover>
@@ -470,7 +588,7 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
                   ) : localDateStart && !localDateEnd ? (
                     format(new Date(localDateStart + 'T00:00:00'), "dd/MM/yyyy", { locale: ptBR })
                   ) : (
-                    <span>Selecione uma data especÃ­fica</span>
+                    <span>Selecione uma data específica</span>
                   )}
                 </Button>
               </PopoverTrigger>
@@ -532,7 +650,7 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
                 </Popover>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">AtÃ©</label>
+                <label className="text-sm font-medium">até©</label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
@@ -563,7 +681,7 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
                 </Popover>
               </div>
             </div>
-
+            
             {/* Botões de ação para filtro de data */}
             {(localDateStart || localDateEnd || dateFilter) && (
               <div className="flex gap-2">
@@ -601,31 +719,40 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
           )}
         </div>
 
+        {/* Indicador de scroll horizontal */}
+        <div className="mt-2 mb-4 text-xs text-muted-foreground text-center flex items-center justify-center gap-2 px-6">
+          <ArrowDown className="h-3 w-3 rotate-[-90deg]" />
+          <span>Role horizontalmente para ver todas as colunas</span>
+          <ArrowDown className="h-3 w-3 rotate-90" />
+        </div>
+
         <div className="overflow-x-auto">
-          <Table>
+          <Table className="min-w-[1800px]">
             <TableHeader>
               <TableRow className="bg-muted/50">
-                <TableHead>Nome</TableHead>
-                <TableHead>
+                <TableHead className="min-w-[200px]">Nome</TableHead>
+                <TableHead className="min-w-[130px]">
                   <div className="flex items-center gap-2">
                     <Phone className="h-4 w-4" />
                     Telefone
                   </div>
                 </TableHead>
-                <TableHead>Indicado por</TableHead>
-                <TableHead>Tipo Pagamento</TableHead>
-                <TableHead>PrÃ³ximo Vencimento</TableHead>
-                <TableHead>Parcelas</TableHead>
-                <TableHead>Total Compras</TableHead>
-                <TableHead>Pago</TableHead>
-                <TableHead>Pendente</TableHead>
-                <TableHead className="text-center">Ações</TableHead>
+                <TableHead className="min-w-[140px]">Indicado por</TableHead>
+                <TableHead className="min-w-[120px]">Última Compra</TableHead>
+                <TableHead className="min-w-[130px]">Tipo Pagamento</TableHead>
+                <TableHead className="min-w-[150px]">Próximo Vencimento</TableHead>
+                <TableHead className="min-w-[120px]">Valor Parcela</TableHead>
+                <TableHead className="min-w-[100px]">Parcelas</TableHead>
+                <TableHead className="min-w-[130px]">Total Compras</TableHead>
+                <TableHead className="min-w-[120px]">Pago</TableHead>
+                <TableHead className="min-w-[120px]">Pendente</TableHead>
+                <TableHead className="text-center min-w-[140px]">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredAndSortedClients.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={10} className="text-center py-8">
+                  <TableCell colSpan={12} className="text-center py-8">
                     <div className="flex flex-col items-center gap-2 text-muted-foreground">
                       <Filter className="h-8 w-8" />
                       <p className="font-medium">Nenhum cliente encontrado</p>
@@ -641,42 +768,67 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
                 
                 return (
                   <TableRow key={client.id} className="hover:bg-muted/50 transition-colors">
-                    <TableCell className={`font-medium ${isOverdue ? 'text-red-600 dark:text-red-400 font-semibold' : ''}`}>
-                      {client.name}
+                    <TableCell className="font-medium py-4 px-4">
+                      <div className="flex items-center gap-2">
+                        {isOverdue ? (
+                          <Badge variant="destructive" className="text-xs whitespace-nowrap">
+                            Atrasado
+                          </Badge>
+                        ) : (
+                          <Badge variant="default" className="bg-green-600 hover:bg-green-700 text-xs whitespace-nowrap">
+                            Em Dia
+                          </Badge>
+                        )}
+                        <span className={`${isOverdue ? 'text-red-600 dark:text-red-400' : ''} truncate max-w-[150px]`} title={client.name}>
+                          {client.name}
+                        </span>
+                      </div>
                     </TableCell>
-                    <TableCell>{formatPhone(client.phone)}</TableCell>
-                    <TableCell>
+                    <TableCell className="py-4 px-4">{formatPhone(client.phone)}</TableCell>
+                    <TableCell className="py-4 px-4">
                       {client.referredBy ? (
-                        <span className="text-sm">{client.referredBy}</span>
+                        <span className="text-sm truncate max-w-[120px] block" title={client.referredBy}>{client.referredBy}</span>
                       ) : (
                         <span className="text-muted-foreground">-</span>
                       )}
                     </TableCell>
-                    <TableCell>
-                      <Badge variant="secondary" className="bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-100">
+                    <TableCell className="text-sm font-medium text-muted-foreground py-4 px-4 whitespace-nowrap">
+                      {getLastPurchaseDate(client)}
+                    </TableCell>
+                    <TableCell className="py-4 px-4">
+                      <Badge variant="secondary" className="bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-100 whitespace-nowrap">
                         {getPaymentTypeLabel(stats.paymentFrequency)}
                       </Badge>
                     </TableCell>
-                    <TableCell className={`text-sm font-medium ${isOverdue ? 'text-red-600 dark:text-red-400' : 'text-muted-foreground'}`}>
+                    <TableCell className={`text-sm font-medium py-4 px-4 whitespace-nowrap ${isOverdue ? 'text-red-600 dark:text-red-400' : 'text-muted-foreground'}`}>
                       {getNextDueDate(client)}
                     </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
+                    <TableCell className="py-4 px-4 whitespace-nowrap">
+                      {getNextInstallmentAmount(client) > 0 ? (
+                        <span className="text-blue-600 dark:text-blue-400 font-medium">
+                          {formatCurrency(getNextInstallmentAmount(client))}
+                        </span>
+                      ) : (
+                        <span className="text-muted-foreground">-</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground py-4 px-4 whitespace-nowrap">
                       {installmentsSummary}
                     </TableCell>
-                    <TableCell className="font-semibold">
+                    <TableCell className="font-semibold py-4 px-4 whitespace-nowrap">
                       {formatCurrency(stats.totalSales)}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="py-4 px-4 whitespace-nowrap">
                       <span className="text-green-600 dark:text-green-400 font-medium">
                         {formatCurrency(stats.totalPaid)}
                       </span>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="py-4 px-4 whitespace-nowrap">
                       <span className="text-red-600 dark:text-red-400 font-medium">
                         {formatCurrency(stats.totalPending)}
                       </span>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="py-4 px-4">
                       <div className="flex items-center justify-center gap-2">
                         <Button
                           size="sm"
@@ -686,6 +838,15 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
                           onClick={() => navigate(`/client/${client.id}`)}
                         >
                           <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20"
+                          title="Editar cliente"
+                          onClick={() => setEditingClient(client)}
+                        >
+                          <Edit className="h-4 w-4" />
                         </Button>
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
@@ -727,6 +888,20 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
         </div>
       </CardContent>
       </TooltipProvider>
+
+      {editingClient && (
+        <EditClientDialog
+          clientId={editingClient.id}
+          clientName={editingClient.name}
+          clientPhone={editingClient.phone}
+          clientAddress={editingClient.address}
+          clientObservation={editingClient.observation}
+          clientReferredBy={editingClient.referredBy}
+          open={!!editingClient}
+          onOpenChange={(open) => !open && setEditingClient(null)}
+          onSuccess={loadClients}
+        />
+      )}
     </Card>
   );
 };

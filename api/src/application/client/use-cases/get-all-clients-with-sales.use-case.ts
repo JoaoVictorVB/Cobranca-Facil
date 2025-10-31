@@ -42,17 +42,13 @@ export interface InstallmentResponse {
 export class GetAllClientsWithSalesUseCase {
   constructor(
     @Inject('IClientRepository')
-    private readonly clientRepository: IClientRepository
+    private readonly clientRepository: IClientRepository,
   ) {}
 
   async execute(
-    request: {
-      page?: number;
-      limit?: number;
-    },
+    request: { page?: number; limit?: number },
     userId?: string,
   ): Promise<ClientWithSalesResponse[]> {
-    return await this.clientRepository.findAllWithSales(request.page, request.limit, userId);
+    return await this.clientRepository.findAllWithSales(userId, request.page, request.limit);
   }
 }
-

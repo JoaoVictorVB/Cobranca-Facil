@@ -3,16 +3,16 @@ import { PrismaService } from '../../../infrastructure/database/prisma.service';
 import { IUseCase } from '../../common/use-case.interface';
 import { TopClient } from '../interfaces/reports.interfaces';
 
-interface GetTopClientsRequest {
+interface GetTopClientsChartRequest {
   limit?: number;
 }
 
 @Injectable()
-export class GetTopClientsUseCase implements IUseCase<GetTopClientsRequest, TopClient[]> {
+export class GetTopClientsChartUseCase implements IUseCase<GetTopClientsChartRequest, TopClient[]> {
   constructor(private readonly prisma: PrismaService) {}
 
-  async execute(request: GetTopClientsRequest, userId?: string): Promise<TopClient[]> {
-    const limit = request.limit || 5;
+  async execute(request: GetTopClientsChartRequest, userId?: string): Promise<TopClient[]> {
+    const limit = request.limit || 10;
     const clients = await this.prisma.client.findMany({
       where: userId ? { userId } : undefined,
       include: {
@@ -47,6 +47,7 @@ export class GetTopClientsUseCase implements IUseCase<GetTopClientsRequest, TopC
           totalPending: Number(totalPending.toFixed(2)),
         };
       })
+      .filter((client) => client.totalPurchases > 0)
       .sort((a, b) => b.totalPurchases - a.totalPurchases)
       .slice(0, limit);
 

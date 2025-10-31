@@ -1,4 +1,4 @@
-﻿import { api } from './api';
+import { api } from './api';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
@@ -50,7 +50,7 @@ class AuthService {
       const response = await api.post<AuthResponse>('/auth/login', credentials);
       
       if (!response.data.access_token) {
-        throw new Error('Token nÃ£o retornado pela API');
+        throw new Error('Token não retornado pela API');
       }
       
       this.token = response.data.access_token;
@@ -75,7 +75,7 @@ class AuthService {
       const response = await api.post<AuthResponse>('/auth/register', userData);
       
       if (!response.data.access_token) {
-        throw new Error('Token nÃ£o retornado pela API');
+        throw new Error('Token não retornado pela API');
       }
       
       this.token = response.data.access_token;

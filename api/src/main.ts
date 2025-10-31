@@ -8,34 +8,41 @@ import { LoggingInterceptor } from './infrastructure/interceptors/logging.interc
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  const allowedOrigins = [
-    'http://localhost:5173',
-    'http://localhost:3000',
-    'http://localhost:8080',
-    'http://localhost:8081',
-    'https://cobranca-facil-web.onrender.com',
-    'https://cobranca-facil-rose.vercel.app',
-  ];
-
   app.enableCors({
     origin: (origin, callback) => {
       if (!origin) {
         return callback(null, true);
       }
 
-      const isLocalhost = origin.startsWith('http://localhost');
+      const allowedOrigins = [
+        'http://localhost:5173',
+        'http://localhost:3000',
+        'http://localhost:8080',
+        'http://localhost:8081',
+        'https://cobranca-facil-web.onrender.com',
+        'https://cobranca-facil-rose.vercel.app',
+      ];
+
+      const isLocalNetwork = origin.match(
+        /^http:\/\/(localhost|127\.0\.0\.1|10\.\d+\.\d+\.\d+|192\.168\.\d+\.\d+):\d+$/,
+      );
+
       const isVercel = origin.includes('.vercel.app');
       const isRender = origin.includes('cobranca-facil-web.onrender.com');
       const isAllowed = allowedOrigins.includes(origin);
 
-      if (
-        process.env.NODE_ENV === 'production'
-          ? isVercel || isRender
-          : isLocalhost || isVercel || isRender || isAllowed
-      ) {
-        callback(null, true);
+      if (process.env.NODE_ENV === 'production') {
+        if (isVercel || isRender) {
+          callback(null, true);
+        } else {
+          callback(new Error('Not allowed by CORS'));
+        }
       } else {
-        callback(new Error('Not allowed by CORS'));
+        if (isAllowed || isLocalNetwork) {
+          callback(null, true);
+        } else {
+          callback(new Error('Not allowed by CORS'));
+        }
       }
     },
     credentials: true,

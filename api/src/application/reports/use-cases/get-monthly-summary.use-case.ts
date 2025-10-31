@@ -21,29 +21,24 @@ export class GetMonthlySummaryUseCase
     const startDate = new Date(year, month - 1, 1);
     const endDate = new Date(year, month, 0, 23, 59, 59);
 
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+
     const installments = await this.prisma.installment.findMany({
       where: {
-        OR: [
-          {
-            dueDate: {
-              gte: startDate,
-              lte: endDate,
-            },
-          },
-          {
-            paidDate: {
-              gte: startDate,
-              lte: endDate,
-            },
-          },
-        ],
-        ...(userId ? {
-          sale: {
-            client: {
-              userId,
-            },
-          },
-        } : {}),
+        dueDate: {
+          gte: startDate,
+          lte: endDate,
+        },
+        ...(userId
+          ? {
+              sale: {
+                client: {
+                  userId,
+                },
+              },
+            }
+          : {}),
       },
       include: {
         sale: {
@@ -62,38 +57,26 @@ export class GetMonthlySummaryUseCase
     let upcomingInstallments = 0;
     let overdueInstallments = 0;
 
-    const now = new Date();
-
     for (const installment of installments) {
       const amount = Number(installment.amount);
       const paidAmount = Number(installment.paidAmount || 0);
-      
-      const dueInMonth = installment.dueDate >= startDate && installment.dueDate <= endDate;
-      const paidInMonth = installment.paidDate && 
-                          installment.paidDate >= startDate && 
-                          installment.paidDate <= endDate;
 
-      if (dueInMonth) {
-        totalExpected += amount;
-        
-        if (installment.status === PaymentStatus.PAGO) {
-          paidInstallments++;
-        } else if (installment.status === PaymentStatus.ATRASADO) {
+      totalExpected += amount;
+
+      if (installment.status === PaymentStatus.PAGO) {
+        paidInstallments++;
+        totalReceived += paidAmount;
+      } else {
+        const dueDate = new Date(installment.dueDate);
+        dueDate.setHours(0, 0, 0, 0);
+
+        if (dueDate < now) {
           overdueInstallments++;
           totalOverdue += amount - paidAmount;
         } else {
-          if (installment.dueDate < now) {
-            overdueInstallments++;
-            totalOverdue += amount - paidAmount;
-          } else {
-            upcomingInstallments++;
-            totalPending += amount - paidAmount;
-          }
+          upcomingInstallments++;
+          totalPending += amount - paidAmount;
         }
-      }
-
-      if (paidInMonth) {
-        totalReceived += paidAmount;
       }
     }
 
