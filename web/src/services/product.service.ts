@@ -24,10 +24,8 @@ export const productService = {
     return response.data;
   },
 
-  async findAll(page: number = 1, limit: number = 50): Promise<Product[]> {
-    const response = await api.get<Product[]>('/products', {
-      params: { page, limit },
-    });
+  async findAll(): Promise<Product[]> {
+    const response = await api.get<Product[]>('/products');
     return response.data;
   },
 

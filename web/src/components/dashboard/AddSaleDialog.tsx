@@ -1,4 +1,4 @@
-﻿import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Combobox } from "@/components/ui/combobox";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -93,7 +93,7 @@ export const AddSaleDialog = ({ onSuccess }: AddSaleDialogProps) => {
 
       if (!clientId) {
         toast({
-          title: "âš ï¸ Cliente ObrigatÃ³rio",
+          title: "⚠️ Cliente Obrigatório",
           description: "Selecione um cliente existente ou cadastre um novo",
           variant: "destructive",
         });
@@ -114,7 +114,7 @@ export const AddSaleDialog = ({ onSuccess }: AddSaleDialogProps) => {
       });
 
       toast({
-        title: "âœ… Venda Cadastrada!",
+        title: "… Venda Cadastrada!",
         description: `${formData.totalInstallments} parcela(s) criada(s) com sucesso.`,
       });
 
@@ -226,21 +226,21 @@ export const AddSaleDialog = ({ onSuccess }: AddSaleDialogProps) => {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="newClientAddress">EndereÃ§o</Label>
+                    <Label htmlFor="newClientAddress">Endereço</Label>
                     <Input
                       id="newClientAddress"
                       value={formData.newClientAddress}
                       onChange={(e) => setFormData({ ...formData, newClientAddress: e.target.value })}
-                      placeholder="Rua, nÃºmero, bairro, cidade"
+                      placeholder="Rua, número, bairro, cidade"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="newClientObservation">ObservaÃ§Ãµes</Label>
+                    <Label htmlFor="newClientObservation">ObservAções</Label>
                     <Textarea
                       id="newClientObservation"
                       value={formData.newClientObservation}
                       onChange={(e) => setFormData({ ...formData, newClientObservation: e.target.value })}
-                      placeholder="InformaÃ§Ãµes adicionais sobre o cliente"
+                      placeholder="InformAções adicionais sobre o cliente"
                       rows={3}
                     />
                   </div>
@@ -275,7 +275,7 @@ export const AddSaleDialog = ({ onSuccess }: AddSaleDialogProps) => {
                     <TooltipContent side="top" className="max-w-xs">
                       <p className="text-sm">
                         <strong>Data em que a primeira parcela vence.</strong><br/>
-                        Se mensal: prÃ³ximas parcelas sempre no mesmo dia (ex: dia 10)<br/>
+                        Se mensal: próximas parcelas sempre no mesmo dia (ex: dia 10)<br/>
                         Se quinzenal: alterna entre dia X e dia X+15
                       </p>
                     </TooltipContent>
@@ -286,7 +286,7 @@ export const AddSaleDialog = ({ onSuccess }: AddSaleDialogProps) => {
                   type="date"
                   value={formData.firstDueDate}
                   onChange={(e) => setFormData({ ...formData, firstDueDate: e.target.value })}
-                  min={formData.saleDate} // NÃ£o pode ser antes da data da compra
+                  min={formData.saleDate} // Não pode ser antes da data da compra
                   required
                 />
               </div>
@@ -320,12 +320,12 @@ export const AddSaleDialog = ({ onSuccess }: AddSaleDialogProps) => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="itemDescription">DescriÃ§Ã£o do Produto/ServiÃ§o *</Label>
+              <Label htmlFor="itemDescription">Descrição do Produto/Serviço *</Label>
               <Textarea
                 id="itemDescription"
                 value={formData.itemDescription}
                 onChange={(e) => setFormData({ ...formData, itemDescription: e.target.value })}
-                placeholder="Descreva o produto ou serviÃ§o vendido"
+                placeholder="Descreva o produto ou serviço vendido"
                 required
                 rows={2}
               />
@@ -348,14 +348,14 @@ export const AddSaleDialog = ({ onSuccess }: AddSaleDialogProps) => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <Label htmlFor="totalInstallments">NÂº de Parcelas *</Label>
+                  <Label htmlFor="totalInstallments">Nº de Parcelas *</Label>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Info className="h-3 w-3 text-muted-foreground/60 hover:text-muted-foreground cursor-help" />
                     </TooltipTrigger>
                     <TooltipContent side="top" className="max-w-xs">
                       <p className="text-sm">
-                        Quantas vezes o valor serÃ¡ dividido. Cada parcela terÃ¡ o mesmo valor.
+                        Quantas vezes o valor será dividido. Cada parcela terá o mesmo valor.
                       </p>
                     </TooltipContent>
                   </Tooltip>
@@ -379,14 +379,14 @@ export const AddSaleDialog = ({ onSuccess }: AddSaleDialogProps) => {
 
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <Label htmlFor="paymentFrequency">FrequÃªncia *</Label>
+                  <Label htmlFor="paymentFrequency">Frequência *</Label>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Info className="h-3 w-3 text-muted-foreground/60 hover:text-muted-foreground cursor-help" />
                     </TooltipTrigger>
                     <TooltipContent side="top" className="max-w-xs">
                       <p className="text-sm">
-                        <strong>Mensal:</strong> Uma parcela por mÃªs, sempre no mesmo dia<br/>
+                        <strong>Mensal:</strong> Uma parcela por mês, sempre no mesmo dia<br/>
                         <strong>Quinzenal:</strong> Uma parcela a cada 15 dias (dia X e dia X+15)
                       </p>
                     </TooltipContent>

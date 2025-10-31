@@ -1,6 +1,7 @@
-﻿import { BarChart3, Calendar as CalendarIcon } from "lucide-react";
+import { BarChart3, Calendar as CalendarIcon } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ExpectedRevenueCards } from "../components/dashboard/ExpectedRevenueCards";
 import { PaymentStatusChart } from "../components/dashboard/PaymentStatusChart";
 import { RevenueChart } from "../components/dashboard/RevenueChart";
 import { SummaryCards } from "../components/dashboard/SummaryCards";
@@ -10,14 +11,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../co
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
 import { Skeleton } from "../components/ui/skeleton";
 import { useToast } from "../hooks/use-toast";
-import { MonthlySummary, PaymentStatus, reportsService, TopClient } from "../services/reports.service";
+import { ClientStatus, MonthlySummary, reportsService, TopClient } from "../services/reports.service";
 
 export function Home() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [monthlySummary, setMonthlySummary] = useState<MonthlySummary | null>(null);
-  const [paymentStatus, setPaymentStatus] = useState<PaymentStatus[]>([]);
+  const [clientsStatus, setClientsStatus] = useState<ClientStatus[]>([]);
   const [topClients, setTopClients] = useState<TopClient[]>([]);
   const [selectedMonth, setSelectedMonth] = useState<string>(() => {
     const now = new Date();
@@ -55,19 +56,19 @@ export function Home() {
       
       const [summary, status, clients] = await Promise.all([
         reportsService.getMonthlySummary(year, month),
-        reportsService.getPaymentStatus(),
+        reportsService.getClientsStatus(year, month),
         reportsService.getTopClients(5),
       ]);
 
       console.log('API returned summary for month:', summary.month);
       setMonthlySummary(summary);
-      setPaymentStatus(status);
+      setClientsStatus(status);
       setTopClients(clients);
     } catch (error) {
       console.error("Error loading dashboard data:", error);
       toast({
-        title: "âŒ Erro",
-        description: "NÃ£o foi possÃ­vel carregar os dados da dashboard",
+        title: "❌ Erro",
+        description: "Não foi possível carregar os dados da dashboard",
         variant: "destructive",
       });
     } finally {
@@ -96,7 +97,7 @@ export function Home() {
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold">Dashboard</h1>
-          <p className="text-muted-foreground">VisÃ£o geral do seu negÃ³cio</p>
+          <p className="text-muted-foreground">Visão geral do seu negócio</p>
         </div>
         
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -132,7 +133,7 @@ export function Home() {
   if (!monthlySummary) {
     return (
       <div className="flex items-center justify-center h-96">
-        <p className="text-muted-foreground">Nenhum dado disponÃ­vel</p>
+        <p className="text-muted-foreground">Nenhum dado disponível</p>
       </div>
     );
   }
@@ -150,14 +151,14 @@ export function Home() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold">Dashboard</h1>
-          <p className="text-muted-foreground">VisÃ£o geral do seu negÃ³cio</p>
+          <p className="text-muted-foreground">Visão geral do seu negócio</p>
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
           <Select value={selectedMonth} onValueChange={handleMonthChange}>
             <SelectTrigger className="w-full sm:w-[200px]">
               <CalendarIcon className="h-4 w-4 mr-2 flex-shrink-0" />
               <SelectValue>
-                {getMonthOptions().find(opt => opt.value === selectedMonth)?.label || 'Selecionar mÃªs'}
+                {getMonthOptions().find(opt => opt.value === selectedMonth)?.label || 'Selecionar mês'}
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
@@ -170,7 +171,7 @@ export function Home() {
           </Select>
           <Button onClick={() => navigate('/analytics')} className="gap-2 w-full sm:w-auto">
             <BarChart3 className="h-4 w-4" />
-            Ver AnÃ¡lises Detalhadas
+            Ver Análises Detalhadas
           </Button>
         </div>
       </div>
@@ -186,9 +187,9 @@ export function Home() {
       <div className="grid gap-4 md:grid-cols-7">
         <Card className="md:col-span-3">
           <CardHeader>
-            <CardTitle>Aproveitamento do MÃªs</CardTitle>
+            <CardTitle>Aproveitamento do Mês</CardTitle>
             <CardDescription>
-              {monthlySummary.receivedPercentage.toFixed(1)}% do esperado jÃ¡ foi recebido
+              {monthlySummary.receivedPercentage.toFixed(1)}% do esperado já foi recebido
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -241,13 +242,25 @@ export function Home() {
         </Card>
 
         <div className="md:col-span-4">
-          <PaymentStatusChart data={paymentStatus} />
+          <PaymentStatusChart data={clientsStatus} />
         </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
         <RevenueChart data={revenueData} />
         <TopClientsTable clients={topClients} />
+      </div>
+
+      <div className="border-t pt-8 mt-8">
+        <div className="space-y-4">
+          <div>
+            <h2 className="text-2xl font-bold">Expectativa de Recebimento</h2>
+            <p className="text-muted-foreground">
+              Projeção dos próximos 6 meses - Valores esperados independente do mês selecionado acima
+            </p>
+          </div>
+          <ExpectedRevenueCards />
+        </div>
       </div>
     </div>
   );

@@ -34,7 +34,7 @@ export const AddProductDialog = ({ onSuccess }: AddProductDialogProps) => {
 
       toast({
         title: "✅ Produto Cadastrado!",
-        description: "Produto adicionado com sucesso ao catálogo.",
+        description: "Produto adicionado com sucesso ao catélogo.",
       });
 
       setOpen(false);
@@ -62,7 +62,7 @@ export const AddProductDialog = ({ onSuccess }: AddProductDialogProps) => {
             Cadastrar Produto
           </DialogTitle>
           <DialogDescription>
-            Adicione um novo produto ao catálogo
+            Adicione um novo produto ao catélogo
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">

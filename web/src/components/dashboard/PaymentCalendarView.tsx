@@ -1,4 +1,4 @@
-﻿import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Installment, installmentService, PaymentStatus } from "@/services/installment.service";
@@ -27,14 +27,9 @@ export const PaymentCalendar = ({ onDateClick, selectedDate, onClearFilter }: Pa
     try {
       setLoading(true);
       const year = currentDate.getFullYear();
-      const month = currentDate.getMonth() + 1; // getMonth() retorna 0-11, precisamos 1-12
-      
-      console.log('ðŸ“… Carregando parcelas para:', { year, month });
+      const month = currentDate.getMonth() + 1;
       
       const monthInstallments = await installmentService.getByMonth(year, month);
-      
-      console.log('ðŸ“¦ Parcelas encontradas:', monthInstallments.length);
-      console.log('ðŸ“¦ Parcelas:', monthInstallments);
       
       setInstallments(monthInstallments);
     } catch (error) {
@@ -93,22 +88,8 @@ export const PaymentCalendar = ({ onDateClick, selectedDate, onClearFilter }: Pa
         
         const match = matchDueDate || matchPaidDate;
         
-        if (match) {
-          console.log(`âœ… Parcela encontrada no dia ${day}:`, {
-            dueDate: inst.dueDate,
-            paidDate: inst.paidDate,
-            amount: inst.amount,
-            status: inst.status,
-            matchedBy: matchDueDate ? 'dueDate' : 'paidDate'
-          });
-        }
-        
         return match;
       });
-
-      if (dayInstallments.length > 0) {
-        console.log(`ðŸ“Œ Dia ${day} tem ${dayInstallments.length} parcela(s)`);
-      }
 
       days.push({
         date: currentDay,
@@ -157,7 +138,7 @@ export const PaymentCalendar = ({ onDateClick, selectedDate, onClearFilter }: Pa
   };
 
   const days = getDaysInMonth(currentDate);
-  const weekDays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'SÃ¡b'];
+  const weekDays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
   if (loading) {
     return (
@@ -165,7 +146,7 @@ export const PaymentCalendar = ({ onDateClick, selectedDate, onClearFilter }: Pa
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Calendar className="h-5 w-5" />
-            CalendÃ¡rio de Pagamentos
+            Calendário de Pagamentos
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -184,7 +165,7 @@ export const PaymentCalendar = ({ onDateClick, selectedDate, onClearFilter }: Pa
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Calendar className="h-5 w-5" />
-            <CardTitle>CalendÃ¡rio de Pagamentos</CardTitle>
+            <CardTitle>Calendário de Pagamentos</CardTitle>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Info className="h-4 w-4 text-muted-foreground/60 hover:text-muted-foreground cursor-help" />
@@ -192,7 +173,7 @@ export const PaymentCalendar = ({ onDateClick, selectedDate, onClearFilter }: Pa
               <TooltipContent side="top" className="max-w-xs">
                 <p className="text-sm">
                   <strong>Visualize os vencimentos mensais.</strong><br/>
-                  ðŸŸ¢ Verde = Paga | ðŸ”´ Vermelho = Atrasada | ðŸ”µ Azul = A vencer<br/>
+                  🟢 Verde = Paga | 🔴 Vermelho = Atrasada | 🔵 Azul = A vencer<br/>
                   Clique em um dia para filtrar os clientes
                 </p>
               </TooltipContent>
@@ -218,7 +199,7 @@ export const PaymentCalendar = ({ onDateClick, selectedDate, onClearFilter }: Pa
           </Select>
         </div>
         <CardDescription>
-          Visualize todas as parcelas com vencimento prÃ³ximo
+          Visualize todas as parcelas com vencimento próximo
         </CardDescription>
       </CardHeader>
       <CardContent className="p-6">
@@ -228,10 +209,10 @@ export const PaymentCalendar = ({ onDateClick, selectedDate, onClearFilter }: Pa
             <div className="flex items-center justify-between">
               <div className="text-sm font-medium">
                 <span>
-                  ðŸ“… Filtrado por: {new Date(selectedDate + 'T00:00:00').toLocaleDateString('pt-BR')}
+                  📅 Filtrado por: {new Date(selectedDate + 'T00:00:00').toLocaleDateString('pt-BR')}
                 </span>
                 <p className="text-xs text-muted-foreground mt-1">
-                  VÃ¡ para a aba "Clientes" para ver os resultados filtrados
+                  Vá para a aba "Clientes" para ver os resultados filtrados
                 </p>
               </div>
               <Button
@@ -247,7 +228,7 @@ export const PaymentCalendar = ({ onDateClick, selectedDate, onClearFilter }: Pa
           </div>
         )}
 
-        {/* Header com navegaÃ§Ã£o */}
+        {/* Header com navegação */}
         <div className="flex items-center justify-between mb-6">
           <Button
             variant="outline"
@@ -268,7 +249,7 @@ export const PaymentCalendar = ({ onDateClick, selectedDate, onClearFilter }: Pa
           </Button>
         </div>
 
-        {/* Grid do calendÃ¡rio */}
+        {/* Grid do calendário */}
         <div className="grid grid-cols-7 gap-2">
           {/* Dias da semana */}
           {weekDays.map((day) => (
@@ -280,7 +261,7 @@ export const PaymentCalendar = ({ onDateClick, selectedDate, onClearFilter }: Pa
             </div>
           ))}
 
-          {/* Dias do mÃªs */}
+          {/* Dias do mês */}
           {days.map((day, index) => {
             const isCurrentMonth = day.date.getMonth() === currentDate.getMonth();
             const isToday =
