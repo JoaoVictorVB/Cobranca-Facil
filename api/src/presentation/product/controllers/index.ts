@@ -3,3 +3,8 @@ export * from './delete-product.controller';
 export * from './get-all-products.controller';
 export * from './get-product-by-id.controller';
 export * from './update-product.controller';
+export * from './add-stock.controller';
+export * from './remove-stock.controller';
+export * from './adjust-stock.controller';
+export * from './get-low-stock-products.controller';
+export * from './get-stock-movements.controller';

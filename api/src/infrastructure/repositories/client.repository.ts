@@ -74,10 +74,10 @@ export class ClientRepository implements IClientRepository {
 
     const clients = await this.prisma.client.findMany(query);
 
-    return clients.map((client) => ({
+    return clients.map((client: any) => ({
       ...client,
-      sales: client.sales.map((sale) => {
-        const totalPaid = sale.installments.reduce((sum, inst) => {
+      sales: client.sales.map((sale: any) => {
+        const totalPaid = sale.installments.reduce((sum: number, inst: any) => {
           if (inst.status === 'pago') {
             return sum + (inst.paidAmount || inst.amount);
           }

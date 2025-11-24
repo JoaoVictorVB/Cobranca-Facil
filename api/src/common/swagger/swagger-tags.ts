@@ -2,6 +2,7 @@ export const SWAGGER_TAGS = {
   AUTH: 'Auth',
   CLIENTS: 'Clients',
   PRODUCTS: 'Products',
+  CATEGORIES: 'Categories',
   SALES: 'Sales',
   REPORTS: 'Reports',
 } as const;
