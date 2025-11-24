@@ -94,10 +94,10 @@ export function Home() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">Dashboard</h1>
-          <p className="text-muted-foreground">Visão geral do seu negócio</p>
+      <div className="space-y-6 p-6">
+        <div className="space-y-2">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">Dashboard</h1>
+          <p className="text-muted-foreground text-lg">Visão geral do seu negócio</p>
         </div>
         
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -147,15 +147,15 @@ export function Home() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold">Dashboard</h1>
-          <p className="text-muted-foreground">Visão geral do seu negócio</p>
+        <div className="space-y-2">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">Dashboard</h1>
+          <p className="text-muted-foreground text-lg">Visão geral do seu negócio</p>
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
           <Select value={selectedMonth} onValueChange={handleMonthChange}>
-            <SelectTrigger className="w-full sm:w-[200px]">
+            <SelectTrigger className="w-full sm:w-[240px] border-border/50 shadow-md">
               <CalendarIcon className="h-4 w-4 mr-2 flex-shrink-0" />
               <SelectValue>
                 {getMonthOptions().find(opt => opt.value === selectedMonth)?.label || 'Selecionar mês'}
@@ -169,7 +169,10 @@ export function Home() {
               ))}
             </SelectContent>
           </Select>
-          <Button onClick={() => navigate('/analytics')} className="gap-2 w-full sm:w-auto">
+          <Button 
+            onClick={() => navigate('/analytics')} 
+            className="gap-2 w-full sm:w-auto bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+          >
             <BarChart3 className="h-4 w-4" />
             Ver Análises Detalhadas
           </Button>
@@ -185,7 +188,7 @@ export function Home() {
       />
 
       <div className="grid gap-4 md:grid-cols-7">
-        <Card className="md:col-span-3">
+        <Card className="md:col-span-3 border-border/50 shadow-lg hover:shadow-xl transition-all duration-300">
           <CardHeader>
             <CardTitle>Aproveitamento do Mês</CardTitle>
             <CardDescription>

@@ -18,61 +18,69 @@ export function SummaryCards({
 }: SummaryCardsProps) {
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-      <Card>
+      <Card className="hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border-border/50 bg-gradient-to-br from-card to-card/50">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Total Esperado</CardTitle>
-          <DollarSign className="h-4 w-4 text-muted-foreground" />
+          <div className="p-2 bg-blue-500/10 rounded-lg">
+            <DollarSign className="h-5 w-5 text-blue-500" />
+          </div>
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">
             {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalExpected)}
           </div>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-muted-foreground mt-1">
             Valor total a receber este mês
           </p>
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border-green-500/20 bg-gradient-to-br from-card to-green-500/5">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Total Recebido</CardTitle>
-          <TrendingUp className="h-4 w-4 text-green-600" />
+          <div className="p-2 bg-green-500/10 rounded-lg">
+            <TrendingUp className="h-5 w-5 text-green-500" />
+          </div>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-green-600">
+          <div className="text-2xl font-bold text-green-500">
             {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalReceived)}
           </div>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-muted-foreground mt-1">
             {receivedPercentage.toFixed(1)}% do total esperado
           </p>
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border-yellow-500/20 bg-gradient-to-br from-card to-yellow-500/5">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Pendente</CardTitle>
-          <Clock className="h-4 w-4 text-yellow-600" />
+          <div className="p-2 bg-yellow-500/10 rounded-lg">
+            <Clock className="h-5 w-5 text-yellow-500" />
+          </div>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-yellow-600">
+          <div className="text-2xl font-bold text-yellow-500">
             {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalPending)}
           </div>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-muted-foreground mt-1">
             Aguardando vencimento
           </p>
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border-red-500/20 bg-gradient-to-br from-card to-red-500/5">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Em Atraso</CardTitle>
-          <TrendingDown className="h-4 w-4 text-red-600" />
+          <div className="p-2 bg-red-500/10 rounded-lg">
+            <TrendingDown className="h-5 w-5 text-red-500" />
+          </div>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-red-600">
+          <div className="text-2xl font-bold text-red-500">
             {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalOverdue)}
           </div>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-muted-foreground mt-1">
             Requer atenção urgente
           </p>
         </CardContent>

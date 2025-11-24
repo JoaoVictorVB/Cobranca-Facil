@@ -10,6 +10,7 @@ import ClientDetails from "./pages/ClientDetails";
 import Index from "./pages/Index";
 import { Login } from "./pages/Login";
 import NotFound from "./pages/NotFound";
+import ProductInventory from "./pages/ProductInventory";
 import { Register } from "./pages/Register";
 
 const queryClient = new QueryClient();
@@ -37,6 +38,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Analytics />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/products"
+              element={
+                <ProtectedRoute>
+                  <ProductInventory />
                 </ProtectedRoute>
               }
             />
