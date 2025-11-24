@@ -6,6 +6,7 @@ export interface Product {
   description?: string;
   sku?: string;
   categoryId?: string;
+  tagIds?: string[];
   costPrice: number;
   salePrice: number;
   stock: number;
@@ -31,6 +32,7 @@ export interface CreateProductDto {
   description?: string;
   sku?: string;
   categoryId?: string;
+  tagIds?: string[];
   costPrice?: number;
   salePrice?: number;
   stock?: number;
@@ -49,6 +51,7 @@ export interface UpdateProductDto {
   description?: string;
   sku?: string;
   categoryId?: string;
+  tagIds?: string[];
   costPrice?: number;
   salePrice?: number;
   minStock?: number;

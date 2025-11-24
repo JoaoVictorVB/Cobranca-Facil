@@ -2,12 +2,12 @@ import { Product } from '../entities/product.entity';
 import { StockMovement } from '../entities/stock-movement.entity';
 
 export interface IProductRepository {
-  create(product: Product, userId: string): Promise<Product>;
+  create(product: Product, userId: string, tagIds?: string[]): Promise<Product>;
   findById(id: string, userId?: string): Promise<Product | null>;
   findAll(userId?: string, page?: number, limit?: number): Promise<Product[]>;
   findByCategory(category: string, userId?: string): Promise<Product[]>;
   findLowStock(userId?: string): Promise<Product[]>;
-  update(product: Product, userId?: string): Promise<Product>;
+  update(product: Product, userId?: string, tagIds?: string[]): Promise<Product>;
   delete(id: string, userId?: string): Promise<void>;
   
   // Stock operations

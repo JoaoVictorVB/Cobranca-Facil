@@ -1,4 +1,3 @@
-import { AddProductDialog } from "@/components/dashboard/AddProductDialog";
 import { AddSaleDialog } from "@/components/dashboard/AddSaleDialog";
 import { ClientsTable } from "@/components/dashboard/ClientsTable";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
@@ -102,25 +101,22 @@ const Index = () => {
   }, [loadStats]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted">
+    <div className="min-h-screen bg-background">
       <DashboardHeader />
       
-      <main className={activeTab === "clients" ? "w-full space-y-8" : "container mx-auto p-6 space-y-8"}>
-        <div className={activeTab === "clients" ? "px-6 pt-6" : ""}>
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-                Dashboard de Cobranças
-              </h1>
-              <p className="text-lg text-muted-foreground">
-                Gerencie suas vendas e pagamentos de forma simples e eficiente
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <ProductsManagementDialog onSuccess={loadStats} />
-              <AddProductDialog onSuccess={loadStats} />
-              <AddSaleDialog onSuccess={loadStats} />
-            </div>
+      <main className="w-full max-w-[1600px] mx-auto p-6 space-y-8">
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
+            <h1 className="text-4xl font-bold tracking-tight text-foreground">
+              Dashboard de Cobranças
+            </h1>
+            <p className="text-lg text-muted-foreground">
+              Gerencie suas vendas e pagamentos de forma simples e eficiente
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <ProductsManagementDialog onSuccess={loadStats} />
+            <AddSaleDialog onSuccess={loadStats} />
           </div>
         </div>
 
@@ -130,34 +126,28 @@ const Index = () => {
           </div>
         ) : (
           <>
-            <div className={activeTab === "clients" ? "px-6" : ""}>
-              <StatsCards stats={stats} />
-            </div>
+            <StatsCards stats={stats} />
             
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <div className={activeTab === "clients" ? "px-6" : ""}>
-                <TabsList className="grid w-full max-w-2xl grid-cols-3">
-                  <TabsTrigger value="home">Dashboard</TabsTrigger>
-                  <TabsTrigger value="clients">Clientes</TabsTrigger>
-                  <TabsTrigger value="calendar">Calendário</TabsTrigger>
-                </TabsList>
-              </div>
+              <TabsList className="grid w-full max-w-2xl grid-cols-3">
+                <TabsTrigger value="home">Dashboard</TabsTrigger>
+                <TabsTrigger value="clients">Clientes</TabsTrigger>
+                <TabsTrigger value="calendar">Calendário</TabsTrigger>
+              </TabsList>
               
               <TabsContent value="home" className="mt-6">
                 <Home key={refreshKey} />
               </TabsContent>
               
-              <TabsContent value="clients" className="mt-6 px-0">
-                <div className="px-4">
-                  <ClientsTable 
-                    onUpdate={loadStats} 
-                    dateFilter={selectedDate}
-                    dateRangeStart={dateRangeStart}
-                    dateRangeEnd={dateRangeEnd}
-                    onClearFilters={clearAllFilters}
-                    onSetSpecificDate={setSpecificDateFilter}
-                  />
-                </div>
+              <TabsContent value="clients" className="mt-6">
+                <ClientsTable 
+                  onUpdate={loadStats} 
+                  dateFilter={selectedDate}
+                  dateRangeStart={dateRangeStart}
+                  dateRangeEnd={dateRangeEnd}
+                  onClearFilters={clearAllFilters}
+                  onSetSpecificDate={setSpecificDateFilter}
+                />
               </TabsContent>
               
               <TabsContent value="calendar" className="mt-6">

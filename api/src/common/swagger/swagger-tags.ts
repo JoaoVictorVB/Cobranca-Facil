@@ -3,7 +3,10 @@ export const SWAGGER_TAGS = {
   CLIENTS: 'Clients',
   PRODUCTS: 'Products',
   CATEGORIES: 'Categories',
+  TAGS: 'Tags',
   SALES: 'Sales',
+  DISTRIBUTION: 'Distribution',
+  RISK_ANALYTICS: 'Risk Analytics',
   REPORTS: 'Reports',
 } as const;
 

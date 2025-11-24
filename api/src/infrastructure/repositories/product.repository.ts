@@ -8,7 +8,7 @@ import { PrismaService } from '../database/prisma.service';
 export class ProductRepository implements IProductRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(product: Product, userId: string): Promise<Product> {
+  async create(product: Product, userId: string, tagIds?: string[]): Promise<Product> {
     const created = await this.prisma.product.create({
       data: {
         id: product.id,
@@ -30,6 +30,16 @@ export class ProductRepository implements IProductRepository {
         userId: userId,
         createdAt: product.createdAt,
         updatedAt: product.updatedAt,
+        productTags: tagIds && tagIds.length > 0 ? {
+          create: tagIds.map(tagId => ({ tagId }))
+        } : undefined,
+      },
+      include: {
+        productTags: {
+          select: {
+            tagId: true,
+          },
+        },
       },
     });
 
@@ -42,6 +52,13 @@ export class ProductRepository implements IProductRepository {
 
     const product = await this.prisma.product.findFirst({
       where,
+      include: {
+        productTags: {
+          select: {
+            tagId: true,
+          },
+        },
+      },
     });
 
     return product ? this.toDomain(product) : null;
@@ -51,6 +68,13 @@ export class ProductRepository implements IProductRepository {
     const query: any = {
       where: userId ? { userId } : undefined,
       orderBy: { createdAt: 'desc' },
+      include: {
+        productTags: {
+          select: {
+            tagId: true,
+          },
+        },
+      },
     };
 
     if (page && limit) {
@@ -70,6 +94,13 @@ export class ProductRepository implements IProductRepository {
         ...(userId ? { userId } : {}),
       },
       orderBy: { name: 'asc' },
+      include: {
+        productTags: {
+          select: {
+            tagId: true,
+          },
+        },
+      },
     });
 
     return products.map((product) => this.toDomain(product));
@@ -85,14 +116,39 @@ export class ProductRepository implements IProductRepository {
         isActive: true,
       },
       orderBy: { stock: 'asc' },
+      include: {
+        productTags: {
+          select: {
+            tagId: true,
+          },
+        },
+      },
     });
 
     return products.map((product) => this.toDomain(product));
   }
 
-  async update(product: Product, userId?: string): Promise<Product> {
+  async update(product: Product, userId?: string, tagIds?: string[]): Promise<Product> {
     const where: any = { id: product.id };
     if (userId) where.userId = userId;
+
+    // If tagIds is provided, update the tags
+    if (tagIds !== undefined) {
+      // Delete existing tags
+      await this.prisma.productTag.deleteMany({
+        where: { productId: product.id },
+      });
+
+      // Create new tags
+      if (tagIds.length > 0) {
+        await this.prisma.productTag.createMany({
+          data: tagIds.map(tagId => ({
+            productId: product.id,
+            tagId,
+          })),
+        });
+      }
+    }
 
     await this.prisma.product.updateMany({
       where,
@@ -116,7 +172,16 @@ export class ProductRepository implements IProductRepository {
       },
     });
 
-    const fetched = await this.prisma.product.findFirst({ where });
+    const fetched = await this.prisma.product.findFirst({ 
+      where,
+      include: {
+        productTags: {
+          select: {
+            tagId: true,
+          },
+        },
+      },
+    });
     if (!fetched) throw new Error('Product not found after update');
     return this.toDomain(fetched);
   }
@@ -252,12 +317,15 @@ export class ProductRepository implements IProductRepository {
   }
 
   private toDomain(raw: any): Product {
+    const tagIds = raw.productTags ? raw.productTags.map((pt: any) => pt.tagId) : [];
+    
     return Product.create({
       id: raw.id,
       name: raw.name,
       description: raw.description,
       sku: raw.sku,
       category: raw.category,
+      tagIds: tagIds,
       costPrice: raw.costPrice,
       salePrice: raw.salePrice,
       stock: raw.stock,

@@ -155,7 +155,7 @@ export const AddSaleDialog = ({ onSuccess }: AddSaleDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="gap-2 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg">
+        <Button className="gap-2">
           <ShoppingCart className="h-4 w-4" />
           Nova Venda
         </Button>

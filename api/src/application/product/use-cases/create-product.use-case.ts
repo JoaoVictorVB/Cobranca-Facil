@@ -29,6 +29,7 @@ export class CreateProductUseCase {
       description: input.description,
       sku: input.sku,
       category: input.category,
+      tagIds: input.tagIds,
       costPrice: input.costPrice,
       salePrice: input.salePrice,
       stock: input.stock,
@@ -42,7 +43,6 @@ export class CreateProductUseCase {
       isActive: input.isActive,
     });
 
-    return await this.productRepository.create(product, userId);
+    return await this.productRepository.create(product, userId, input.tagIds);
   }
 }
-

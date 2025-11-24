@@ -1,26 +1,27 @@
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Product, UpdateProductDto, productService } from "@/services/product.service";
 import { useEffect, useState } from "react";
+import { TagSelector } from "./TagSelector";
 
 interface EditProductInventoryDialogProps {
   open: boolean;
@@ -45,6 +46,7 @@ export function EditProductInventoryDialog({
         name: product.name,
         description: product.description,
         sku: product.sku,
+        tagIds: product.tagIds || [],
         costPrice: product.costPrice,
         salePrice: product.salePrice,
         minStock: product.minStock,
@@ -219,6 +221,15 @@ export function EditProductInventoryDialog({
                 onChange={(e) => setFormData({ ...formData, supplier: e.target.value })}
               />
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Tags</Label>
+            <TagSelector
+              selectedTagIds={formData.tagIds || []}
+              onChange={(tagIds) => setFormData({ ...formData, tagIds })}
+              disabled={isLoading}
+            />
           </div>
 
           <div className="space-y-2">

@@ -1,13 +1,13 @@
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -446,7 +446,7 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
   return (
     <Card className="shadow-lg w-full rounded-none border-x-0">
       <TooltipProvider delayDuration={200}>
-      <CardHeader className="bg-gradient-to-r from-primary/5 to-primary/10 border-b px-6">
+      <CardHeader className="border-b px-6">
         <div className="flex items-center gap-2">
           <User className="h-5 w-5" />
           <CardTitle>Clientes Cadastrados</CardTitle>

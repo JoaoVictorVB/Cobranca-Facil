@@ -18,11 +18,11 @@ export function SummaryCards({
 }: SummaryCardsProps) {
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-      <Card className="hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border-border/50 bg-gradient-to-br from-card to-card/50">
+      <Card className="border-l-4 border-l-primary">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Total Esperado</CardTitle>
-          <div className="p-2 bg-blue-500/10 rounded-lg">
-            <DollarSign className="h-5 w-5 text-blue-500" />
+          <div className="p-2 bg-primary/10 rounded-lg">
+            <DollarSign className="h-5 w-5 text-primary" />
           </div>
         </CardHeader>
         <CardContent>
@@ -35,7 +35,7 @@ export function SummaryCards({
         </CardContent>
       </Card>
 
-      <Card className="hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border-green-500/20 bg-gradient-to-br from-card to-green-500/5">
+      <Card className="border-l-4 border-l-green-500">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Total Recebido</CardTitle>
           <div className="p-2 bg-green-500/10 rounded-lg">
@@ -43,7 +43,7 @@ export function SummaryCards({
           </div>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-green-500">
+          <div className="text-2xl font-bold text-green-600 dark:text-green-500">
             {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalReceived)}
           </div>
           <p className="text-xs text-muted-foreground mt-1">
@@ -52,7 +52,7 @@ export function SummaryCards({
         </CardContent>
       </Card>
 
-      <Card className="hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border-yellow-500/20 bg-gradient-to-br from-card to-yellow-500/5">
+      <Card className="border-l-4 border-l-yellow-500">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Pendente</CardTitle>
           <div className="p-2 bg-yellow-500/10 rounded-lg">
@@ -60,7 +60,7 @@ export function SummaryCards({
           </div>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-yellow-500">
+          <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-500">
             {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalPending)}
           </div>
           <p className="text-xs text-muted-foreground mt-1">
@@ -69,7 +69,7 @@ export function SummaryCards({
         </CardContent>
       </Card>
 
-      <Card className="hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border-red-500/20 bg-gradient-to-br from-card to-red-500/5">
+      <Card className="border-l-4 border-l-red-500">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Em Atraso</CardTitle>
           <div className="p-2 bg-red-500/10 rounded-lg">
@@ -77,7 +77,7 @@ export function SummaryCards({
           </div>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-red-500">
+          <div className="text-2xl font-bold text-red-600 dark:text-red-500">
             {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalOverdue)}
           </div>
           <p className="text-xs text-muted-foreground mt-1">

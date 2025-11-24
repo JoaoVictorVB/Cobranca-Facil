@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Product } from '../../../domain/product/entities/product.entity';
 import {
-  ProductAlreadyExistsError,
-  ProductNotFoundError,
+    ProductAlreadyExistsError,
+    ProductNotFoundError,
 } from '../../../domain/product/errors/product.errors';
 import { IProductRepository } from '../../../domain/product/repositories/product.repository.interface';
 import { UpdateProductData } from '../interfaces/product.interfaces';
@@ -50,7 +50,6 @@ export class UpdateProductUseCase {
       isActive: input.isActive,
     });
 
-    return await this.productRepository.update(product, userId);
+    return await this.productRepository.update(product, userId, input.tagIds);
   }
 }
-

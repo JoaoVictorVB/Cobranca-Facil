@@ -3,40 +3,43 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from "@/components/ui/select";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
 } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import { Product, productService } from "@/services/product.service";
+import tagService from "@/services/tag.service";
 import { useQuery } from "@tanstack/react-query";
 import {
-  AlertTriangle,
-  Archive,
-  BarChart3,
-  Edit,
-  Package,
-  Plus,
-  Search,
-  TrendingDown,
-  TrendingUp,
-  Trash2,
+    AlertTriangle,
+    Archive,
+    BarChart3,
+    Edit,
+    Package,
+    Plus,
+    Search,
+    Trash2,
+    TrendingDown,
+    TrendingUp,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { AddProductInventoryDialog } from "./AddProductInventoryDialog";
 import { EditProductInventoryDialog } from "./EditProductInventoryDialog";
 import { StockAdjustmentDialog } from "./StockAdjustmentDialog";
 import { StockMovementsDialog } from "./StockMovementsDialog";
+import { TagAnalytics } from "./TagAnalytics";
+import { TagManagementDialog } from "./TagManagementDialog";
 
 export function ProductInventoryManagement() {
   const { toast } = useToast();
@@ -47,10 +50,16 @@ export function ProductInventoryManagement() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isStockDialogOpen, setIsStockDialogOpen] = useState(false);
   const [isMovementsDialogOpen, setIsMovementsDialogOpen] = useState(false);
+  const [showAnalytics, setShowAnalytics] = useState(false);
 
   const { data: products = [], isLoading, refetch } = useQuery({
     queryKey: ["products"],
     queryFn: () => productService.findAll(),
+  });
+
+  const { data: tags = [] } = useQuery({
+    queryKey: ["tags"],
+    queryFn: () => tagService.findAll(),
   });
 
   const filteredProducts = useMemo(() => {
@@ -135,11 +144,11 @@ export function ProductInventoryManagement() {
     <div className="space-y-6">
       {/* Cards de Estatísticas */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-        <Card className="hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border-border/50 bg-gradient-to-br from-card to-card/50">
+        <Card className="border-l-4 border-l-primary">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total de Produtos</CardTitle>
-            <div className="p-2 bg-purple-500/10 rounded-lg">
-              <Package className="h-5 w-5 text-purple-500" />
+            <div className="p-2 bg-primary/10 rounded-lg">
+              <Package className="h-5 w-5 text-primary" />
             </div>
           </CardHeader>
           <CardContent>
@@ -150,7 +159,7 @@ export function ProductInventoryManagement() {
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border-yellow-500/20 bg-gradient-to-br from-card to-yellow-500/5">
+        <Card className="border-l-4 border-l-yellow-500">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Estoque Baixo</CardTitle>
             <div className="p-2 bg-yellow-500/10 rounded-lg">
@@ -158,7 +167,7 @@ export function ProductInventoryManagement() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-yellow-500">
+            <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-500">
               {stats.lowStockProducts}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
@@ -167,11 +176,11 @@ export function ProductInventoryManagement() {
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border-border/50 bg-gradient-to-br from-card to-card/50">
+        <Card className="border-l-4 border-l-primary">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Valor em Estoque</CardTitle>
-            <div className="p-2 bg-blue-500/10 rounded-lg">
-              <Archive className="h-5 w-5 text-blue-500" />
+            <div className="p-2 bg-primary/10 rounded-lg">
+              <Archive className="h-5 w-5 text-primary" />
             </div>
           </CardHeader>
           <CardContent>
@@ -182,7 +191,7 @@ export function ProductInventoryManagement() {
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border-green-500/20 bg-gradient-to-br from-card to-green-500/5">
+        <Card className="border-l-4 border-l-green-500">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Valor de Venda</CardTitle>
             <div className="p-2 bg-green-500/10 rounded-lg">
@@ -190,33 +199,33 @@ export function ProductInventoryManagement() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-500">
+            <div className="text-2xl font-bold text-green-600 dark:text-green-500">
               {formatCurrency(stats.totalSaleValue)}
             </div>
             <p className="text-xs text-muted-foreground mt-1">potencial de venda</p>
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border-blue-500/20 bg-gradient-to-br from-card to-blue-500/5">
+        <Card className="border-l-4 border-l-primary">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Lucro Potencial</CardTitle>
-            <div className="p-2 bg-blue-500/10 rounded-lg">
-              <TrendingDown className="h-5 w-5 text-blue-400" />
+            <div className="p-2 bg-primary/10 rounded-lg">
+              <TrendingDown className="h-5 w-5 text-primary" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-400">
+            <div className="text-2xl font-bold text-primary">
               {formatCurrency(stats.totalSaleValue - stats.totalStockValue)}
             </div>
             <p className="text-xs text-muted-foreground mt-1">margem total</p>
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border-border/50 bg-gradient-to-br from-card to-card/50">
+        <Card className="border-l-4 border-l-primary">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Margem Média</CardTitle>
-            <div className="p-2 bg-indigo-500/10 rounded-lg">
-              <BarChart3 className="h-5 w-5 text-indigo-500" />
+            <div className="p-2 bg-primary/10 rounded-lg">
+              <BarChart3 className="h-5 w-5 text-primary" />
             </div>
           </CardHeader>
           <CardContent>
@@ -256,23 +265,38 @@ export function ProductInventoryManagement() {
               </Select>
             </div>
 
-            <Button 
-              onClick={() => setIsAddDialogOpen(true)} 
-              className="w-full lg:w-auto bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]"
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              Novo Produto
-            </Button>
+            <div className="flex gap-2 w-full lg:w-auto">
+              <Button
+                variant="outline"
+                onClick={() => setShowAnalytics(!showAnalytics)}
+                className="flex-1 lg:flex-none"
+              >
+                <BarChart3 className="mr-2 h-4 w-4" />
+                {showAnalytics ? "Ver Produtos" : "Ver Analytics"}
+              </Button>
+              <TagManagementDialog />
+              <Button 
+                onClick={() => setIsAddDialogOpen(true)} 
+                className="flex-1 lg:flex-none"
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Novo Produto
+              </Button>
+            </div>
           </div>
         </CardHeader>
 
         <CardContent>
-          <div className="rounded-md border">
-            <Table>
+          {showAnalytics ? (
+            <TagAnalytics />
+          ) : (
+            <div className="rounded-md border">
+              <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Produto</TableHead>
                   <TableHead>SKU</TableHead>
+                  <TableHead>Tags</TableHead>
                   <TableHead className="text-right">Estoque</TableHead>
                   <TableHead className="text-right">Custo</TableHead>
                   <TableHead className="text-right">Venda</TableHead>
@@ -284,7 +308,7 @@ export function ProductInventoryManagement() {
               <TableBody>
                 {filteredProducts.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center py-8 text-gray-500">
+                    <TableCell colSpan={9} className="text-center py-8 text-gray-500">
                       {products.length === 0
                         ? "Nenhum produto cadastrado"
                         : "Nenhum produto encontrado com os filtros aplicados"}
@@ -302,6 +326,26 @@ export function ProductInventoryManagement() {
                         <code className="text-xs bg-gray-800 text-gray-100 px-2 py-1 rounded font-mono">
                           {product.sku || "-"}
                         </code>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-wrap gap-1">
+                          {product.tagIds && product.tagIds.length > 0 ? (
+                            product.tagIds.map((tagId) => {
+                              const tag = tags.find((t) => t.id === tagId);
+                              return tag ? (
+                                <Badge
+                                  key={tag.id}
+                                  style={{ backgroundColor: tag.color || '#3B82F6' }}
+                                  className="text-white text-xs"
+                                >
+                                  {tag.name}
+                                </Badge>
+                              ) : null;
+                            })
+                          ) : (
+                            <span className="text-xs text-muted-foreground">-</span>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex flex-col items-end">
@@ -391,6 +435,7 @@ export function ProductInventoryManagement() {
               </TableBody>
             </Table>
           </div>
+          )}
         </CardContent>
       </Card>
 

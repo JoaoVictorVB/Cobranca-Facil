@@ -6,6 +6,7 @@ interface ProductProps {
   description?: string;
   sku?: string;
   categoryId?: string;
+  tagIds?: string[];
   costPrice: number;
   salePrice: number;
   stock: number;
@@ -40,6 +41,10 @@ export class Product extends Entity<ProductProps> {
 
   get categoryId(): string | undefined {
     return this.props.categoryId;
+  }
+
+  get tagIds(): string[] | undefined {
+    return this.props.tagIds;
   }
 
   get costPrice(): number {
@@ -126,6 +131,7 @@ export class Product extends Entity<ProductProps> {
     sku?: string;
     categoryId?: string;
     category?: string; // Legacy field for backward compatibility
+    tagIds?: string[];
     costPrice?: number;
     salePrice?: number;
     stock?: number;
@@ -166,6 +172,7 @@ export class Product extends Entity<ProductProps> {
       description: props.description?.trim(),
       sku: props.sku?.trim(),
       categoryId: props.categoryId ?? props.category,
+      tagIds: props.tagIds,
       costPrice: props.costPrice ?? 0,
       salePrice: props.salePrice ?? 0,
       stock: props.stock ?? 0,

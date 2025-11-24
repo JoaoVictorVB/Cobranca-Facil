@@ -3,6 +3,7 @@ import { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AddProductDialog } from "../components/dashboard/AddProductDialog";
 import { AddSaleDialog } from "../components/dashboard/AddSaleDialog";
+import { DashboardHeader } from "../components/dashboard/DashboardHeader";
 import { DateFilterSelector } from "../components/dashboard/DateFilterSelector";
 import { MonthComparisonChart } from "../components/dashboard/MonthComparisonChart";
 import { MonthSelector } from "../components/dashboard/MonthSelector";
@@ -86,14 +87,14 @@ export function Analytics() {
   };
 
   return (
-    <div className="min-h-screen p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="min-h-screen bg-background">
+      <DashboardHeader />
+      <div className="max-w-[1600px] mx-auto p-6 space-y-6">
         <div className="flex items-center justify-between">
           <Button 
             variant="ghost" 
             size="sm" 
             onClick={() => navigate("/")}
-            className="hover:bg-purple-500/10 hover:text-purple-400 transition-all duration-200"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Voltar ao Dashboard
@@ -105,17 +106,17 @@ export function Analytics() {
         </div>
 
         <div className="space-y-2">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">Análises e Relatórios</h1>
+          <h1 className="text-4xl font-bold text-foreground">Análises e Relatórios</h1>
           <p className="text-muted-foreground text-lg">Compare períodos e analise seu desempenho financeiro</p>
         </div>
 
         <Tabs defaultValue="period" className="w-full">
-        <TabsList className="grid w-full max-w-md grid-cols-2 bg-card/50 border border-border/50">
-          <TabsTrigger value="period" className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600 data-[state=active]:text-white">
+        <TabsList className="grid w-full max-w-md grid-cols-2">
+          <TabsTrigger value="period" className="flex items-center gap-2">
             <Calendar className="h-4 w-4" />
             Período Personalizado
           </TabsTrigger>
-          <TabsTrigger value="comparison" className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600 data-[state=active]:text-white">
+          <TabsTrigger value="comparison" className="flex items-center gap-2">
             <TrendingUp className="h-4 w-4" />
             Comparação Mensal
           </TabsTrigger>

@@ -19,6 +19,19 @@ enum PaymentStatus {
   parcial
 }
 
+enum RelationshipStatus {
+  PENDENTE
+  ATIVO
+  INATIVO
+}
+
+enum TransferStatus {
+  ENVIADO
+  RECEBIDO
+  DEVOLVIDO
+  CANCELADO
+}
+
 model Client {
   id          String   @id @default(uuid())
   name        String
@@ -59,32 +72,73 @@ model Category {
 }
 
 model Product {
-  id           String   @id @default(uuid())
-  name         String
-  description  String?
-  sku          String?  @unique
-  categoryId   String?  @map("category_id")
-  costPrice    Float    @default(0) @map("cost_price")
-  salePrice    Float    @default(0) @map("sale_price")
-  stock        Int      @default(0)
-  minStock     Int      @default(0) @map("min_stock")
-  maxStock     Int?     @map("max_stock")
-  unit         String   @default("un")
-  barcode      String?  @unique
-  location     String?
-  supplier     String?
-  notes        String?  @db.Text
-  isActive     Boolean  @default(true) @map("is_active")
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
+  id          String  @id @default(uuid())
+  name        String
+  description String?
+  sku         String? @unique
+  categoryId  String? @map("category_id")
+  costPrice   Float   @default(0) @map("cost_price")
+  salePrice   Float   @default(0) @map("sale_price")
+  stock       Int     @default(0)
+  minStock    Int     @default(0) @map("min_stock")
+  maxStock    Int?    @map("max_stock")
+  unit        String  @default("un")
+  barcode     String? @unique
+  location    String?
+  supplier    String?
+  notes       String? @db.Text
+  isActive    Boolean @default(true) @map("is_active")
+
+  // B2B2C Distribution fields
+  originProductId  String? @map("origin_product_id")
+  originSupplierId String? @map("origin_supplier_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   userId String @map("user_id")
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   category       Category?       @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   stockMovements StockMovement[]
+  productTags    ProductTag[]
+
+  // Product lineage relations
+  originProduct   Product?  @relation("ProductLineage", fields: [originProductId], references: [id], onDelete: SetNull)
+  derivedProducts Product[] @relation("ProductLineage")
 
   @@map("products")
+}
+
+model Tag {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  color       String? // Cor hex para exibição (ex: "#3B82F6")
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  productTags ProductTag[]
+
+  @@unique([userId, name])
+  @@map("tags")
+}
+
+model ProductTag {
+  id        String   @id @default(uuid())
+  productId String   @map("product_id")
+  tagId     String   @map("tag_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  tag     Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, tagId])
+  @@map("product_tags")
 }
 
 enum StockMovementType {
@@ -96,16 +150,16 @@ enum StockMovementType {
 }
 
 model StockMovement {
-  id          String            @id @default(uuid())
-  productId   String            @map("product_id")
-  type        StockMovementType
-  quantity    Int
-  previousStock Int             @map("previous_stock")
-  newStock    Int               @map("new_stock")
-  reason      String?
-  reference   String?
-  notes       String?           @db.Text
-  createdAt   DateTime          @default(now()) @map("created_at")
+  id            String            @id @default(uuid())
+  productId     String            @map("product_id")
+  type          StockMovementType
+  quantity      Int
+  previousStock Int               @map("previous_stock")
+  newStock      Int               @map("new_stock")
+  reason        String?
+  reference     String?
+  notes         String?           @db.Text
+  createdAt     DateTime          @default(now()) @map("created_at")
 
   userId  String  @map("user_id")
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
@@ -162,6 +216,45 @@ model User {
   products   Product[]
   sales      Sale[]
   categories Category[]
+  tags       Tag[]
+
+  // B2B2C Distribution relations
+  supplierRelationships BusinessRelationship[] @relation("SupplierRelations")
+  resellerRelationships BusinessRelationship[] @relation("ResellerRelations")
+  sentTransfers         StockTransfer[]        @relation("SentTransfers")
+  receivedTransfers     StockTransfer[]        @relation("ReceivedTransfers")
 
   @@map("users")
+}
+
+model BusinessRelationship {
+  id         String             @id @default(uuid())
+  supplierId String             @map("supplier_id")
+  resellerId String             @map("reseller_id")
+  status     RelationshipStatus @default(PENDENTE)
+  createdAt  DateTime           @default(now()) @map("created_at")
+  acceptedAt DateTime?          @map("accepted_at")
+
+  supplier User @relation("SupplierRelations", fields: [supplierId], references: [id], onDelete: Cascade)
+  reseller User @relation("ResellerRelations", fields: [resellerId], references: [id], onDelete: Cascade)
+
+  @@unique([supplierId, resellerId])
+  @@map("business_relationships")
+}
+
+model StockTransfer {
+  id         String         @id @default(uuid())
+  supplierId String         @map("supplier_id")
+  resellerId String         @map("reseller_id")
+  status     TransferStatus @default(ENVIADO)
+  items      Json // Array of {productId, quantity, name, costPrice, salePrice}
+  notes      String?        @db.Text
+  sentAt     DateTime       @default(now()) @map("sent_at")
+  receivedAt DateTime?      @map("received_at")
+  createdAt  DateTime       @default(now()) @map("created_at")
+
+  supplier User @relation("SentTransfers", fields: [supplierId], references: [id], onDelete: Cascade)
+  reseller User @relation("ReceivedTransfers", fields: [resellerId], references: [id], onDelete: Cascade)
+
+  @@map("stock_transfers")
 }

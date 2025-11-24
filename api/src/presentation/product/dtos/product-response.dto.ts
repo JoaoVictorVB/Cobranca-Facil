@@ -32,6 +32,13 @@ export class ProductResponseDto {
   })
   categoryId?: string;
 
+  @ApiPropertyOptional({
+    description: 'IDs das tags do produto',
+    example: ['uuid-da-tag-1', 'uuid-da-tag-2'],
+    type: [String],
+  })
+  tagIds?: string[];
+
   @ApiProperty({
     description: 'Preço de custo',
     example: 2500.00,
@@ -147,6 +154,7 @@ export class ProductResponseDto {
       description: product.description,
       sku: product.sku,
       categoryId: product.categoryId,
+      tagIds: product.tagIds,
       costPrice: product.costPrice,
       salePrice: product.salePrice,
       stock: product.stock,

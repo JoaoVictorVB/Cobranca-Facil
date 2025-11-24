@@ -4,6 +4,7 @@ export interface CreateProductData {
   sku?: string;
   category?: string;
   categoryId?: string;
+  tagIds?: string[];
   costPrice?: number;
   salePrice?: number;
   stock?: number;
@@ -24,6 +25,7 @@ export interface UpdateProductData {
   sku?: string;
   category?: string;
   categoryId?: string;
+  tagIds?: string[];
   costPrice?: number;
   salePrice?: number;
   minStock?: number;

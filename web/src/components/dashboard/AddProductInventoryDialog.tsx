@@ -21,6 +21,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { CreateProductDto, productService } from "@/services/product.service";
 import { useState } from "react";
+import { TagSelector } from "./TagSelector";
 
 interface AddProductInventoryDialogProps {
   open: boolean;
@@ -39,6 +40,7 @@ export function AddProductInventoryDialog({
     name: "",
     description: "",
     sku: "",
+    tagIds: [],
     costPrice: 0,
     salePrice: 0,
     stock: 0,
@@ -52,7 +54,7 @@ export function AddProductInventoryDialog({
     isActive: true,
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent, addAnother = false) => {
     e.preventDefault();
     setIsLoading(true);
 
@@ -63,23 +65,51 @@ export function AddProductInventoryDialog({
         description: "O produto foi cadastrado com sucesso.",
       });
       onSuccess();
-      onOpenChange(false);
-      setFormData({
-        name: "",
-        description: "",
-        sku: "",
-        costPrice: 0,
-        salePrice: 0,
-        stock: 0,
-        minStock: 0,
-        maxStock: undefined,
-        unit: "un",
-        barcode: "",
-        location: "",
-        supplier: "",
-        notes: "",
-        isActive: true,
-      });
+      
+      if (addAnother) {
+        // Resetar formulário mas manter o dialog aberto
+        setFormData({
+          name: "",
+          description: "",
+          sku: "",
+          tagIds: formData.tagIds, // Manter as tags selecionadas
+          costPrice: formData.costPrice, // Manter preços como referência
+          salePrice: formData.salePrice,
+          stock: 0,
+          minStock: formData.minStock,
+          maxStock: formData.maxStock,
+          unit: formData.unit,
+          barcode: "",
+          location: formData.location, // Manter localização
+          supplier: formData.supplier, // Manter fornecedor
+          notes: "",
+          isActive: true,
+        });
+        // Focar no campo nome
+        setTimeout(() => {
+          document.getElementById('name')?.focus();
+        }, 100);
+      } else {
+        // Fechar dialog e resetar tudo
+        onOpenChange(false);
+        setFormData({
+          name: "",
+          description: "",
+          sku: "",
+          tagIds: [],
+          costPrice: 0,
+          salePrice: 0,
+          stock: 0,
+          minStock: 0,
+          maxStock: undefined,
+          unit: "un",
+          barcode: "",
+          location: "",
+          supplier: "",
+          notes: "",
+          isActive: true,
+        });
+      }
     } catch (error) {
       console.error(error);
     } finally {
@@ -146,6 +176,15 @@ export function AddProductInventoryDialog({
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 placeholder="Descreva o produto..."
                 rows={3}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Tags</Label>
+              <TagSelector
+                selectedTagIds={formData.tagIds || []}
+                onChange={(tagIds) => setFormData({ ...formData, tagIds })}
+                disabled={isLoading}
               />
             </div>
           </div>
@@ -322,7 +361,7 @@ export function AddProductInventoryDialog({
             </div>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="flex gap-2">
             <Button
               type="button"
               variant="outline"
@@ -331,8 +370,16 @@ export function AddProductInventoryDialog({
             >
               Cancelar
             </Button>
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? "Salvando..." : "Salvar Produto"}
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={(e) => handleSubmit(e, true)}
+              disabled={isLoading}
+            >
+              {isLoading ? "Salvando..." : "Salvar e Adicionar Outro"}
+            </Button>
+            <Button type="submit" disabled={isLoading} onClick={(e) => handleSubmit(e, false)}>
+              {isLoading ? "Salvando..." : "Salvar e Fechar"}
             </Button>
           </DialogFooter>
         </form>

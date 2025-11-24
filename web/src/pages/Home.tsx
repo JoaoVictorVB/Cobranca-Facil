@@ -1,11 +1,11 @@
+import { PaymentStatusChart } from "@/components/dashboard/PaymentStatusChart";
+import { TopClientsTable } from "@/components/dashboard/TopClientsTable";
 import { BarChart3, Calendar as CalendarIcon } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ExpectedRevenueCards } from "../components/dashboard/ExpectedRevenueCards";
-import { PaymentStatusChart } from "../components/dashboard/PaymentStatusChart";
 import { RevenueChart } from "../components/dashboard/RevenueChart";
 import { SummaryCards } from "../components/dashboard/SummaryCards";
-import { TopClientsTable } from "../components/dashboard/TopClientsTable";
 import { Button } from "../components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
@@ -96,7 +96,7 @@ export function Home() {
     return (
       <div className="space-y-6 p-6">
         <div className="space-y-2">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">Dashboard</h1>
+          <h1 className="text-4xl font-bold text-foreground">Dashboard</h1>
           <p className="text-muted-foreground text-lg">Visão geral do seu negócio</p>
         </div>
         
@@ -147,15 +147,15 @@ export function Home() {
   ];
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="space-y-2">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">Dashboard</h1>
+          <h1 className="text-4xl font-bold text-foreground">Dashboard</h1>
           <p className="text-muted-foreground text-lg">Visão geral do seu negócio</p>
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
           <Select value={selectedMonth} onValueChange={handleMonthChange}>
-            <SelectTrigger className="w-full sm:w-[240px] border-border/50 shadow-md">
+            <SelectTrigger className="w-full sm:w-[240px]">
               <CalendarIcon className="h-4 w-4 mr-2 flex-shrink-0" />
               <SelectValue>
                 {getMonthOptions().find(opt => opt.value === selectedMonth)?.label || 'Selecionar mês'}
@@ -171,7 +171,7 @@ export function Home() {
           </Select>
           <Button 
             onClick={() => navigate('/analytics')} 
-            className="gap-2 w-full sm:w-auto bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+            className="gap-2 w-full sm:w-auto"
           >
             <BarChart3 className="h-4 w-4" />
             Ver Análises Detalhadas
@@ -186,9 +186,9 @@ export function Home() {
         totalOverdue={monthlySummary.totalOverdue}
         receivedPercentage={monthlySummary.receivedPercentage}
       />
-
+      
       <div className="grid gap-4 md:grid-cols-7">
-        <Card className="md:col-span-3 border-border/50 shadow-lg hover:shadow-xl transition-all duration-300">
+        <Card className="md:col-span-3">
           <CardHeader>
             <CardTitle>Aproveitamento do Mês</CardTitle>
             <CardDescription>
@@ -245,13 +245,20 @@ export function Home() {
         </Card>
 
         <div className="md:col-span-4">
-          <PaymentStatusChart data={clientsStatus} />
+          <RevenueChart data={revenueData} />
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <RevenueChart data={revenueData} />
+      <div className="border-t pt-8 mt-8">
+        <div className="space-y-4">
+            <h2 className="text-2xl font-bold"> Clientes Geral</h2>
+
+            <br/>
+          </div>
+        <div className="grid gap-4 md:grid-cols-2 ">
+        <PaymentStatusChart data={clientsStatus} />
         <TopClientsTable clients={topClients} />
+      </div>                
       </div>
 
       <div className="border-t pt-8 mt-8">

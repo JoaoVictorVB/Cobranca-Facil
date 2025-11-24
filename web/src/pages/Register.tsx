@@ -1,4 +1,4 @@
-import { Lock, Mail, User as UserIcon, UserPlus } from "lucide-react";
+import { Building2, Lock, Mail, User as UserIcon, UserPlus } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Alert, AlertDescription } from "../components/ui/alert";
@@ -43,25 +43,19 @@ export function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-950 via-slate-900 to-slate-950 p-4 relative overflow-hidden">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
-      </div>
-      
-      <Card className="w-full max-w-md backdrop-blur-xl bg-card/80 border-border/50 shadow-2xl relative z-10">
-        <CardHeader className="space-y-1">
-          <div className="flex items-center justify-center mb-4">
-            <div className="bg-gradient-to-br from-purple-500 to-blue-600 p-4 rounded-2xl shadow-lg shadow-purple-500/50">
-              <UserPlus className="h-10 w-10 text-white" />
+    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+      <Card className="w-full max-w-md border shadow-lg">
+        <CardHeader className="space-y-3 text-center">
+          <div className="flex items-center justify-center">
+            <div className="bg-primary p-3 rounded-lg">
+              <Building2 className="h-8 w-8 text-primary-foreground" />
             </div>
           </div>
-          <CardTitle className="text-3xl font-bold text-center bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+          <CardTitle className="text-3xl font-bold text-foreground">
             Criar Conta
           </CardTitle>
-          <CardDescription className="text-center text-base">
-            Preencha os dados abaixo para criar sua conta
+          <CardDescription className="text-base">
+            Preencha os dados para começar
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -143,7 +137,7 @@ export function Register() {
 
             <Button
               type="submit"
-              className="w-full gap-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]"
+              className="w-full gap-2"
               disabled={isLoading}
             >
               {isLoading ? (
