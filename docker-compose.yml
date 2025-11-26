@@ -18,6 +18,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - cobranca-network
 
   api:
     build: ./api
@@ -32,6 +34,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    networks:
+      - cobranca-network
 
   web:
     build:
@@ -44,6 +48,12 @@ services:
       - "80:80"
     depends_on:
       - api
+    networks:
+      - cobranca-network
 
 volumes:
   postgres_data:
+
+networks:
+  cobranca-network:
+    driver: bridge

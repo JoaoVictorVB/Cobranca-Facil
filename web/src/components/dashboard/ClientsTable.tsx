@@ -1,13 +1,13 @@
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -23,7 +23,7 @@ import { ClientWithSales, clientWithSalesService } from "@/services/client-with-
 import { clientService } from "@/services/client.service";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { ArrowDown, ArrowUp, CalendarIcon, Edit, Eye, Filter, Info, Phone, Trash2, User, X } from "lucide-react";
+import { ArrowDown, ArrowUp, CalendarIcon, Edit, Eye, Filter, Info, Phone, Settings, Trash2, User, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { EditClientDialog } from "./EditClientDialog";
@@ -41,6 +41,20 @@ type SortOption = 'name-asc' | 'name-desc' | 'date-asc' | 'date-desc' | 'debt-as
 type FilterOption = 'all' | 'up-to-date' | 'overdue' | 'upcoming';
 
 const STORAGE_KEY = 'clientsTableFilters';
+const COLUMNS_KEY = 'clientsTableColumns';
+
+interface ColumnVisibility {
+  phone: boolean;
+  referredBy: boolean;
+  lastPurchase: boolean;
+  paymentType: boolean;
+  nextDue: boolean;
+  installmentValue: boolean;
+  installmentsSummary: boolean;
+  totalPurchases: boolean;
+  paid: boolean;
+  pending: boolean;
+}
 
 export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEnd, onClearFilters, onSetSpecificDate }: ClientsTableProps) => {
   const [clients, setClients] = useState<ClientWithSales[]>([]);
@@ -52,6 +66,19 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
   const [localDateEnd, setLocalDateEnd] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const [editingClient, setEditingClient] = useState<ClientWithSales | null>(null);
+  const [showColumnSettings, setShowColumnSettings] = useState(false);
+  const [visibleColumns, setVisibleColumns] = useState<ColumnVisibility>({
+    phone: true,
+    referredBy: true,
+    lastPurchase: true,
+    paymentType: true,
+    nextDue: true,
+    installmentValue: true,
+    installmentsSummary: true,
+    totalPurchases: true,
+    paid: true,
+    pending: true,
+  });
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -67,6 +94,15 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
         if (filters.showFilters !== undefined) setShowFilters(filters.showFilters);
       } catch (error) {
         console.error("Error loading saved filters:", error);
+      }
+    }
+
+    const savedColumns = localStorage.getItem(COLUMNS_KEY);
+    if (savedColumns) {
+      try {
+        setVisibleColumns(JSON.parse(savedColumns));
+      } catch (error) {
+        console.error("Error loading saved columns:", error);
       }
     }
   }, []);
@@ -107,6 +143,36 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
       setLoading(false);
     }
   }, []);
+
+  const toggleColumn = (column: keyof ColumnVisibility) => {
+    const newVisibleColumns = {
+      ...visibleColumns,
+      [column]: !visibleColumns[column],
+    };
+    setVisibleColumns(newVisibleColumns);
+    localStorage.setItem(COLUMNS_KEY, JSON.stringify(newVisibleColumns));
+  };
+
+  const resetColumns = () => {
+    const defaultColumns: ColumnVisibility = {
+      phone: true,
+      referredBy: true,
+      lastPurchase: true,
+      paymentType: true,
+      nextDue: true,
+      installmentValue: true,
+      installmentsSummary: true,
+      totalPurchases: true,
+      paid: true,
+      pending: true,
+    };
+    setVisibleColumns(defaultColumns);
+    localStorage.setItem(COLUMNS_KEY, JSON.stringify(defaultColumns));
+    toast({
+      title: "✅ Colunas Resetadas",
+      description: "Todas as colunas foram restauradas.",
+    });
+  };
 
   useEffect(() => {
     loadClients();
@@ -380,7 +446,7 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
   return (
     <Card className="shadow-lg w-full rounded-none border-x-0">
       <TooltipProvider delayDuration={200}>
-      <CardHeader className="bg-gradient-to-r from-primary/5 to-primary/10 border-b px-6">
+      <CardHeader className="border-b px-6">
         <div className="flex items-center gap-2">
           <User className="h-5 w-5" />
           <CardTitle>Clientes Cadastrados</CardTitle>
@@ -449,6 +515,58 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
                   </>
                 )}
               </Button>
+              
+              <Popover open={showColumnSettings} onOpenChange={setShowColumnSettings}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-2"
+                  >
+                    <Settings className="h-4 w-4" />
+                    Colunas
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-80" align="end">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-semibold text-sm">Mostrar/Ocultar Colunas</h4>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={resetColumns}
+                        className="h-8 text-xs"
+                      >
+                        Resetar
+                      </Button>
+                    </div>
+                    <div className="space-y-2 max-h-[400px] overflow-y-auto">
+                      {[
+                        { key: 'phone', label: 'Telefone' },
+                        { key: 'referredBy', label: 'Indicado por' },
+                        { key: 'lastPurchase', label: 'Última Compra' },
+                        { key: 'paymentType', label: 'Tipo Pagamento' },
+                        { key: 'nextDue', label: 'Próximo Vencimento' },
+                        { key: 'installmentValue', label: 'Valor Parcela' },
+                        { key: 'installmentsSummary', label: 'Parcelas (Resumo)' },
+                        { key: 'totalPurchases', label: 'Total Compras' },
+                        { key: 'paid', label: 'Pago' },
+                        { key: 'pending', label: 'Pendente' },
+                      ].map(({ key, label }) => (
+                        <label key={key} className="flex items-center gap-2 cursor-pointer hover:bg-accent p-2 rounded transition-colors">
+                          <input
+                            type="checkbox"
+                            checked={visibleColumns[key as keyof ColumnVisibility]}
+                            onChange={() => toggleColumn(key as keyof ColumnVisibility)}
+                            className="rounded cursor-pointer"
+                          />
+                          <span className="text-sm">{label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
           
@@ -731,21 +849,23 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
             <TableHeader>
               <TableRow className="bg-muted/50">
                 <TableHead className="min-w-[200px]">Nome</TableHead>
-                <TableHead className="min-w-[130px]">
-                  <div className="flex items-center gap-2">
-                    <Phone className="h-4 w-4" />
-                    Telefone
-                  </div>
-                </TableHead>
-                <TableHead className="min-w-[140px]">Indicado por</TableHead>
-                <TableHead className="min-w-[120px]">Última Compra</TableHead>
-                <TableHead className="min-w-[130px]">Tipo Pagamento</TableHead>
-                <TableHead className="min-w-[150px]">Próximo Vencimento</TableHead>
-                <TableHead className="min-w-[120px]">Valor Parcela</TableHead>
-                <TableHead className="min-w-[100px]">Parcelas</TableHead>
-                <TableHead className="min-w-[130px]">Total Compras</TableHead>
-                <TableHead className="min-w-[120px]">Pago</TableHead>
-                <TableHead className="min-w-[120px]">Pendente</TableHead>
+                {visibleColumns.phone && (
+                  <TableHead className="min-w-[130px]">
+                    <div className="flex items-center gap-2">
+                      <Phone className="h-4 w-4" />
+                      Telefone
+                    </div>
+                  </TableHead>
+                )}
+                {visibleColumns.referredBy && <TableHead className="min-w-[140px]">Indicado por</TableHead>}
+                {visibleColumns.lastPurchase && <TableHead className="min-w-[120px]">Última Compra</TableHead>}
+                {visibleColumns.paymentType && <TableHead className="min-w-[130px]">Tipo Pagamento</TableHead>}
+                {visibleColumns.nextDue && <TableHead className="min-w-[150px]">Próximo Vencimento</TableHead>}
+                {visibleColumns.installmentValue && <TableHead className="min-w-[120px]">Valor Parcela</TableHead>}
+                {visibleColumns.installmentsSummary && <TableHead className="min-w-[100px]">Parcelas</TableHead>}
+                {visibleColumns.totalPurchases && <TableHead className="min-w-[130px]">Total Compras</TableHead>}
+                {visibleColumns.paid && <TableHead className="min-w-[120px]">Pago</TableHead>}
+                {visibleColumns.pending && <TableHead className="min-w-[120px]">Pendente</TableHead>}
                 <TableHead className="text-center min-w-[140px]">Ações</TableHead>
               </TableRow>
             </TableHeader>
@@ -784,50 +904,68 @@ export const ClientsTable = ({ onUpdate, dateFilter, dateRangeStart, dateRangeEn
                         </span>
                       </div>
                     </TableCell>
-                    <TableCell className="py-4 px-4">{formatPhone(client.phone)}</TableCell>
-                    <TableCell className="py-4 px-4">
-                      {client.referredBy ? (
-                        <span className="text-sm truncate max-w-[120px] block" title={client.referredBy}>{client.referredBy}</span>
-                      ) : (
-                        <span className="text-muted-foreground">-</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-sm font-medium text-muted-foreground py-4 px-4 whitespace-nowrap">
-                      {getLastPurchaseDate(client)}
-                    </TableCell>
-                    <TableCell className="py-4 px-4">
-                      <Badge variant="secondary" className="bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-100 whitespace-nowrap">
-                        {getPaymentTypeLabel(stats.paymentFrequency)}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className={`text-sm font-medium py-4 px-4 whitespace-nowrap ${isOverdue ? 'text-red-600 dark:text-red-400' : 'text-muted-foreground'}`}>
-                      {getNextDueDate(client)}
-                    </TableCell>
-                    <TableCell className="py-4 px-4 whitespace-nowrap">
-                      {getNextInstallmentAmount(client) > 0 ? (
-                        <span className="text-blue-600 dark:text-blue-400 font-medium">
-                          {formatCurrency(getNextInstallmentAmount(client))}
+                    {visibleColumns.phone && <TableCell className="py-4 px-4">{formatPhone(client.phone)}</TableCell>}
+                    {visibleColumns.referredBy && (
+                      <TableCell className="py-4 px-4">
+                        {client.referredBy ? (
+                          <span className="text-sm truncate max-w-[120px] block" title={client.referredBy}>{client.referredBy}</span>
+                        ) : (
+                          <span className="text-muted-foreground">-</span>
+                        )}
+                      </TableCell>
+                    )}
+                    {visibleColumns.lastPurchase && (
+                      <TableCell className="text-sm font-medium text-muted-foreground py-4 px-4 whitespace-nowrap">
+                        {getLastPurchaseDate(client)}
+                      </TableCell>
+                    )}
+                    {visibleColumns.paymentType && (
+                      <TableCell className="py-4 px-4">
+                        <Badge variant="secondary" className="bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-100 whitespace-nowrap">
+                          {getPaymentTypeLabel(stats.paymentFrequency)}
+                        </Badge>
+                      </TableCell>
+                    )}
+                    {visibleColumns.nextDue && (
+                      <TableCell className={`text-sm font-medium py-4 px-4 whitespace-nowrap ${isOverdue ? 'text-red-600 dark:text-red-400' : 'text-muted-foreground'}`}>
+                        {getNextDueDate(client)}
+                      </TableCell>
+                    )}
+                    {visibleColumns.installmentValue && (
+                      <TableCell className="py-4 px-4 whitespace-nowrap">
+                        {getNextInstallmentAmount(client) > 0 ? (
+                          <span className="text-blue-600 dark:text-blue-400 font-medium">
+                            {formatCurrency(getNextInstallmentAmount(client))}
+                          </span>
+                        ) : (
+                          <span className="text-muted-foreground">-</span>
+                        )}
+                      </TableCell>
+                    )}
+                    {visibleColumns.installmentsSummary && (
+                      <TableCell className="text-sm text-muted-foreground py-4 px-4 whitespace-nowrap">
+                        {installmentsSummary}
+                      </TableCell>
+                    )}
+                    {visibleColumns.totalPurchases && (
+                      <TableCell className="font-semibold py-4 px-4 whitespace-nowrap">
+                        {formatCurrency(stats.totalSales)}
+                      </TableCell>
+                    )}
+                    {visibleColumns.paid && (
+                      <TableCell className="py-4 px-4 whitespace-nowrap">
+                        <span className="text-green-600 dark:text-green-400 font-medium">
+                          {formatCurrency(stats.totalPaid)}
                         </span>
-                      ) : (
-                        <span className="text-muted-foreground">-</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-sm text-muted-foreground py-4 px-4 whitespace-nowrap">
-                      {installmentsSummary}
-                    </TableCell>
-                    <TableCell className="font-semibold py-4 px-4 whitespace-nowrap">
-                      {formatCurrency(stats.totalSales)}
-                    </TableCell>
-                    <TableCell className="py-4 px-4 whitespace-nowrap">
-                      <span className="text-green-600 dark:text-green-400 font-medium">
-                        {formatCurrency(stats.totalPaid)}
-                      </span>
-                    </TableCell>
-                    <TableCell className="py-4 px-4 whitespace-nowrap">
-                      <span className="text-red-600 dark:text-red-400 font-medium">
-                        {formatCurrency(stats.totalPending)}
-                      </span>
-                    </TableCell>
+                      </TableCell>
+                    )}
+                    {visibleColumns.pending && (
+                      <TableCell className="py-4 px-4 whitespace-nowrap">
+                        <span className="text-red-600 dark:text-red-400 font-medium">
+                          {formatCurrency(stats.totalPending)}
+                        </span>
+                      </TableCell>
+                    )}
                     <TableCell className="py-4 px-4">
                       <div className="flex items-center justify-center gap-2">
                         <Button

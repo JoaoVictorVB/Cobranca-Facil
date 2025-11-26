@@ -1,4 +1,4 @@
-import { Lock, LogIn, Mail } from "lucide-react";
+import { Building2, Lock, LogIn, Mail } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
@@ -24,19 +24,19 @@ export function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-muted p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <div className="flex items-center justify-center mb-4">
-            <div className="bg-primary/10 p-3 rounded-full">
-              <Lock className="h-8 w-8 text-primary" />
+    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+      <Card className="w-full max-w-md border shadow-lg">
+        <CardHeader className="space-y-3 text-center">
+          <div className="flex items-center justify-center">
+            <div className="bg-primary p-3 rounded-lg">
+              <Building2 className="h-8 w-8 text-primary-foreground" />
             </div>
           </div>
-          <CardTitle className="text-2xl font-bold text-center">
+          <CardTitle className="text-3xl font-bold text-foreground">
             Cobrança Fácil
           </CardTitle>
-          <CardDescription className="text-center">
-            Faça login para acessar o sistema
+          <CardDescription className="text-base">
+            Sistema de Gestão Financeira
           </CardDescription>
         </CardHeader>
         <CardContent>

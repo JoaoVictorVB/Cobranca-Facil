@@ -9,42 +9,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.enableCors({
-    origin: (origin, callback) => {
-      if (!origin) {
-        return callback(null, true);
-      }
-
-      const allowedOrigins = [
-        'http://localhost:5173',
-        'http://localhost:3000',
-        'http://localhost:8080',
-        'http://localhost:8081',
-        'https://cobranca-facil-web.onrender.com',
-        'https://cobranca-facil-rose.vercel.app',
-      ];
-
-      const isLocalNetwork = origin.match(
-        /^http:\/\/(localhost|127\.0\.0\.1|10\.\d+\.\d+\.\d+|192\.168\.\d+\.\d+):\d+$/,
-      );
-
-      const isVercel = origin.includes('.vercel.app');
-      const isRender = origin.includes('cobranca-facil-web.onrender.com');
-      const isAllowed = allowedOrigins.includes(origin);
-
-      if (process.env.NODE_ENV === 'production') {
-        if (isVercel || isRender) {
-          callback(null, true);
-        } else {
-          callback(new Error('Not allowed by CORS'));
-        }
-      } else {
-        if (isAllowed || isLocalNetwork) {
-          callback(null, true);
-        } else {
-          callback(new Error('Not allowed by CORS'));
-        }
-      }
-    },
+    origin: true,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
@@ -71,9 +36,7 @@ async function bootstrap() {
 
   console.log(`🚀 Application is running on: http://localhost:${port}`);
   console.log(`📚 Swagger documentation: http://localhost:${port}/docs`);
-  console.log(
-    `🌍 CORS enabled for: ${process.env.NODE_ENV === 'production' ? 'production origins' : 'development origins'}`,
-  );
+  console.log(`🌍 CORS enabled for: all origins`);
 }
 
 bootstrap();

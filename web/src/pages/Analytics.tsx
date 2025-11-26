@@ -3,6 +3,7 @@ import { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AddProductDialog } from "../components/dashboard/AddProductDialog";
 import { AddSaleDialog } from "../components/dashboard/AddSaleDialog";
+import { DashboardHeader } from "../components/dashboard/DashboardHeader";
 import { DateFilterSelector } from "../components/dashboard/DateFilterSelector";
 import { MonthComparisonChart } from "../components/dashboard/MonthComparisonChart";
 import { MonthSelector } from "../components/dashboard/MonthSelector";
@@ -86,10 +87,15 @@ export function Analytics() {
   };
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="min-h-screen bg-background">
+      <DashboardHeader />
+      <div className="max-w-[1600px] mx-auto p-6 space-y-6">
         <div className="flex items-center justify-between">
-          <Button variant="ghost" size="sm" onClick={() => navigate("/")}>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => navigate("/")}
+          >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Voltar ao Dashboard
           </Button>
@@ -99,9 +105,9 @@ export function Analytics() {
           </div>
         </div>
 
-        <div>
-          <h1 className="text-3xl font-bold">Análises e Relatórios</h1>
-          <p className="text-muted-foreground">Compare períodos e analise seu desempenho financeiro</p>
+        <div className="space-y-2">
+          <h1 className="text-4xl font-bold text-foreground">Análises e Relatórios</h1>
+          <p className="text-muted-foreground text-lg">Compare períodos e analise seu desempenho financeiro</p>
         </div>
 
         <Tabs defaultValue="period" className="w-full">

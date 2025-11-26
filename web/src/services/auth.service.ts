@@ -60,13 +60,21 @@ class AuthService {
       localStorage.setItem('auth_user', JSON.stringify(this.user));
       
       return response.data;
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Login error:', error);
-      if (error && typeof error === 'object' && 'response' in error) {
-        const axiosError = error as { response?: { data?: { message?: string } } };
-        throw new Error(axiosError.response?.data?.message || 'Erro ao fazer login');
+      
+      // Se for erro 401, mostrar mensagem específica
+      if (error.response?.status === 401) {
+        throw new Error('Email ou senha incorretos');
       }
-      throw new Error('Erro ao fazer login');
+      
+      // Se houver mensagem do backend, usar ela
+      if (error.response?.data?.message) {
+        throw new Error(error.response.data.message);
+      }
+      
+      // Mensagem genérica
+      throw new Error('Erro ao fazer login. Tente novamente.');
     }
   }
 
@@ -85,13 +93,16 @@ class AuthService {
       localStorage.setItem('auth_user', JSON.stringify(this.user));
       
       return response.data;
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Register error:', error);
-      if (error && typeof error === 'object' && 'response' in error) {
-        const axiosError = error as { response?: { data?: { message?: string } } };
-        throw new Error(axiosError.response?.data?.message || 'Erro ao criar conta');
+      
+      // Se houver mensagem do backend, usar ela
+      if (error.response?.data?.message) {
+        throw new Error(error.response.data.message);
       }
-      throw new Error('Erro ao criar conta');
+      
+      // Mensagem genérica
+      throw new Error('Erro ao criar conta. Tente novamente.');
     }
   }
 

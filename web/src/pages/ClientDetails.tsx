@@ -254,7 +254,8 @@ export default function ClientDetails() {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="min-h-screen bg-background">
+      <div className="max-w-[1600px] mx-auto p-6 space-y-6">
       <TooltipProvider delayDuration={200}>
       <div className="flex items-center gap-4">
         <Button variant="ghost" onClick={() => navigate("/?tab=clients")}>
@@ -767,6 +768,7 @@ export default function ClientDetails() {
         </Card>
       ))}
       </TooltipProvider>
+      </div>
     </div>
   );
 }

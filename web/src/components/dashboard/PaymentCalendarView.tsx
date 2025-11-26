@@ -161,7 +161,7 @@ export const PaymentCalendar = ({ onDateClick, selectedDate, onClearFilter }: Pa
   return (
     <Card className="shadow-lg">
       <TooltipProvider delayDuration={200}>
-      <CardHeader className="bg-gradient-to-r from-primary/5 to-primary/10 border-b">
+      <CardHeader className="border-b">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Calendar className="h-5 w-5" />

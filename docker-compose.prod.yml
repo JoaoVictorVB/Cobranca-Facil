@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  api:
+    build: ./api
+    container_name: cobranca-api
+    restart: always
+    env_file:
+      - api/.env
+    ports:
+      - "3001:3001"
+    networks:
+      - cobranca-network
+
+  web:
+    build:
+      context: ./web
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:3001}
+    container_name: cobranca-web
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+    networks:
+      - cobranca-network
+
+networks:
+  cobranca-network:
+    external: true
+    name: cobranca-facil_default
