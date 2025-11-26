@@ -97,7 +97,8 @@ jobs:
             echo "PORT=3001" >> api/.env
             echo "NODE_ENV=production" >> api/.env
 
-            echo "VITE_API_URL=${{ secrets.PROD_VITE_API_URL }}" > web/.env
+            # Exportar variável para docker-compose
+            export VITE_API_URL="${{ secrets.PROD_VITE_API_URL }}"
 
             # Deploy zero-downtime (API primeiro)
             docker-compose -f docker-compose.prod.yml up -d --build --no-deps api
