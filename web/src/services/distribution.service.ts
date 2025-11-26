@@ -3,8 +3,9 @@ import { api } from './api';
 export interface BusinessRelationship {
   id: string;
   supplierId: string;
-  resellerId: string;
+  resellerId?: string;
   status: 'PENDENTE' | 'ATIVO' | 'INATIVO';
+  inviteToken?: string;
   createdAt: Date;
   acceptedAt?: Date;
   supplierName?: string;
@@ -55,8 +56,32 @@ export interface SendMerchandiseDto {
 }
 
 export const distributionService = {
+  // ==================== TOKEN-BASED INVITATIONS ====================
+  
+  async generateInviteToken(): Promise<BusinessRelationship> {
+    const response = await api.post<BusinessRelationship>('/distribution/invite-token');
+    return response.data;
+  },
+
+  async acceptByToken(token: string): Promise<BusinessRelationship> {
+    const response = await api.post<BusinessRelationship>('/distribution/accept-by-token', { token });
+    return response.data;
+  },
+
+  // ==================== RELATIONSHIP MANAGEMENT ====================
+
   async createRelationship(data: CreateRelationshipDto): Promise<BusinessRelationship> {
     const response = await api.post<BusinessRelationship>('/distribution/relationships', data);
+    return response.data;
+  },
+
+  async acceptRelationship(relationshipId: string): Promise<BusinessRelationship> {
+    const response = await api.patch<BusinessRelationship>(`/distribution/relationships/${relationshipId}/accept`);
+    return response.data;
+  },
+
+  async getPendingRelationships(): Promise<BusinessRelationship[]> {
+    const response = await api.get<BusinessRelationship[]>('/distribution/relationships/pending');
     return response.data;
   },
 
@@ -65,10 +90,19 @@ export const distributionService = {
     return response.data;
   },
 
+  async getSuppliers(): Promise<BusinessRelationship[]> {
+    const response = await api.get<BusinessRelationship[]>('/distribution/suppliers');
+    return response.data;
+  },
+
+  // ==================== INVENTORY MIRROR ====================
+
   async getResellerInventory(resellerId: string): Promise<ResellerProduct[]> {
     const response = await api.get<ResellerProduct[]>(`/distribution/resellers/${resellerId}/inventory`);
     return response.data;
   },
+
+  // ==================== MERCHANDISE TRANSFERS ====================
 
   async sendMerchandise(data: SendMerchandiseDto): Promise<StockTransfer> {
     const response = await api.post<StockTransfer>('/distribution/merchandise/send', data);
