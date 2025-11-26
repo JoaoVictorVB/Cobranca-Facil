@@ -9,6 +9,7 @@ export interface BusinessRelationshipProps {
   supplierId: string;
   resellerId: string;
   status: RelationshipStatus;
+  inviteToken?: string;
   createdAt: Date;
   acceptedAt?: Date;
 }
@@ -24,6 +25,27 @@ export class BusinessRelationship {
       status: RelationshipStatus.PENDENTE,
       createdAt: new Date(),
     });
+  }
+
+  static createWithToken(supplierId: string): BusinessRelationship {
+    return new BusinessRelationship({
+      id: crypto.randomUUID(),
+      supplierId,
+      resellerId: '', // Will be filled when token is accepted
+      status: RelationshipStatus.PENDENTE,
+      inviteToken: this.generateInviteToken(),
+      createdAt: new Date(),
+    });
+  }
+
+  private static generateInviteToken(): string {
+    // Generate 6-digit alphanumeric code (uppercase only for simplicity)
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let token = '';
+    for (let i = 0; i < 6; i++) {
+      token += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return token;
   }
 
   static reconstitute(props: BusinessRelationshipProps): BusinessRelationship {
@@ -64,6 +86,17 @@ export class BusinessRelationship {
 
   get acceptedAt(): Date | undefined {
     return this.props.acceptedAt;
+  }
+
+  get inviteToken(): string | undefined {
+    return this.props.inviteToken;
+  }
+
+  setReseller(resellerId: string): void {
+    if (this.props.resellerId && this.props.resellerId !== '') {
+      throw new Error('Reseller already set');
+    }
+    this.props.resellerId = resellerId;
   }
 
   isActive(): boolean {

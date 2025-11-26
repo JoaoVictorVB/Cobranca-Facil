@@ -15,10 +15,11 @@ export class BusinessRelationshipRepository implements IBusinessRelationshipRepo
       data: {
         id: relationship.id,
         supplierId: relationship.supplierId,
-        resellerId: relationship.resellerId,
+        ...(relationship.resellerId && { resellerId: relationship.resellerId }),
         status: relationship.status,
+        ...(relationship.inviteToken && { inviteToken: relationship.inviteToken }),
         createdAt: relationship.createdAt,
-        acceptedAt: relationship.acceptedAt,
+        ...(relationship.acceptedAt && { acceptedAt: relationship.acceptedAt }),
       },
     });
 
@@ -28,6 +29,14 @@ export class BusinessRelationshipRepository implements IBusinessRelationshipRepo
   async findById(id: string): Promise<BusinessRelationship | null> {
     const data = await this.prisma.businessRelationship.findUnique({
       where: { id },
+    });
+
+    return data ? this.toDomain(data) : null;
+  }
+
+  async findByInviteToken(token: string): Promise<BusinessRelationship | null> {
+    const data = await this.prisma.businessRelationship.findUnique({
+      where: { inviteToken: token },
     });
 
     return data ? this.toDomain(data) : null;
@@ -83,8 +92,10 @@ export class BusinessRelationshipRepository implements IBusinessRelationshipRepo
     const data = await this.prisma.businessRelationship.update({
       where: { id: relationship.id },
       data: {
+        ...(relationship.resellerId && { resellerId: relationship.resellerId }),
         status: relationship.status,
-        acceptedAt: relationship.acceptedAt,
+        ...(relationship.inviteToken !== undefined && { inviteToken: relationship.inviteToken }),
+        ...(relationship.acceptedAt && { acceptedAt: relationship.acceptedAt }),
       },
     });
 
@@ -101,6 +112,7 @@ export class BusinessRelationshipRepository implements IBusinessRelationshipRepo
       supplierId: data.supplierId,
       resellerId: data.resellerId,
       status: data.status as RelationshipStatus,
+      inviteToken: data.inviteToken,
       createdAt: data.createdAt,
       acceptedAt: data.acceptedAt,
     });
