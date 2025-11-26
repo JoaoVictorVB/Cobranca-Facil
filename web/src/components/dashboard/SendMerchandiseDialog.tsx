@@ -13,7 +13,8 @@ import { toast } from 'sonner';
 interface SendMerchandiseDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  reseller: BusinessRelationship;
+  resellerId: string;
+  onSuccess?: () => void;
 }
 
 interface SelectedItem {
@@ -23,7 +24,7 @@ interface SelectedItem {
   quantity: number;
 }
 
-export function SendMerchandiseDialog({ open, onOpenChange, reseller }: SendMerchandiseDialogProps) {
+export function SendMerchandiseDialog({ open, onOpenChange, resellerId, onSuccess }: SendMerchandiseDialogProps) {
   const [selectedItems, setSelectedItems] = useState<SelectedItem[]>([]);
   const [notes, setNotes] = useState('');
   const queryClient = useQueryClient();
@@ -42,6 +43,7 @@ export function SendMerchandiseDialog({ open, onOpenChange, reseller }: SendMerc
       setSelectedItems([]);
       setNotes('');
       onOpenChange(false);
+      if (onSuccess) onSuccess();
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || 'Erro ao enviar remessa');
@@ -92,7 +94,7 @@ export function SendMerchandiseDialog({ open, onOpenChange, reseller }: SendMerc
     }
 
     sendMutation.mutate({
-      resellerId: reseller.resellerId,
+      resellerId: resellerId,
       items: selectedItems.map((item) => ({
         productId: item.productId,
         quantity: item.quantity,
@@ -105,7 +107,7 @@ export function SendMerchandiseDialog({ open, onOpenChange, reseller }: SendMerc
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Enviar Mercadoria - {reseller.resellerName || reseller.resellerId}</DialogTitle>
+          <DialogTitle>Enviar Mercadoria - Revendedor</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">

@@ -1,4 +1,4 @@
-import { BarChart, Building2, Calendar, LogOut, Moon, Package, Sun } from "lucide-react";
+import { BarChart, Building2, Calendar, LogOut, Moon, Network, Package, Settings, Sun } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../../contexts/ThemeContext";
 import { useAuth } from "../../hooks/use-auth";
@@ -55,6 +55,25 @@ export const DashboardHeader = () => {
             >
               <Package className="h-4 w-4" />
               Estoque
+            </Button>
+            {/* TEMPORARIAMENTE DESABILITADO */}
+            {/* <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate("/distribution")}
+              className="gap-2 transition-colors hover:bg-gradient-to-r hover:from-purple-500/10 hover:to-blue-500/10"
+            >
+              <Network className="h-4 w-4" />
+              Distribuição
+            </Button> */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate("/settings")}
+              className="gap-2"
+            >
+              <Settings className="h-4 w-4" />
+              Configurações
             </Button>
             <Button
               variant="ghost"
