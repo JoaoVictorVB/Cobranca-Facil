@@ -228,15 +228,16 @@ model User {
 }
 
 model BusinessRelationship {
-  id         String             @id @default(uuid())
-  supplierId String             @map("supplier_id")
-  resellerId String             @map("reseller_id")
-  status     RelationshipStatus @default(PENDENTE)
-  createdAt  DateTime           @default(now()) @map("created_at")
-  acceptedAt DateTime?          @map("accepted_at")
+  id          String             @id @default(uuid())
+  supplierId  String             @map("supplier_id")
+  resellerId  String?            @map("reseller_id")
+  status      RelationshipStatus @default(PENDENTE)
+  inviteToken String?            @unique @map("invite_token") // Código de 6 dígitos
+  createdAt   DateTime           @default(now()) @map("created_at")
+  acceptedAt  DateTime?          @map("accepted_at")
 
-  supplier User @relation("SupplierRelations", fields: [supplierId], references: [id], onDelete: Cascade)
-  reseller User @relation("ResellerRelations", fields: [resellerId], references: [id], onDelete: Cascade)
+  supplier User  @relation("SupplierRelations", fields: [supplierId], references: [id], onDelete: Cascade)
+  reseller User? @relation("ResellerRelations", fields: [resellerId], references: [id], onDelete: Cascade)
 
   @@unique([supplierId, resellerId])
   @@map("business_relationships")
