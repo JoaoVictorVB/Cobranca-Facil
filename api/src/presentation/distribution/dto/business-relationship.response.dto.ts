@@ -14,6 +14,9 @@ export class BusinessRelationshipResponseDto {
   @ApiProperty({ enum: RelationshipStatus })
   status: RelationshipStatus;
 
+  @ApiProperty({ required: false })
+  inviteToken?: string;
+
   @ApiProperty()
   createdAt: Date;
 
@@ -32,6 +35,7 @@ export class BusinessRelationshipResponseDto {
       supplierId: relationship.supplierId,
       resellerId: relationship.resellerId,
       status: relationship.status,
+      inviteToken: relationship.inviteToken,
       createdAt: relationship.createdAt,
       acceptedAt: relationship.acceptedAt,
       supplierName,
