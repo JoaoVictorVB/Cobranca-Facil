@@ -1,0 +1,114 @@
+name: Cobrança Fácil CI/CD
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+env:
+  NODE_VERSION: "18"
+
+jobs:
+  test-backend:
+    name: Test Backend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./api
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: api/package-lock.json
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Gerar Prisma Client
+        run: npx prisma generate
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Testes
+        run: npm test
+
+  test-frontend:
+    name: Test Frontend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./web
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: web/package-lock.json
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+  # ==================== DEPLOY PRODUCTION ====================
+  deploy-production:
+    name: Deploy para Production
+    runs-on: ubuntu-latest
+    needs: [test-backend, test-frontend]
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: Deploy para servidor PRODUCTION
+        uses: easingthemes/ssh-deploy@main
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.PROD_SSH_KEY }}
+          ARGS: "-rltgoDzvO --delete"
+          SOURCE: "."
+          REMOTE_HOST: ${{ secrets.PROD_HOST }}
+          REMOTE_USER: ${{ secrets.PROD_USER }}
+          REMOTE_PORT: ${{ secrets.PROD_PORT }}
+          TARGET: ${{ secrets.PROD_APP_PATH }}
+          SCRIPT_AFTER: |
+            cd ${{ secrets.PROD_APP_PATH }}
+
+            # Backup do banco de dados
+            docker exec cobranca-postgres pg_dump -U postgres cobranca_prod > backup_$(date +%Y%m%d_%H%M%S).sql
+
+            # Criar arquivos .env
+            echo "DATABASE_URL=${{ secrets.PROD_DATABASE_URL }}" > api/.env
+            echo "JWT_SECRET=${{ secrets.PROD_JWT_SECRET }}" >> api/.env
+            echo "PORT=3001" >> api/.env
+            echo "NODE_ENV=production" >> api/.env
+
+            echo "VITE_API_URL=${{ secrets.PROD_VITE_API_URL }}" > web/.env
+
+            # Deploy zero-downtime (API primeiro)
+            docker-compose -f docker-compose.prod.yml up -d --build --no-deps api
+            sleep 10
+            docker-compose -f docker-compose.prod.yml up -d --build --no-deps web
+
+            # Rodar migrations
+            docker exec cobranca-api npx prisma migrate deploy
+
+            # Health check
+            curl -f http://localhost:3001/health || exit 1
+
+            # Cleanup
+            docker image prune -af --filter "until=48h"

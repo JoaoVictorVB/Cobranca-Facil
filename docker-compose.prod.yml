@@ -1,26 +1,6 @@
 version: '3.8'
 
 services:
-  postgres:
-    image: postgres:15-alpine
-    container_name: cobranca-postgres
-    restart: always
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: cobranca_facil
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - cobranca-network
-
   api:
     build: ./api
     container_name: cobranca-api
@@ -31,9 +11,6 @@ services:
       NODE_ENV: production
     ports:
       - "3001:3001"
-    depends_on:
-      postgres:
-        condition: service_healthy
     networks:
       - cobranca-network
 
@@ -51,9 +28,7 @@ services:
     networks:
       - cobranca-network
 
-volumes:
-  postgres_data:
-
 networks:
   cobranca-network:
-    driver: bridge
+    external: true
+    name: cobranca-facil_default

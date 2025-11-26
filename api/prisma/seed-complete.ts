@@ -19,7 +19,7 @@ async function main() {
   // Criar usuários
   console.log('👤 Creating users...');
   const hashedPassword = await bcrypt.hash('admin123', 10);
-  
+
   const adminUser = await prisma.user.create({
     data: {
       email: 'admin@cobranca.com',
@@ -40,7 +40,7 @@ async function main() {
 
   // Criar categorias principais
   console.log('📁 Creating categories...');
-  
+
   const electronicsCategory = await prisma.category.create({
     data: {
       name: 'Eletrônicos',
@@ -205,8 +205,8 @@ async function main() {
       description: 'Intel Core i7, 16GB RAM, 512GB SSD, Tela 15.6"',
       sku: 'NOT-DELL-001',
       categoryId: computersSubcat.id,
-      costPrice: 2800.00,
-      salePrice: 3999.00,
+      costPrice: 2800.0,
+      salePrice: 3999.0,
       stock: 5,
       minStock: 2,
       maxStock: 15,
@@ -226,8 +226,8 @@ async function main() {
       description: 'AMD Ryzen 5, 8GB RAM, 256GB SSD, Tela 14"',
       sku: 'NOT-LEN-002',
       categoryId: computersSubcat.id,
-      costPrice: 1800.00,
-      salePrice: 2599.00,
+      costPrice: 1800.0,
+      salePrice: 2599.0,
       stock: 8,
       minStock: 3,
       maxStock: 20,
@@ -246,8 +246,8 @@ async function main() {
       description: 'Mouse sem fio ergonômico, 7 botões programáveis',
       sku: 'MOU-LOG-003',
       categoryId: computersSubcat.id,
-      costPrice: 180.00,
-      salePrice: 349.90,
+      costPrice: 180.0,
+      salePrice: 349.9,
       stock: 25,
       minStock: 10,
       maxStock: 50,
@@ -267,8 +267,8 @@ async function main() {
       description: '128GB, 8GB RAM, Câmera 50MP, Tela 6.1"',
       sku: 'CEL-SAM-004',
       categoryId: phonesSubcat.id,
-      costPrice: 2200.00,
-      salePrice: 3299.00,
+      costPrice: 2200.0,
+      salePrice: 3299.0,
       stock: 12,
       minStock: 5,
       maxStock: 25,
@@ -288,8 +288,8 @@ async function main() {
       description: '256GB, Câmera 12MP, Tela 6.1"',
       sku: 'CEL-APP-005',
       categoryId: phonesSubcat.id,
-      costPrice: 3500.00,
-      salePrice: 4999.00,
+      costPrice: 3500.0,
+      salePrice: 4999.0,
       stock: 1,
       minStock: 3,
       maxStock: 10,
@@ -310,8 +310,8 @@ async function main() {
       description: 'TV LED 55 polegadas, 4K UHD, WebOS',
       sku: 'TV-LG-006',
       categoryId: tvSubcat.id,
-      costPrice: 1600.00,
-      salePrice: 2399.00,
+      costPrice: 1600.0,
+      salePrice: 2399.0,
       stock: 6,
       minStock: 2,
       maxStock: 12,
@@ -330,8 +330,8 @@ async function main() {
       description: 'Soundbar 2.1 canais, 330W, Subwoofer sem fio',
       sku: 'SND-SON-007',
       categoryId: tvSubcat.id,
-      costPrice: 600.00,
-      salePrice: 999.00,
+      costPrice: 600.0,
+      salePrice: 999.0,
       stock: 15,
       minStock: 5,
       maxStock: 30,
@@ -351,8 +351,8 @@ async function main() {
       description: 'Cama box casal com colchão de molas ensacadas',
       sku: 'MOV-CAM-008',
       categoryId: bedroomSubcat.id,
-      costPrice: 1200.00,
-      salePrice: 1899.00,
+      costPrice: 1200.0,
+      salePrice: 1899.0,
       stock: 4,
       minStock: 2,
       maxStock: 8,
@@ -371,8 +371,8 @@ async function main() {
       description: 'Guarda-roupa 6 portas com espelho, cor branco',
       sku: 'MOV-GUA-009',
       categoryId: bedroomSubcat.id,
-      costPrice: 800.00,
-      salePrice: 1299.00,
+      costPrice: 800.0,
+      salePrice: 1299.0,
       stock: 3,
       minStock: 1,
       maxStock: 6,
@@ -391,8 +391,8 @@ async function main() {
       description: 'Sofá retrátil e reclinável, tecido suede, cor cinza',
       sku: 'MOV-SOF-010',
       categoryId: livingRoomSubcat.id,
-      costPrice: 1400.00,
-      salePrice: 2199.00,
+      costPrice: 1400.0,
+      salePrice: 2199.0,
       stock: 2,
       minStock: 1,
       maxStock: 5,
@@ -410,8 +410,8 @@ async function main() {
       description: 'Mesa de centro madeira e vidro, 90x50cm',
       sku: 'MOV-MES-011',
       categoryId: livingRoomSubcat.id,
-      costPrice: 250.00,
-      salePrice: 449.00,
+      costPrice: 250.0,
+      salePrice: 449.0,
       stock: 10,
       minStock: 3,
       maxStock: 15,
@@ -430,8 +430,8 @@ async function main() {
       description: 'Cadeira gamer ergonômica com LED RGB, ajuste de altura',
       sku: 'MOV-CAD-012',
       categoryId: officeSubcat.id,
-      costPrice: 450.00,
-      salePrice: 799.00,
+      costPrice: 450.0,
+      salePrice: 799.0,
       stock: 18,
       minStock: 8,
       maxStock: 30,
@@ -450,8 +450,8 @@ async function main() {
       description: 'Mesa para escritório/home office, 120x60cm',
       sku: 'MOV-ESC-013',
       categoryId: officeSubcat.id,
-      costPrice: 300.00,
-      salePrice: 549.00,
+      costPrice: 300.0,
+      salePrice: 549.0,
       stock: 7,
       minStock: 3,
       maxStock: 12,
@@ -470,8 +470,8 @@ async function main() {
       description: 'Camiseta 100% algodão, diversas cores',
       sku: 'VES-CAM-014',
       categoryId: mensClothingSubcat.id,
-      costPrice: 15.00,
-      salePrice: 39.90,
+      costPrice: 15.0,
+      salePrice: 39.9,
       stock: 50,
       minStock: 20,
       maxStock: 100,
@@ -489,8 +489,8 @@ async function main() {
       description: 'Calça jeans slim fit, diversos tamanhos',
       sku: 'VES-CAL-015',
       categoryId: mensClothingSubcat.id,
-      costPrice: 45.00,
-      salePrice: 129.90,
+      costPrice: 45.0,
+      salePrice: 129.9,
       stock: 35,
       minStock: 15,
       maxStock: 60,
@@ -509,8 +509,8 @@ async function main() {
       description: 'Vestido midi estampado, tecido leve',
       sku: 'VES-VES-016',
       categoryId: womensClothingSubcat.id,
-      costPrice: 35.00,
-      salePrice: 89.90,
+      costPrice: 35.0,
+      salePrice: 89.9,
       stock: 28,
       minStock: 12,
       maxStock: 50,
@@ -528,8 +528,8 @@ async function main() {
       description: 'Blusa social manga longa, cores variadas',
       sku: 'VES-BLU-017',
       categoryId: womensClothingSubcat.id,
-      costPrice: 25.00,
-      salePrice: 69.90,
+      costPrice: 25.0,
+      salePrice: 69.9,
       stock: 42,
       minStock: 18,
       maxStock: 70,
@@ -548,8 +548,8 @@ async function main() {
       description: 'Tênis para corrida e caminhada, tecnologia Air',
       sku: 'CAL-TEN-018',
       categoryId: shoesSubcat.id,
-      costPrice: 180.00,
-      salePrice: 349.90,
+      costPrice: 180.0,
+      salePrice: 349.9,
       stock: 22,
       minStock: 10,
       maxStock: 40,
@@ -568,8 +568,8 @@ async function main() {
       description: 'Sandália de borracha, diversos tamanhos e cores',
       sku: 'CAL-SAN-019',
       categoryId: shoesSubcat.id,
-      costPrice: 12.00,
-      salePrice: 29.90,
+      costPrice: 12.0,
+      salePrice: 29.9,
       stock: 80,
       minStock: 30,
       maxStock: 150,
@@ -589,8 +589,8 @@ async function main() {
       description: 'Conjunto 5 panelas antiaderentes com tampas',
       sku: 'CAS-PAN-020',
       categoryId: homeCategory.id,
-      costPrice: 120.00,
-      salePrice: 249.90,
+      costPrice: 120.0,
+      salePrice: 249.9,
       stock: 16,
       minStock: 8,
       maxStock: 30,
@@ -609,8 +609,8 @@ async function main() {
       description: 'Lençol, fronha e edredom, 100% algodão',
       sku: 'CAS-CAM-021',
       categoryId: homeCategory.id,
-      costPrice: 80.00,
-      salePrice: 159.90,
+      costPrice: 80.0,
+      salePrice: 159.9,
       stock: 24,
       minStock: 10,
       maxStock: 50,
@@ -629,8 +629,8 @@ async function main() {
       description: 'Par de halteres emborrachados 5kg cada',
       sku: 'ESP-HAL-022',
       categoryId: sportsCategory.id,
-      costPrice: 60.00,
-      salePrice: 119.90,
+      costPrice: 60.0,
+      salePrice: 119.9,
       stock: 14,
       minStock: 6,
       maxStock: 25,
@@ -648,8 +648,8 @@ async function main() {
       description: 'Tapete yoga antiderrapante 180x60cm',
       sku: 'ESP-TAP-023',
       categoryId: sportsCategory.id,
-      costPrice: 35.00,
-      salePrice: 79.90,
+      costPrice: 35.0,
+      salePrice: 79.9,
       stock: 30,
       minStock: 12,
       maxStock: 50,
@@ -667,8 +667,8 @@ async function main() {
       description: 'Bike 21 marchas, freio a disco, suspensão dianteira',
       sku: 'ESP-BIC-024',
       categoryId: sportsCategory.id,
-      costPrice: 800.00,
-      salePrice: 1499.00,
+      costPrice: 800.0,
+      salePrice: 1499.0,
       stock: 0,
       minStock: 2,
       maxStock: 8,
@@ -867,11 +867,11 @@ async function main() {
       clientId: client1.id,
       userId: adminUser.id,
       itemDescription: 'Notebook Dell Inspiron 15',
-      totalValue: 3999.00,
+      totalValue: 3999.0,
       totalInstallments: 10,
       paymentFrequency: 'mensal',
       firstDueDate: new Date('2024-01-15'),
-      totalPaid: 3999.00,
+      totalPaid: 3999.0,
       saleDate: new Date('2024-01-01'),
     },
   });
@@ -880,16 +880,16 @@ async function main() {
   for (let i = 1; i <= 10; i++) {
     const dueDate = new Date('2024-01-15');
     dueDate.setMonth(dueDate.getMonth() + (i - 1));
-    
+
     await prisma.installment.create({
       data: {
         saleId: sale1.id,
         installmentNumber: i,
-        amount: 399.90,
+        amount: 399.9,
         dueDate: dueDate,
         status: 'pago',
         paidDate: dueDate,
-        paidAmount: 399.90,
+        paidAmount: 399.9,
       },
     });
   }
@@ -900,11 +900,11 @@ async function main() {
       clientId: client2.id,
       userId: adminUser.id,
       itemDescription: 'Smart TV LG 55" 4K',
-      totalValue: 2399.00,
+      totalValue: 2399.0,
       totalInstallments: 12,
       paymentFrequency: 'mensal',
       firstDueDate: new Date('2024-06-10'),
-      totalPaid: 1399.30,
+      totalPaid: 1399.3,
       saleDate: new Date('2024-06-01'),
     },
   });
@@ -913,7 +913,7 @@ async function main() {
   for (let i = 1; i <= 12; i++) {
     const dueDate = new Date('2024-06-10');
     dueDate.setMonth(dueDate.getMonth() + (i - 1));
-    
+
     const isPaid = i <= 7;
     await prisma.installment.create({
       data: {
@@ -921,7 +921,7 @@ async function main() {
         installmentNumber: i,
         amount: 199.92,
         dueDate: dueDate,
-        status: isPaid ? 'pago' : (i === 8 && dueDate < new Date() ? 'atrasado' : 'pendente'),
+        status: isPaid ? 'pago' : i === 8 && dueDate < new Date() ? 'atrasado' : 'pendente',
         paidDate: isPaid ? dueDate : null,
         paidAmount: isPaid ? 199.92 : null,
       },
@@ -934,11 +934,11 @@ async function main() {
       clientId: client3.id,
       userId: adminUser.id,
       itemDescription: 'Sofá Retrátil 3 Lugares',
-      totalValue: 2199.00,
+      totalValue: 2199.0,
       totalInstallments: 15,
       paymentFrequency: 'quinzenal',
       firstDueDate: new Date('2024-08-01'),
-      totalPaid: 1099.50,
+      totalPaid: 1099.5,
       saleDate: new Date('2024-07-25'),
     },
   });
@@ -946,8 +946,8 @@ async function main() {
   // Criar parcelas da venda 3 (algumas pagas, algumas atrasadas)
   for (let i = 1; i <= 15; i++) {
     const dueDate = new Date('2024-08-01');
-    dueDate.setDate(dueDate.getDate() + ((i - 1) * 15)); // Quinzenal
-    
+    dueDate.setDate(dueDate.getDate() + (i - 1) * 15); // Quinzenal
+
     let status: 'pago' | 'pendente' | 'atrasado' = 'pendente';
     let paidDate: Date | null = null;
     let paidAmount: number | null = null;
@@ -955,7 +955,7 @@ async function main() {
     if (i <= 7) {
       status = 'pago';
       paidDate = dueDate;
-      paidAmount = 146.60;
+      paidAmount = 146.6;
     } else if (dueDate < new Date()) {
       status = 'atrasado';
     }
@@ -964,7 +964,7 @@ async function main() {
       data: {
         saleId: sale3.id,
         installmentNumber: i,
-        amount: 146.60,
+        amount: 146.6,
         dueDate: dueDate,
         status: status,
         paidDate: paidDate,
@@ -979,7 +979,7 @@ async function main() {
       clientId: client4.id,
       userId: adminUser.id,
       itemDescription: 'Samsung Galaxy S23 128GB',
-      totalValue: 3299.00,
+      totalValue: 3299.0,
       totalInstallments: 12,
       paymentFrequency: 'mensal',
       firstDueDate: new Date('2024-10-05'),
@@ -991,7 +991,7 @@ async function main() {
   for (let i = 1; i <= 12; i++) {
     const dueDate = new Date('2024-10-05');
     dueDate.setMonth(dueDate.getMonth() + (i - 1));
-    
+
     const isPaid = i <= 3;
     await prisma.installment.create({
       data: {
@@ -1012,11 +1012,11 @@ async function main() {
       clientId: client5.id,
       userId: adminUser.id,
       itemDescription: 'Cama Box Casal Premium',
-      totalValue: 1899.00,
+      totalValue: 1899.0,
       totalInstallments: 10,
       paymentFrequency: 'mensal',
       firstDueDate: new Date('2024-09-20'),
-      totalPaid: 569.70,
+      totalPaid: 569.7,
       saleDate: new Date('2024-09-15'),
     },
   });
@@ -1024,7 +1024,7 @@ async function main() {
   for (let i = 1; i <= 10; i++) {
     const dueDate = new Date('2024-09-20');
     dueDate.setMonth(dueDate.getMonth() + (i - 1));
-    
+
     let status: 'pago' | 'pendente' | 'atrasado' | 'parcial' = 'pendente';
     let paidDate: Date | null = null;
     let paidAmount: number | null = null;
@@ -1032,15 +1032,15 @@ async function main() {
     if (i === 1) {
       status = 'pago';
       paidDate = dueDate;
-      paidAmount = 189.90;
+      paidAmount = 189.9;
     } else if (i === 2) {
       status = 'pago';
       paidDate = dueDate;
-      paidAmount = 189.90;
+      paidAmount = 189.9;
     } else if (i === 3) {
       status = 'parcial';
       paidDate = dueDate;
-      paidAmount = 189.90; // Pagou só parte
+      paidAmount = 189.9; // Pagou só parte
     } else if (dueDate < new Date()) {
       status = 'atrasado';
     }
@@ -1049,7 +1049,7 @@ async function main() {
       data: {
         saleId: sale5.id,
         installmentNumber: i,
-        amount: 189.90,
+        amount: 189.9,
         dueDate: dueDate,
         status: status,
         paidDate: paidDate,
@@ -1064,7 +1064,7 @@ async function main() {
       clientId: client6.id,
       userId: adminUser.id,
       itemDescription: 'Mesa de Centro Moderna + Jogo de Panelas',
-      totalValue: 699.80,
+      totalValue: 699.8,
       totalInstallments: 8,
       paymentFrequency: 'quinzenal',
       firstDueDate: new Date('2024-11-01'),
@@ -1075,8 +1075,8 @@ async function main() {
 
   for (let i = 1; i <= 8; i++) {
     const dueDate = new Date('2024-11-01');
-    dueDate.setDate(dueDate.getDate() + ((i - 1) * 15));
-    
+    dueDate.setDate(dueDate.getDate() + (i - 1) * 15);
+
     const isPaid = i === 1;
     await prisma.installment.create({
       data: {
@@ -1097,7 +1097,7 @@ async function main() {
       clientId: client7.id,
       userId: adminUser.id,
       itemDescription: 'Cadeira Gamer RGB',
-      totalValue: 799.00,
+      totalValue: 799.0,
       totalInstallments: 8,
       paymentFrequency: 'mensal',
       firstDueDate: new Date('2024-07-15'),
@@ -1109,7 +1109,7 @@ async function main() {
   for (let i = 1; i <= 8; i++) {
     const dueDate = new Date('2024-07-15');
     dueDate.setMonth(dueDate.getMonth() + (i - 1));
-    
+
     let status: 'pago' | 'pendente' | 'atrasado' = 'pendente';
     let paidDate: Date | null = null;
     let paidAmount: number | null = null;
