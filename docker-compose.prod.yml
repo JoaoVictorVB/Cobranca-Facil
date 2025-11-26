@@ -5,10 +5,8 @@ services:
     build: ./api
     container_name: cobranca-api
     restart: always
-    environment:
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/cobranca_facil
-      PORT: 3001
-      NODE_ENV: production
+    env_file:
+      - api/.env
     ports:
       - "3001:3001"
     networks:
@@ -18,7 +16,7 @@ services:
     build:
       context: ./web
       args:
-        VITE_API_URL: http://localhost:3001
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:3001}
     container_name: cobranca-web
     restart: always
     ports:
