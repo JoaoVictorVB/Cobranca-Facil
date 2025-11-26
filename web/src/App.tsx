@@ -8,8 +8,10 @@ import { AuthProvider } from "./contexts/AuthContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { Analytics } from "./pages/Analytics";
 import ClientDetails from "./pages/ClientDetails";
+import Distribution from "./pages/Distribution";
 import Index from "./pages/Index";
 import { Login } from "./pages/Login";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import ProductInventory from "./pages/ProductInventory";
 import { Register } from "./pages/Register";
@@ -57,6 +59,23 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <Resellers />
+                  </ProtectedRoute>
+                }
+              />
+              {/* TEMPORARIAMENTE DESABILITADO */}
+              {/* <Route
+                path="/distribution"
+                element={
+                  <ProtectedRoute>
+                    <Distribution />
+                  </ProtectedRoute>
+                }
+              /> */}
+              <Route
+                path="/settings"
+                element={
+                  <ProtectedRoute>
+                    <Settings />
                   </ProtectedRoute>
                 }
               />
