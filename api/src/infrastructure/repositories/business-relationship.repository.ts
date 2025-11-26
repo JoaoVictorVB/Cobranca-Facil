@@ -15,11 +15,11 @@ export class BusinessRelationshipRepository implements IBusinessRelationshipRepo
       data: {
         id: relationship.id,
         supplierId: relationship.supplierId,
-        ...(relationship.resellerId && { resellerId: relationship.resellerId }),
+        resellerId: relationship.resellerId ?? null,
         status: relationship.status,
-        ...(relationship.inviteToken && { inviteToken: relationship.inviteToken }),
+        inviteToken: relationship.inviteToken ?? null,
         createdAt: relationship.createdAt,
-        ...(relationship.acceptedAt && { acceptedAt: relationship.acceptedAt }),
+        acceptedAt: relationship.acceptedAt ?? null,
       },
     });
 
@@ -35,7 +35,7 @@ export class BusinessRelationshipRepository implements IBusinessRelationshipRepo
   }
 
   async findByInviteToken(token: string): Promise<BusinessRelationship | null> {
-    const data = await this.prisma.businessRelationship.findUnique({
+    const data = await this.prisma.businessRelationship.findFirst({
       where: { inviteToken: token },
     });
 
@@ -92,10 +92,10 @@ export class BusinessRelationshipRepository implements IBusinessRelationshipRepo
     const data = await this.prisma.businessRelationship.update({
       where: { id: relationship.id },
       data: {
-        ...(relationship.resellerId && { resellerId: relationship.resellerId }),
+        resellerId: relationship.resellerId ?? null,
         status: relationship.status,
-        ...(relationship.inviteToken !== undefined && { inviteToken: relationship.inviteToken }),
-        ...(relationship.acceptedAt && { acceptedAt: relationship.acceptedAt }),
+        inviteToken: relationship.inviteToken ?? null,
+        acceptedAt: relationship.acceptedAt ?? null,
       },
     });
 
